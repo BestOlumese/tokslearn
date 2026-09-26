@@ -10,6 +10,19 @@ export interface DomainEvents {
   'user.deletion_cancelled': { userId: string }
   'user.export_requested': { userId: string }
   'user.banned': { userId: string; banned: boolean }
+  'instructor.application_submitted': { applicationId: string; userId: string }
+  'instructor.application_decided': { applicationId: string; userId: string; approved: boolean }
+  'kyc.completed': {
+    userId: string
+    kycCheckId: string
+    status: 'verified' | 'failed' | 'manual_review'
+  }
+  'payout_account.added': { userId: string; payoutAccountId: string; replaced: boolean }
+  'course.submitted': { courseId: string; revisionId: string }
+  'course.published': { courseId: string; revisionId: string; instructorId: string }
+  'course.updated': { courseId: string; revisionId: string; instructorId: string }
+  'course.changes_requested': { courseId: string; revisionId: string }
+  'video.status_changed': { videoAssetId: string; status: 'processing' | 'ready' | 'failed' }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */
   'notification.email_requested': {
     id: string

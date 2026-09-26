@@ -15,6 +15,17 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   me: { limit: 60, windowSec: 60 },
   media: { limit: 20, windowSec: 60 },
   users: { limit: 60, windowSec: 60 },
+  instructors: { limit: 30, windowSec: 60 },
+  // Each check costs money at Dojah and is a brute-force target.
+  'kyc.start': { limit: 5, windowSec: 60 * 60 },
+  kyc: { limit: 30, windowSec: 60 },
+  payoutAccounts: { limit: 20, windowSec: 60 },
+  'payoutAccounts.resolve': { limit: 10, windowSec: 60 },
+  // Autosave and drag-and-drop send many small writes.
+  studio: { limit: 240, windowSec: 60 },
+  'studio.lessons.refreshVideo': { limit: 20, windowSec: 60 },
+  'media.createVideoUpload': { limit: 30, windowSec: 60 * 60 },
+  catalog: { limit: 120, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {

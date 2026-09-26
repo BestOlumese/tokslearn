@@ -1,3 +1,6 @@
 export * from './admin'
+export * from './catalog'
+export * from './courses'
 export * from './identity'
+export * from './instructors'
 export * from './media'

@@ -28,3 +28,8 @@ export const authEmailRequested = eventType('auth/email.requested', { schema: em
 export const exportRequested = eventType('user.export_requested', {
   schema: z.object({ userId: z.string() }),
 })
+
+/** Bunny Stream said a video changed; the job re-reads it from Bunny (docs/09 §2). */
+export const bunnyVideoChanged = eventType('webhook/bunny.video_changed', {
+  schema: z.object({ videoGuid: z.string(), eventId: z.string() }),
+})

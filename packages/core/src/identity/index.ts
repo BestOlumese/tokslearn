@@ -22,6 +22,8 @@ export {
   DELETION_GRACE_DAYS,
   getMe,
   getPublicProfile,
+  getUserContact,
+  grantInstructorRole,
   listMySessions,
   loadUserActor,
   type Me,

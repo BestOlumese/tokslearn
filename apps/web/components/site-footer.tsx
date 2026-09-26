@@ -18,6 +18,7 @@ const groups: ReadonlyArray<{ title: string; links: ReadonlyArray<[Route, string
       ['/teach', 'Teach on Tokslearn'],
       ['/teach#earnings', 'What instructors earn'],
       ['/teach#payouts', 'How payouts work'],
+      ['/content-policy', 'Content rules'],
     ],
   },
   {

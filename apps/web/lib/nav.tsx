@@ -1,4 +1,16 @@
-import { Bell, Flag, KeyRound, ScrollText, ShieldCheck, UserRound, Users } from 'lucide-react'
+import {
+  Bell,
+  BookOpen,
+  ClipboardCheck,
+  FileCheck2,
+  Flag,
+  KeyRound,
+  Layers,
+  ScrollText,
+  ShieldCheck,
+  UserRound,
+  Users,
+} from 'lucide-react'
 import type { SideNavGroup } from '@/components/side-nav-links'
 
 // Nav lists live outside 'use client' files so server layouts can render them too.
@@ -29,10 +41,32 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [{ href: '/admin/users', label: 'Users', icon: icon(Users) }],
   },
   {
+    label: 'Instructors',
+    items: [
+      {
+        href: '/admin/instructors/applications',
+        label: 'Applications',
+        icon: icon(ClipboardCheck),
+      },
+      { href: '/admin/reviews/courses', label: 'Course reviews', icon: icon(FileCheck2) },
+    ],
+  },
+  {
     label: 'Platform',
     items: [
       { href: '/admin/audit', label: 'Audit log', icon: icon(ScrollText) },
       { href: '/admin/settings/flags', label: 'Feature flags', icon: icon(Flag) },
+    ],
+  },
+]
+
+/** Instructor studio (docs/20 §5). More items arrive with their phases. */
+export const studioNavGroups: ReadonlyArray<SideNavGroup> = [
+  {
+    label: 'Studio',
+    items: [
+      { href: '/teach/courses', label: 'Courses', icon: icon(BookOpen) },
+      { href: '/teach/bundles', label: 'Bundles', icon: icon(Layers) },
     ],
   },
 ]

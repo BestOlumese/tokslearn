@@ -23,7 +23,7 @@ const csp = [
   `img-src 'self' data: blob: ${cdnOrigin} https://*.b-cdn.net`,
   "font-src 'self'",
   // Uploads PUT straight to R2 through presigned URLs (docs/14 §5).
-  "connect-src 'self' https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://api.paystack.co https://*.r2.cloudflarestorage.com",
+  "connect-src 'self' https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://api.paystack.co https://*.r2.cloudflarestorage.com https://video.bunnycdn.com",
   'frame-src https://checkout.paystack.com https://iframe.mediadelivery.net https://*.daily.co',
   "media-src 'self' blob: https://*.b-cdn.net",
   "worker-src 'self' blob:",
@@ -65,7 +65,21 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // The instructor application takes a selfie for the identity check (docs/07 §5). Later
+      // entries override earlier ones for the same header key.
+      {
+        source: '/teach/apply',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value:
+              'camera=(self), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()',
+          },
+        ],
+      },
+    ]
   },
 }
 

@@ -28,7 +28,7 @@ export async function runMigrations(url: string): Promise<void> {
 if (import.meta.url === `file://${process.argv[1]}`) {
   // DATABASE_URL_UNPOOLED is what the Neon ↔ Vercel integration sets on preview branches.
   const url =
-    process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL
+    process.env.DATABASE_URL_DIRECT || process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL
   if (!url) {
     console.error(
       'Set DATABASE_URL_DIRECT (or DATABASE_URL_UNPOOLED / DATABASE_URL) to run migrations. On Vercel: Project → Settings → Environment Variables.',

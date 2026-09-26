@@ -1,11 +1,16 @@
 import { render, toPlainText } from '@react-email/components'
 import type { ReactElement } from 'react'
 import type { EmailData, EmailId } from './catalog'
+import * as applicationDecision from './templates/application-decision'
+import * as applicationReceived from './templates/application-received'
+import * as courseReviewDecision from './templates/course-review-decision'
 import * as dataExportReady from './templates/data-export-ready'
 import * as deletionRequested from './templates/deletion-requested'
 import * as emailChangedOld from './templates/email-changed-old'
+import * as kycResult from './templates/kyc-result'
 import * as newSignIn from './templates/new-sign-in'
 import * as passwordChanged from './templates/password-changed'
+import * as payoutAccountChanged from './templates/payout-account-changed'
 import * as resetPassword from './templates/reset-password'
 import * as signInCode from './templates/sign-in-code'
 import * as twoFactorChanged from './templates/two-factor-changed'
@@ -46,6 +51,23 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'data-export-ready': {
     subject: dataExportReady.subject,
     element: (d) => <dataExportReady.DataExportReady {...d} />,
+  },
+  'application-received': {
+    subject: applicationReceived.subject,
+    element: (d) => <applicationReceived.ApplicationReceived {...d} />,
+  },
+  'application-decision': {
+    subject: applicationDecision.subject,
+    element: (d) => <applicationDecision.ApplicationDecision {...d} />,
+  },
+  'kyc-result': { subject: kycResult.subject, element: (d) => <kycResult.KycResult {...d} /> },
+  'payout-account-changed': {
+    subject: payoutAccountChanged.subject,
+    element: (d) => <payoutAccountChanged.PayoutAccountChanged {...d} />,
+  },
+  'course-review-decision': {
+    subject: courseReviewDecision.subject,
+    element: (d) => <courseReviewDecision.CourseReviewDecision {...d} />,
   },
 }
 

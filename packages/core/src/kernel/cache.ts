@@ -12,4 +12,8 @@ export const noopCache: CacheAdapter = { invalidate: async () => {} }
 export const cacheTags = {
   featureFlags: 'feature-flags',
   settings: 'settings',
+  /** Category tree, course listings, home rows (docs/03 §5). */
+  catalog: 'catalog',
+  course: (id: string) => `course:${id}`,
+  instructor: (id: string) => `instructor:${id}`,
 } as const

@@ -25,3 +25,4 @@ export {
   setFeatureFlag,
   writeAudit,
 } from './service'
+export { markWebhookProcessed, recordWebhookEvent } from './webhooks'

@@ -10,14 +10,22 @@ export {
 } from './messages'
 
 const codes = Object.keys(errorCatalog) as [ErrorCode, ...ErrorCode[]]
-export const ErrorCodeSchema = z.enum(codes)
+/**
+ * Named type on purpose: every procedure's error map references this schema, and an inferred
+ * enum of all codes would be repeated in the contract's declaration file for each one.
+ */
+export const ErrorCodeSchema: z.ZodType<ErrorCode, ErrorCode> = z.enum(codes)
 
 /**
  * `error.data` for every API error. `code` is stable; the other keys fill placeholders
  * (`retryAfterSec`, `unlocksAt`, `attemptId`…) or carry Zod issues for BAD_REQUEST.
  */
-export const ErrorDataSchema = z.looseObject({
+export interface ErrorData {
+  code: ErrorCode
+  requestId?: string | undefined
+  [key: string]: unknown
+}
+export const ErrorDataSchema: z.ZodType<ErrorData, ErrorData> = z.looseObject({
   code: ErrorCodeSchema,
   requestId: z.string().optional(),
 })
-export type ErrorData = z.infer<typeof ErrorDataSchema>

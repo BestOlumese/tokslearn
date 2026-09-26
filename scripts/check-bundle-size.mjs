@@ -14,6 +14,8 @@ const routes = {
   '/': 'index',
   '/courses': 'courses',
   '/verify': 'verify',
+  '/teach': 'teach',
+  '/content-policy': 'content-policy',
   '/sign-in': 'sign-in',
   '/sign-in/code': 'sign-in/code',
   '/sign-up': 'sign-up',

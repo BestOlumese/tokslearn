@@ -27,7 +27,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `INSTRUCTOR_REQUIRED` — FORBIDDEN — "Apply to teach to use the studio."
 - `KYC_REQUIRED` — FORBIDDEN — "Complete identity verification to continue."
 - `STAFF_ONLY` — FORBIDDEN — "This area is for Tokslearn staff."
-- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND` — "We couldn't find that {thing}."
+- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND` — "We couldn't find that {thing}."
 
 ## Instructor onboarding
 - `APPLICATION_EXISTS` — CONFLICT — "You already have an application in progress."
@@ -36,6 +36,10 @@ Format: `CODE` — oRPC status — when — user message.
 - `KYC_PROVIDER_UNAVAILABLE` — SERVICE_UNAVAILABLE — "Identity verification is temporarily unavailable. Try again shortly."
 - `BANK_ACCOUNT_UNRESOLVED` — UNPROCESSABLE_CONTENT — "We couldn't find that account number at this bank."
 - `BANK_NAME_MISMATCH` — UNPROCESSABLE_CONTENT — "The account name doesn't match your verified name. We've sent it for manual review."
+- `APPLICATION_NOT_EDITABLE` — CONFLICT — submitted or decided — "Your application is in review, so it can't be changed now."
+- `APPLICATION_INCOMPLETE` — UNPROCESSABLE_CONTENT — (data: `missing` steps) — "Finish every step before you submit."
+- `APPLICATION_ALREADY_DECIDED` — CONFLICT — "This application already has a decision."
+- `BANK_PROVIDER_UNAVAILABLE` — SERVICE_UNAVAILABLE — "We can't reach the bank directory right now. Try again in a few minutes."
 
 ## Authoring and media
 - `COURSE_NOT_EDITABLE` — CONFLICT — in review/archived — "This course is in review. You can edit it after the review."
@@ -46,6 +50,10 @@ Format: `CODE` — oRPC status — when — user message.
 - `UNSUPPORTED_FILE_TYPE` — BAD_REQUEST — "This file type isn't supported. Use {types}."
 - `VIDEO_NOT_READY` — CONFLICT — "This video is still processing."
 - `VIDEO_PROCESSING_FAILED` — UNPROCESSABLE_CONTENT — "Processing failed. Upload the video again."
+- `VIDEO_PROVIDER_UNAVAILABLE` — SERVICE_UNAVAILABLE — "Video uploads are temporarily unavailable. Try again shortly."
+- `COURSE_NOT_IN_REVIEW` — CONFLICT — reviewer acts on a revision that is no longer submitted — "This course isn't waiting for review any more."
+- `ALREADY_COURSE_STAFF` — CONFLICT — "That person already helps with this course."
+- `INVALID_MOVE` — UNPROCESSABLE_CONTENT — reorder/move with unknown or foreign ids — "That move isn't possible. Reload the curriculum and try again."
 
 ## Catalog, cart, checkout
 - `COURSE_UNAVAILABLE` — UNPROCESSABLE_CONTENT — unpublished/archived — "This course isn't available for purchase."

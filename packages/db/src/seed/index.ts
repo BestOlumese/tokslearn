@@ -1,7 +1,17 @@
 import { sql } from 'drizzle-orm'
 import { createDb, type Db } from '../client'
-import { featureFlags, settings, user, userRoles } from '../schema'
-import { seedFeatureFlags, seedSettings, seedUsers } from './data'
+import {
+  categories,
+  featureFlags,
+  instructorApplications,
+  instructorProfiles,
+  kycChecks,
+  payoutAccounts,
+  settings,
+  user,
+  userRoles,
+} from '../schema'
+import { seedCategories, seedFeatureFlags, seedInstructors, seedSettings, seedUsers } from './data'
 
 /** Demo users and roles (idempotent). Callers must refuse to run this in production. */
 export async function seedDemoUsers(db: Db): Promise<void> {
@@ -21,6 +31,128 @@ export async function seedDemoUsers(db: Db): Promise<void> {
     .insert(userRoles)
     .values(seedUsers.flatMap((u) => u.roles.map((role) => ({ userId: u.id, role }))))
     .onConflictDoNothing()
+  await seedDemoInstructors(db)
+}
+
+/** Two demo instructors: one approved (KYC verified, payout account), one awaiting review. */
+async function seedDemoInstructors(db: Db): Promise<void> {
+  const { approved, pending } = seedInstructors
+  const approvedAt = new Date('2026-09-01T09:00:00Z')
+  await db
+    .insert(user)
+    .values(
+      [approved, pending].map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        username: u.username,
+        emailVerified: true,
+      })),
+    )
+    .onConflictDoNothing()
+  await db
+    .insert(userRoles)
+    .values([
+      { userId: approved.id, role: 'learner' as const },
+      { userId: approved.id, role: 'instructor' as const },
+      { userId: pending.id, role: 'learner' as const },
+    ])
+    .onConflictDoNothing()
+  await db
+    .insert(instructorApplications)
+    .values([
+      {
+        id: '01920000-0000-7000-8002-000000000001',
+        userId: approved.id,
+        status: 'approved',
+        step: 4,
+        expertise: 'Excel and financial modelling for accountants',
+        sampleUrl: 'https://example.com/tobi-sample',
+        answers: { headline: 'Chartered accountant, 9 years in audit' },
+        submittedAt: new Date('2026-08-28T10:00:00Z'),
+        decidedAt: approvedAt,
+      },
+      {
+        id: '01920000-0000-7000-8002-000000000002',
+        userId: pending.id,
+        status: 'submitted',
+        step: 4,
+        expertise: 'UI design with Figma',
+        sampleUrl: 'https://example.com/grace-sample',
+        answers: { headline: 'Product designer at a Lagos fintech' },
+        submittedAt: new Date('2026-09-20T14:00:00Z'),
+      },
+    ])
+    .onConflictDoNothing()
+  await db
+    .insert(kycChecks)
+    .values([
+      {
+        id: '01920000-0000-7000-8003-000000000001',
+        userId: approved.id,
+        method: 'bvn',
+        status: 'verified',
+        providerReference: 'seed-kyc-approved',
+        matchedName: 'TOBI ADELEKE',
+        faceMatchScore: '96.40',
+        verifiedAt: new Date('2026-08-28T10:05:00Z'),
+      },
+      {
+        id: '01920000-0000-7000-8003-000000000002',
+        userId: pending.id,
+        method: 'nin',
+        status: 'pending',
+        providerReference: 'seed-kyc-pending',
+      },
+    ])
+    .onConflictDoNothing()
+  await db
+    .insert(payoutAccounts)
+    .values({
+      id: '01920000-0000-7000-8004-000000000001',
+      userId: approved.id,
+      bankCode: '058',
+      bankName: 'Guaranty Trust Bank',
+      accountNumberLast4: '4821',
+      accountName: 'TOBI ADELEKE',
+      paystackRecipientCode: 'RCP_seedtobi',
+      status: 'active',
+      nameMatchScore: '1.000',
+      payoutsAllowedFrom: approvedAt,
+    })
+    .onConflictDoNothing()
+  await db
+    .insert(instructorProfiles)
+    .values({
+      userId: approved.id,
+      slug: approved.slug,
+      displayName: approved.name,
+      approvedAt,
+    })
+    .onConflictDoNothing()
+}
+
+/** Category tree for every environment. Existing rows (possibly edited by admins) are kept. */
+export async function seedCatalog(db: Db): Promise<void> {
+  const rows = seedCategories.flatMap((top, i) => [
+    { id: top.id, slug: top.slug, name: top.name, parentId: null, position: i },
+    ...top.children.map((c, j) => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      parentId: top.id,
+      position: j,
+    })),
+  ])
+  // Parents first so the self-reference resolves.
+  await db
+    .insert(categories)
+    .values(rows.filter((r) => r.parentId === null))
+    .onConflictDoNothing()
+  await db
+    .insert(categories)
+    .values(rows.filter((r) => r.parentId !== null))
+    .onConflictDoNothing()
 }
 
 /** Idempotent: re-running updates descriptions but never flips a flag someone changed. */
@@ -37,6 +169,8 @@ export async function seed(db: Db): Promise<void> {
       target: featureFlags.key,
       set: { description: sql`excluded.description` },
     })
+
+  await seedCatalog(db)
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
@@ -48,7 +182,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const handle = createDb(url, { max: 1, tcp: true })
   try {
     await seed(handle.db)
-    console.info('Settings and feature flags seeded.')
+    console.info('Settings, feature flags and categories seeded.')
     if (process.env.NEXT_PUBLIC_APP_ENV === 'production') {
       console.info('Production: demo users skipped.')
     } else {

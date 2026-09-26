@@ -39,4 +39,34 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     url: 'https://files.tokslearn.com/exports/example.zip',
     expiresAt: '2026-10-03T09:15:00.000Z',
   },
+  'application-received': {
+    name: 'Tobi',
+    statusUrl: 'https://tokslearn.com/teach/apply',
+  },
+  'application-decision': {
+    name: 'Tobi',
+    approved: true,
+    reason: null,
+    reapplyOn: null,
+    url: 'https://tokslearn.com/teach/courses',
+  },
+  'kyc-result': {
+    name: 'Tobi',
+    outcome: 'manual_review',
+    applyUrl: 'https://tokslearn.com/teach/apply',
+  },
+  'payout-account-changed': {
+    name: 'Tobi',
+    bankName: 'Guaranty Trust Bank',
+    last4: '4821',
+    payoutsFrom: '2026-09-29T09:15:00.000Z',
+    securityUrl: 'https://tokslearn.com/account/settings/security',
+  },
+  'course-review-decision': {
+    name: 'Tobi',
+    courseTitle: 'Excel for Accountants',
+    approved: false,
+    notes: 'Lesson 3 audio is very quiet. Please re-record it.\nAdd one preview lesson.',
+    url: 'https://tokslearn.com/teach/courses/example/publish',
+  },
 }

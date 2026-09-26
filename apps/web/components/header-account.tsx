@@ -50,6 +50,8 @@ export function HeaderAccount() {
 
   const items: ReadonlyArray<[Route, string]> = [
     ['/account', 'My learning'],
+    // Instructors build courses here; everyone else sees how to apply.
+    ['/teach/courses', 'Instructor studio'],
     ['/account/settings/profile', 'Profile'],
     ['/account/settings/security', 'Sign-in and security'],
   ]

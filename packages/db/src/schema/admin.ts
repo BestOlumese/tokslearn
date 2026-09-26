@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm'
-import { boolean, index, integer, jsonb, pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core'
 import { baseColumns, timestamps, tstz } from '../columns'
 import { user } from './identity'
 
@@ -69,4 +79,23 @@ export const idempotencyKeys = pgTable(
     ...timestamps(),
   },
   (t) => [index().on(t.expiresAt)],
+)
+
+/**
+ * Inbound webhooks other than payments (Bunny, Dojah, Daily): one row per provider event, so a
+ * redelivery is acknowledged without being processed twice (docs/06 §7). Paystack uses
+ * `payment_events` (Phase 4).
+ */
+export const webhookEvents = pgTable(
+  'webhook_events',
+  {
+    ...baseColumns(),
+    provider: text().notNull(),
+    eventId: text().notNull(),
+    type: text().notNull(),
+    payload: jsonb().notNull(),
+    processedAt: tstz(),
+    error: text(),
+  },
+  (t) => [uniqueIndex().on(t.provider, t.eventId)],
 )
