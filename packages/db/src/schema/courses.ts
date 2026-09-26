@@ -74,9 +74,7 @@ export const courses = pgTable(
     priceKobo: kobo().notNull().default(sql`0`),
     compareAtKobo: kobo(),
     currency: currency(),
-    isFree: boolean()
-      .notNull()
-      .generatedAlwaysAs(sql`price_kobo = 0`),
+    isFree: boolean().notNull().generatedAlwaysAs(sql`price_kobo = 0`),
     refundPolicyDays: smallint().notNull().default(7),
     certificateMode: certificateModeEnum().notNull().default('none'),
     dripMode: dripModeEnum().notNull().default('none'),
@@ -98,10 +96,7 @@ export const courses = pgTable(
     index().on(t.draftRevisionId),
     check('courses_refund_policy_days', sql`${t.refundPolicyDays} in (0, 3, 7, 14)`),
     check('courses_price_non_negative', sql`${t.priceKobo} >= 0`),
-    check(
-      'courses_completion_threshold',
-      sql`${t.completionThresholdPct} between 50 and 100`,
-    ),
+    check('courses_completion_threshold', sql`${t.completionThresholdPct} between 50 and 100`),
   ],
 )
 

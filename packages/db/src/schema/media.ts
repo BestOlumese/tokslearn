@@ -1,4 +1,14 @@
-import { bigint, boolean, index, integer, jsonb, pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core'
+import {
+  bigint,
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  uuid,
+} from 'drizzle-orm/pg-core'
 import { baseColumns, tstz } from '../columns'
 import { user } from './identity'
 
@@ -43,7 +53,12 @@ export const files = pgTable(
   (t) => [index().on(t.ownerId, t.purpose)],
 )
 
-export const videoStatusEnum = pgEnum('video_status', ['uploading', 'processing', 'ready', 'failed'])
+export const videoStatusEnum = pgEnum('video_status', [
+  'uploading',
+  'processing',
+  'ready',
+  'failed',
+])
 
 /** Videos hosted on Bunny Stream (docs/09 §1–2). The API key never reaches the browser. */
 export const videoAssets = pgTable(

@@ -112,9 +112,7 @@ export const payoutAccounts = pgTable(
   },
   (t) => [
     index().on(t.userId),
-    uniqueIndex('payout_accounts_one_active')
-      .on(t.userId)
-      .where(sql`${t.status} = 'active'`),
+    uniqueIndex('payout_accounts_one_active').on(t.userId).where(sql`${t.status} = 'active'`),
   ],
 )
 
