@@ -11,9 +11,10 @@ const optional = z.string().min(1).optional()
 export const env = createEnv({
   server: {
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    APP_VERSION: z.string().default('dev'),
+    APP_VERSION: z.string().default(process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'dev'),
     DATABASE_URL: z.url(),
     DATABASE_URL_DIRECT: z.url().optional(),
+    DATABASE_URL_UNPOOLED: z.url().optional(),
     UPSTASH_REDIS_REST_URL: z.url().optional(),
     UPSTASH_REDIS_REST_TOKEN: optional,
     BETTER_AUTH_SECRET: z.string().min(32).optional(),
