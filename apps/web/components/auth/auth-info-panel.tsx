@@ -69,15 +69,15 @@ export function AuthInfoPanel() {
   return (
     <aside
       aria-labelledby="auth-info-title"
-      className="hidden bg-brand-soft lg:flex lg:flex-col lg:justify-center lg:px-12 xl:px-20"
+      className="hidden bg-brand-soft lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:self-start lg:overflow-y-auto lg:px-12 lg:py-10 xl:px-20 [@media(max-height:720px)]:lg:py-6"
     >
-      <div className="max-w-120">
+      <div className="max-w-120 lg:my-auto">
         <h2 id="auth-info-title" className="text-h2 text-brand-ink">
           How Tokslearn works
         </h2>
-        <ol className="mt-8 divide-y divide-border overflow-hidden rounded-dialog border border-border bg-surface">
+        <ol className="mt-8 [@media(max-height:720px)]:mt-5 divide-y divide-border overflow-hidden rounded-dialog border border-border bg-surface">
           {steps.map((step) => (
-            <li key={step.title} className="flex gap-4 px-6 py-5">
+            <li key={step.title} className="flex gap-4 px-6 py-5 [@media(max-height:720px)]:py-3.5">
               <Icon>{step.icon}</Icon>
               <div>
                 <h3 className="text-body font-semibold text-ink">{step.title}</h3>

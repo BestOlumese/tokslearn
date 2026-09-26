@@ -30,8 +30,8 @@
   - _Search, role filter, cursor pages; detail with roles, suspend/restore, sign out everywhere, sessions and audit trail. `/admin/audit` too. Every action needs a reason and is audited._
 
 ## Acceptance
-- [ ] Sign up → verify → sign in works with password, email OTP, Google.
-  - _Password and email code verified end to end (scripts/e2e-auth-local.mjs, 45 checks). **Google still needs a real check** on staging or production; it can't run locally without OAuth credentials._
+- [x] Sign up → verify → sign in works with password, email OTP, Google.
+  - _Password and email code verified end to end (scripts/e2e-auth-local.mjs, 45 checks). 2026-09-26 on production: sign-up, verification and reset emails (Resend via Inngest `email-send`), email code, Google (callback `https://tokslearn.vercel.app/api/auth/callback/google`), 2FA and photo upload confirmed by the owner._
 - [x] Same user can call `me.get` via `/api/v1/me` with a bearer token (mobile path proven).
   - _GET and PATCH `/api/v1/me` with the `set-auth-token` bearer, verified end to end._
 - [x] 2FA enforced for staff routes; step-up works.
@@ -40,3 +40,5 @@
   - _Session revoke/list across users (e2e + integration), other users' files for avatars (integration), public profile never shows email._
 - [x] Auth pages Lighthouse ≥ 95, a11y 100; design audit clean.
   - _Local production build: /sign-in 99, /sign-up 99, /sign-in/code 99, /forgot-password 99; accessibility 100 on all. First-load JS 143.5–144.8 KB (budget 145). avoid-ai-design: 0 P0, 0 P1; copy check clean._
+
+**Status (2026-09-26): Phase 1 accepted.** Live on https://tokslearn.vercel.app. Setup lessons: Inngest must be resynced (or auto-synced by the Vercel integration) when a phase adds functions; `BETTER_AUTH_URL` is Production-only; provider env vars are part of the Turborepo build hash.
