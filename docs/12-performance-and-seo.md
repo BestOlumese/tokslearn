@@ -10,7 +10,9 @@
 | LCP | < 2.0 s | < 2.5 s |
 | CLS | < 0.05 | < 0.1 |
 | INP | < 200 ms | < 200 ms |
-| First-load JS (gzipped) | < 120 KB | < 200 KB |
+| First-load JS (gzipped) | < 145 KB | < 200 KB |
+
+First-load JS is measured by `scripts/check-bundle-size.mjs` on the production build (gzip, `noModule` polyfills excluded). The Next.js 16 + React 19 runtime alone is ~130 KB of it, so app code on public pages gets ~15 KB (ADR-026).
 
 Checked routes: `/`, `/courses`, `/courses/[slug]` (a seeded course), `/instructors/[slug]`, `/verify/[code]`, `/sign-in`.
 

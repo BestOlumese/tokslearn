@@ -74,5 +74,5 @@ styleguide page, deployed to Vercel with Neon.
 - [ ] `/styleguide` reviewed with `web-design-guidelines` + `avoid-ai-design`; no P0/P1 findings.
   - _web-design-guidelines: findings fixed. avoid-ai-design: checked by hand against docs/11 §6 (no P0/P1); its scanner runs once the skill is installed._
 - [ ] Lighthouse mobile on `/` ≥ 95 perf, 100 a11y.
-  - _Local production build: `/` 99 perf, 100 a11y, 100 best practices, 100 SEO, LCP 1.7 s, CLS 0. Re-check on the first preview deploy. First-load JS budget is open question Q7 in docs/02._
+  - _Local production build: `/` 99 perf, 100 a11y, 100 best practices, 100 SEO, LCP 1.7 s, CLS 0. Re-check on the first preview deploy. First-load JS budget is 145 KB gzipped (ADR-026); current 140.5 KB._
 - [x] `docs/02-decisions.md` has the "Pinned versions" ADR.
