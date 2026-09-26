@@ -53,8 +53,8 @@ export default function TeachPage() {
         description="Turn what you know into a course people in Nigeria can buy in naira. You set the price; we handle payments, video and certificates."
         width="catalog"
         actions={
-          <Link href="/sign-up?next=/teach" className={buttonClasses({ size: 'lg' })}>
-            Create your account
+          <Link href="/teach/apply" className={buttonClasses({ size: 'lg' })}>
+            Apply to teach
           </Link>
         }
       />
@@ -84,7 +84,8 @@ export default function TeachPage() {
               ))}
             </ol>
             <p className="mt-6 text-body-sm text-ink-3">
-              Instructor applications open soon. Create your account now and you can apply from it.
+              Applying takes about 15 minutes. Have your BVN or NIN, a phone or laptop camera, and
+              your bank account number ready.
             </p>
           </section>
 
@@ -164,10 +165,10 @@ export default function TeachPage() {
             ]}
             footer={
               <Link
-                href="/sign-up?next=/teach"
+                href="/teach/apply"
                 className="font-medium text-brand-ink underline underline-offset-4"
               >
-                Create your account to apply
+                Apply to teach
               </Link>
             }
           />

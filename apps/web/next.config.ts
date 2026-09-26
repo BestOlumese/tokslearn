@@ -65,7 +65,21 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // The instructor application takes a selfie for the identity check (docs/07 §5). Later
+      // entries override earlier ones for the same header key.
+      {
+        source: '/teach/apply',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value:
+              'camera=(self), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()',
+          },
+        ],
+      },
+    ]
   },
 }
 

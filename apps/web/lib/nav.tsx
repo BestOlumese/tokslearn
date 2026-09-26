@@ -1,4 +1,13 @@
-import { Bell, Flag, KeyRound, ScrollText, ShieldCheck, UserRound, Users } from 'lucide-react'
+import {
+  Bell,
+  ClipboardCheck,
+  Flag,
+  KeyRound,
+  ScrollText,
+  ShieldCheck,
+  UserRound,
+  Users,
+} from 'lucide-react'
 import type { SideNavGroup } from '@/components/side-nav-links'
 
 // Nav lists live outside 'use client' files so server layouts can render them too.
@@ -27,6 +36,16 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
   {
     label: 'People',
     items: [{ href: '/admin/users', label: 'Users', icon: icon(Users) }],
+  },
+  {
+    label: 'Instructors',
+    items: [
+      {
+        href: '/admin/instructors/applications',
+        label: 'Applications',
+        icon: icon(ClipboardCheck),
+      },
+    ],
   },
   {
     label: 'Platform',

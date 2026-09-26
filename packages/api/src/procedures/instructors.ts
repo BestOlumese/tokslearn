@@ -42,7 +42,7 @@ const toPayoutDto = (p: {
   createdAt: p.createdAt.toISOString(),
 })
 
-const toMyApplicationDto = (m: instructors.MyApplication): MyApplicationDto => ({
+export const toMyApplicationDto = (m: instructors.MyApplication): MyApplicationDto => ({
   application: m.application
     ? {
         ...m.application,
@@ -95,7 +95,7 @@ export const payoutAccountsRouter = {
 
 const reviewers = staff('reviewer', 'admin', 'super_admin')
 
-const toDetailDto = (
+export const toApplicationDetailDto = (
   d: Awaited<ReturnType<typeof instructors.getApplicationDetail>>,
 ): AdminApplicationDetail => ({
   ...d,
@@ -116,9 +116,9 @@ export const adminInstructorsRouter = {
     },
   ),
   getApplication: reviewers.admin.instructors.getApplication.handler(async ({ context, input }) =>
-    toDetailDto(await instructors.getApplicationDetail(context.ctx, input.id)),
+    toApplicationDetailDto(await instructors.getApplicationDetail(context.ctx, input.id)),
   ),
   decide: reviewers.admin.instructors.decide.handler(async ({ context, input }) =>
-    toDetailDto(await instructors.decideApplication(context.ctx, input)),
+    toApplicationDetailDto(await instructors.decideApplication(context.ctx, input)),
   ),
 }

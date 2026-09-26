@@ -17,6 +17,9 @@ export function ReasonDialog({
   description,
   confirmLabel,
   confirmVariant = 'primary',
+  minLength = 3,
+  maxLength = 500,
+  reasonHelper = 'Saved in the audit log with your name.',
   onConfirm,
 }: {
   trigger: ReactNode
@@ -27,6 +30,9 @@ export function ReasonDialog({
   description: string
   confirmLabel: string
   confirmVariant?: ButtonVariant
+  minLength?: number
+  maxLength?: number
+  reasonHelper?: string
   /** Resolves to an error message, or null on success. */
   onConfirm: (reason: string) => Promise<string | null>
 }) {
@@ -66,9 +72,16 @@ export function ReasonDialog({
           }}
         >
           {error ? <FormAlert tone="error">{error}</FormAlert> : null}
-          <Field id="reason" label="Reason" helper="Saved in the audit log with your name.">
+          <Field id="reason" label="Reason" helper={reasonHelper}>
             {(p) => (
-              <Textarea name="reason" rows={3} required minLength={3} maxLength={500} {...p} />
+              <Textarea
+                name="reason"
+                rows={3}
+                required
+                minLength={minLength}
+                maxLength={maxLength}
+                {...p}
+              />
             )}
           </Field>
           <DialogFooter>
