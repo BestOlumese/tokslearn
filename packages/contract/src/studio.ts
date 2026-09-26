@@ -47,13 +47,18 @@ export const ReviewChecklistKey = z.enum([
   'resources',
 ])
 
-export const CategoryDto = z.object({
+const CategoryDtoShape = z.object({
   id: z.uuid(),
   slug: z.string(),
   name: z.string(),
   children: z.array(z.object({ id: z.uuid(), slug: z.string(), name: z.string() })),
 })
-export type CategoryDto = z.infer<typeof CategoryDto>
+export type CategoryDto = z.infer<typeof CategoryDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const CategoryDto: z.ZodType<
+  CategoryDto,
+  z.input<typeof CategoryDtoShape>
+> = CategoryDtoShape
 
 export const StudioResourceDto = z.object({
   id: z.uuid(),
@@ -64,7 +69,7 @@ export const StudioResourceDto = z.object({
   sizeBytes: z.number().int(),
 })
 
-export const StudioLessonDto = z.object({
+const StudioLessonDtoShape = z.object({
   id: z.uuid(),
   sectionId: z.uuid(),
   title: z.string(),
@@ -78,9 +83,14 @@ export const StudioLessonDto = z.object({
   articleDoc: RichTextDoc.nullable(),
   resources: z.array(StudioResourceDto),
 })
-export type StudioLessonDto = z.infer<typeof StudioLessonDto>
+export type StudioLessonDto = z.infer<typeof StudioLessonDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const StudioLessonDto: z.ZodType<
+  StudioLessonDto,
+  z.input<typeof StudioLessonDtoShape>
+> = StudioLessonDtoShape
 
-export const StudioSectionDto = z.object({
+const StudioSectionDtoShape = z.object({
   id: z.uuid(),
   title: z.string(),
   position: z.number().int(),
@@ -88,9 +98,14 @@ export const StudioSectionDto = z.object({
   removalRequested: z.boolean(),
   lessons: z.array(StudioLessonDto),
 })
-export type StudioSectionDto = z.infer<typeof StudioSectionDto>
+export type StudioSectionDto = z.infer<typeof StudioSectionDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const StudioSectionDto: z.ZodType<
+  StudioSectionDto,
+  z.input<typeof StudioSectionDtoShape>
+> = StudioSectionDtoShape
 
-export const StudioCourseDto = z.object({
+const StudioCourseDtoShape = z.object({
   id: z.uuid(),
   slug: z.string(),
   status: CourseStatus,
@@ -132,9 +147,14 @@ export const StudioCourseDto = z.object({
     }),
   ),
 })
-export type StudioCourseDto = z.infer<typeof StudioCourseDto>
+export type StudioCourseDto = z.infer<typeof StudioCourseDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const StudioCourseDto: z.ZodType<
+  StudioCourseDto,
+  z.input<typeof StudioCourseDtoShape>
+> = StudioCourseDtoShape
 
-export const StudioCourseRow = z.object({
+const StudioCourseRowShape = z.object({
   id: z.uuid(),
   slug: z.string(),
   title: z.string(),
@@ -144,9 +164,14 @@ export const StudioCourseRow = z.object({
   priceKobo: Kobo,
   updatedAt: IsoDateTime,
 })
-export type StudioCourseRow = z.infer<typeof StudioCourseRow>
+export type StudioCourseRow = z.infer<typeof StudioCourseRowShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const StudioCourseRow: z.ZodType<
+  StudioCourseRow,
+  z.input<typeof StudioCourseRowShape>
+> = StudioCourseRowShape
 
-export const StaffDto = z.object({
+const StaffDtoShape = z.object({
   id: z.uuid(),
   userId: z.uuid(),
   name: z.string(),
@@ -154,8 +179,11 @@ export const StaffDto = z.object({
   role: z.enum(['co_instructor', 'teaching_assistant']),
   createdAt: IsoDateTime,
 })
+export type StaffDto = z.infer<typeof StaffDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const StaffDto: z.ZodType<StaffDto, z.input<typeof StaffDtoShape>> = StaffDtoShape
 
-export const BundleDto = z.object({
+const BundleDtoShape = z.object({
   id: z.uuid(),
   slug: z.string(),
   title: z.string(),
@@ -165,7 +193,9 @@ export const BundleDto = z.object({
   courseIds: z.array(z.uuid()),
   updatedAt: IsoDateTime,
 })
-export type BundleDto = z.infer<typeof BundleDto>
+export type BundleDto = z.infer<typeof BundleDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const BundleDto: z.ZodType<BundleDto, z.input<typeof BundleDtoShape>> = BundleDtoShape
 
 const Title = z.string().trim().min(3).max(120)
 const Versioned = { courseId: z.uuid(), version: z.number().int().min(1) }
@@ -496,7 +526,7 @@ export const ReviewQueueRow = z.object({
   instructorName: z.string(),
 })
 
-export const ReviewDto = z.object({
+const ReviewDtoShape = z.object({
   revisionId: z.uuid(),
   courseId: z.uuid(),
   slug: z.string(),
@@ -543,9 +573,11 @@ export const ReviewDto = z.object({
   checklistKeys: z.array(ReviewChecklistKey),
   reviewNotes: z.string().nullable(),
 })
-export type ReviewDto = z.infer<typeof ReviewDto>
+export type ReviewDto = z.infer<typeof ReviewDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const ReviewDto: z.ZodType<ReviewDto, z.input<typeof ReviewDtoShape>> = ReviewDtoShape
 
-export const LessonPreviewDto = z.object({
+const LessonPreviewDtoShape = z.object({
   id: z.uuid(),
   title: z.string(),
   type: LessonType,
@@ -563,6 +595,12 @@ export const LessonPreviewDto = z.object({
     }),
   ),
 })
+export type LessonPreviewDto = z.infer<typeof LessonPreviewDtoShape>
+/** Named type so declaration files refer to it instead of repeating the shape per procedure. */
+export const LessonPreviewDto: z.ZodType<
+  LessonPreviewDto,
+  z.input<typeof LessonPreviewDtoShape>
+> = LessonPreviewDtoShape
 
 export const adminCourseReviewsContract = {
   list: base
