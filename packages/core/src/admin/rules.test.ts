@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { anonymousActor, type Role, systemActor } from '../kernel/actor'
+import { testUser } from '../kernel/testing'
 import { canDispatchOutbox, canManageFeatureFlags, canViewStyleguide } from './rules'
 
-const user = (...roles: Role[]) => ({ kind: 'user' as const, userId: 'u', sessionId: 's', roles })
+const user = (...roles: Role[]) => testUser(roles)
 
 describe('admin rules', () => {
   it('only admins and super admins manage feature flags', () => {

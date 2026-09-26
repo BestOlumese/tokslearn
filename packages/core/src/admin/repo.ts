@@ -1,7 +1,7 @@
 import { type DbOrTx, schema } from '@tokslearn/db'
-import { and, asc, eq, inArray, lte, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, lt, lte, or, type SQL, sql } from 'drizzle-orm'
 
-const { auditLog, featureFlags, idempotencyKeys, outbox, settings } = schema
+const { auditLog, featureFlags, idempotencyKeys, outbox, settings, user } = schema
 
 // ── Health ───────────────────────────────────────────────
 export async function pingDatabase(db: DbOrTx): Promise<void> {
@@ -45,6 +45,50 @@ export type AuditInsert = typeof auditLog.$inferInsert
 
 export async function insertAudit(db: DbOrTx, entry: AuditInsert): Promise<void> {
   await db.insert(auditLog).values(entry)
+}
+
+export interface AuditFilters {
+  actorId?: string | undefined
+  targetType?: string | undefined
+  targetId?: string | undefined
+  action?: string | undefined
+  cursor?: { createdAt: Date; id: string } | null
+  limit: number
+}
+
+/** Newest first, cursor on (created_at, id). Joins `user` for the actor's name. */
+export async function listAudit(db: DbOrTx, f: AuditFilters) {
+  const where: Array<SQL | undefined> = [
+    f.actorId ? eq(auditLog.actorId, f.actorId) : undefined,
+    f.targetType ? eq(auditLog.targetType, f.targetType) : undefined,
+    f.targetId ? eq(auditLog.targetId, f.targetId) : undefined,
+    f.action ? eq(auditLog.action, f.action) : undefined,
+    f.cursor
+      ? or(
+          lt(auditLog.createdAt, f.cursor.createdAt),
+          and(eq(auditLog.createdAt, f.cursor.createdAt), lt(auditLog.id, f.cursor.id)),
+        )
+      : undefined,
+  ]
+  return db
+    .select({
+      id: auditLog.id,
+      actorId: auditLog.actorId,
+      actorName: user.name,
+      actorKind: auditLog.actorKind,
+      action: auditLog.action,
+      targetType: auditLog.targetType,
+      targetId: auditLog.targetId,
+      before: auditLog.before,
+      after: auditLog.after,
+      requestId: auditLog.requestId,
+      createdAt: auditLog.createdAt,
+    })
+    .from(auditLog)
+    .leftJoin(user, eq(user.id, auditLog.actorId))
+    .where(and(...where))
+    .orderBy(desc(auditLog.createdAt), desc(auditLog.id))
+    .limit(f.limit + 1)
 }
 
 // ── Idempotency keys ─────────────────────────────────────

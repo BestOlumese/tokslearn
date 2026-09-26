@@ -21,9 +21,12 @@ matter for scale. Implement schema files per module in `packages/db/src/schema/<
 Column lists show the important fields; add `id`, `created_at`, `updated_at` to all.
 
 ### identity (Better Auth owns `user`, `session`, `account`, `verification`, `two_factor`)
-- `user` (Better Auth) + extra fields: `username` unique, `headline`, `bio`, `avatar_key`, `timezone` default `Africa/Lagos`, `banned`, `role` (Better Auth admin plugin), `deleted_at`.
+- `user` (Better Auth) + extra fields: `username` unique (lowercase), `headline`, `bio`, `avatar_key`, `timezone` default `Africa/Lagos`, `banned`, `ban_reason`, `ban_expires`, `role` (Better Auth admin plugin, mirrors the highest staff role), `two_factor_enabled`, `deletion_requested_at` (14-day grace, docs/07 §6), `deleted_at` (set when anonymized).
+- `session` (Better Auth) + `two_factor_verified_at` (set by a successful TOTP/backup-code check; staff and step-up checks read it), `impersonated_by`. Sessions live in Postgres and are cached in Redis (secondary storage).
+- `two_factor` (Better Auth): encrypted `secret`, `backup_codes`, `verified`, `failed_verification_count`, `locked_until`.
 - `user_roles`: `user_id`, `role` enum(learner, instructor, reviewer, finance, support, admin, super_admin), unique(user_id, role).
-- `user_links`: `user_id`, `kind`, `url`.
+- `user_links`: `user_id`, `kind` (website, linkedin, x, youtube, github, other), `url`, `position`. Max 5 per user.
+- `user_roles` also stores `granted_by`. Every new user gets `learner` (Better Auth `user.create.after` hook → `identity.onUserCreated`).
 
 ### instructors
 - `instructor_applications`: `user_id`, `status` enum(draft, submitted, in_review, approved, rejected), `expertise`, `sample_url`, `answers jsonb`, `reviewer_id`, `decision_reason`, `submitted_at`, `decided_at`.

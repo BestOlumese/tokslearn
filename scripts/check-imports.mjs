@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Module boundary check (docs/03 §3, CLAUDE.md §1.1).
 // 1. Nobody imports deep paths like `@tokslearn/core/admin/service` or `@tokslearn/<pkg>/src/...`.
-// 2. Inside packages/core, a domain module reaches another only through `@tokslearn/core/<module>`,
-//    never `../<other-module>/...`. The shared `kernel` may be imported relatively.
+// 2. Inside packages/core, a domain module reaches another only through its public entry
+//    (`../<module>` = its index.ts), never `../<other-module>/<file>`. The shared `kernel` may be
+//    imported file by file.
 // 3. Client components ('use client') never import server-only packages.
 import { readFileSync } from 'node:fs'
 import { relative } from 'node:path'

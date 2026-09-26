@@ -9,14 +9,14 @@ export const metadata = {
   sourceCitation: 'https://vercel.com/docs/incremental-static-regeneration',
   description:
     'ISR routes with > 1 write per 2 reads. The revalidate interval is too aggressive relative to read traffic — many reads pay to regenerate. Investigate whether the page can tolerate a longer revalidate window or on-demand revalidation via revalidateTag.',
-};
+}
 
 export function gate(signals) {
-  const rows = extractRows(signals);
+  const rows = extractRows(signals)
   return rows
     .filter((r) => r.writes > 100 && r.reads > 0 && r.writes / r.reads > 0.5)
     .map((r) => {
-      const ratio = r.writes / r.reads;
+      const ratio = r.writes / r.reads
       return {
         kind: metadata.id,
         scope: 'route',
@@ -34,29 +34,29 @@ export function gate(signals) {
           reads: r.reads,
           ratio,
         },
-      };
-    });
+      }
+    })
 }
 
 function extractRows(signals) {
-  const writes = signals.metrics?.isrWritesByRoute?.rows ?? [];
-  const reads = signals.metrics?.isrReadsByRoute?.rows ?? [];
+  const writes = signals.metrics?.isrWritesByRoute?.rows ?? []
+  const reads = signals.metrics?.isrReadsByRoute?.rows ?? []
 
-  const writeByRoute = new Map();
+  const writeByRoute = new Map()
   for (const r of writes) {
-    if (!r.route) continue;
-    writeByRoute.set(r.route, (writeByRoute.get(r.route) ?? 0) + (r.value ?? 0));
+    if (!r.route) continue
+    writeByRoute.set(r.route, (writeByRoute.get(r.route) ?? 0) + (r.value ?? 0))
   }
-  const readByRoute = new Map();
+  const readByRoute = new Map()
   for (const r of reads) {
-    if (!r.route) continue;
-    readByRoute.set(r.route, (readByRoute.get(r.route) ?? 0) + (r.value ?? 0));
+    if (!r.route) continue
+    readByRoute.set(r.route, (readByRoute.get(r.route) ?? 0) + (r.value ?? 0))
   }
 
-  const routes = new Set([...writeByRoute.keys(), ...readByRoute.keys()]);
+  const routes = new Set([...writeByRoute.keys(), ...readByRoute.keys()])
   return [...routes].map((route) => ({
     route,
     writes: writeByRoute.get(route) ?? 0,
     reads: readByRoute.get(route) ?? 0,
-  }));
+  }))
 }

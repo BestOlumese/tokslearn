@@ -5,6 +5,7 @@ export {
 } from './rules'
 export {
   type AuditEntry,
+  type AuditInput,
   claimIdempotencyKey,
   completeIdempotencyKey,
   type DependencyStatus,
@@ -16,6 +17,7 @@ export {
   type Health,
   type IdempotencyClaim,
   isFeatureEnabled,
+  listAuditLog,
   listFeatureFlags,
   type OutboxMessage,
   releaseIdempotencyKey,

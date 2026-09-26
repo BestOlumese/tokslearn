@@ -1,4 +1,4 @@
-import type { Actor, CacheAdapter } from '@tokslearn/core/kernel'
+import type { Actor, CacheAdapter, Providers } from '@tokslearn/core/kernel'
 import type { Db } from '@tokslearn/db'
 import type { RateLimiter } from '@tokslearn/integrations/upstash'
 
@@ -12,8 +12,10 @@ export interface ApiContext {
   headers: Headers
   /** Salted hash of the client IP (rate limits, audit). Null when unknown. */
   ipHash: string | null
-  /** Better Auth session → Actor. Phase 0: always anonymous. */
+  /** Better Auth session (cookie on web, bearer on mobile) → Actor. */
   resolveActor: () => Promise<Actor>
+  /** File storage, session revocation and absolute URLs for core services. */
+  providers: Partial<Providers>
   cache: CacheAdapter
   rateLimiter: RateLimiter
   onOutboxWritten?: () => Promise<void>

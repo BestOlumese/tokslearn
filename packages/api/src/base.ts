@@ -6,8 +6,13 @@ import {
   actorUserId,
   type Ctx,
   createCtx,
-  isUser,
+  ForbiddenError,
+  hasRecentStepUp,
+  hasRole,
+  type Role,
   RuleViolationError,
+  requireStaff,
+  requireUser,
 } from '@tokslearn/core/kernel'
 import type { ApiContext } from './context'
 import { toApiError } from './errors'
@@ -34,6 +39,7 @@ const withCtx = impl.middleware(async ({ context, next }) => {
     requestId: context.requestId,
     ipHash: context.ipHash,
     cache: context.cache,
+    providers: context.providers,
     ...(context.onOutboxWritten ? { onOutboxWritten: context.onOutboxWritten } : {}),
   })
   return next({ context: { ctx, actor } })
@@ -83,9 +89,29 @@ const idempotency = impl
 export const pub = impl.use(errorMapping).use(withCtx).use(rateLimit).use(idempotency)
 
 /** Requires a signed-in user (cookie on web, bearer token on mobile). */
-export const authed = pub.use(async ({ context, next }) => {
-  if (!isUser(context.actor)) throw new RuleViolationError('SESSION_EXPIRED')
-  return next({ context: { user: context.actor } })
+export const authed = pub.use(async ({ context, next }) =>
+  next({ context: { user: requireUser(context.actor) } }),
+)
+
+/** Signed in with one of these roles. Core rules still decide what the user may touch. */
+export const role = (...roles: Role[]) =>
+  authed.use(async ({ context, next }) => {
+    if (!hasRole(context.user, ...roles)) throw new ForbiddenError('FORBIDDEN')
+    return next()
+  })
+
+/** Staff with one of these roles, 2FA on and verified in this session (docs/07 §3–4). */
+export const staff = (...roles: Role[]) =>
+  authed.use(async ({ context, next }) => {
+    requireStaff(context.user, (u) => hasRole(u, ...roles))
+    return next()
+  })
+
+/** Sensitive actions: 2FA verified within the last 12 hours (docs/07 §4). */
+export const stepUp = authed.use(async ({ context, next }) => {
+  if (!context.user.twoFactorEnabled) throw new ForbiddenError('TWO_FACTOR_REQUIRED')
+  if (!hasRecentStepUp(context.user, context.ctx.now)) throw new ForbiddenError('STEP_UP_REQUIRED')
+  return next()
 })
 
 export { impl }

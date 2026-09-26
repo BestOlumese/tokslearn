@@ -12,6 +12,9 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   'progress.heartbeat': { limit: 6, windowSec: 60 },
   health: { limit: 60, windowSec: 60 },
   admin: { limit: 60, windowSec: 60 },
+  me: { limit: 60, windowSec: 60 },
+  media: { limit: 20, windowSec: 60 },
+  users: { limit: 60, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {

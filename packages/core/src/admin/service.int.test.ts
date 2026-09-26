@@ -5,6 +5,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { type Actor, systemActor } from '../kernel/actor'
 import { createCtx } from '../kernel/ctx'
 import { DomainError } from '../kernel/errors'
+import { insertUser, testUser } from '../kernel/testing'
 import {
   claimIdempotencyKey,
   completeIdempotencyKey,
@@ -18,13 +19,14 @@ import {
 afterAll(closeTestDb)
 beforeEach(resetFeatureFlagCache)
 
-const admin: Actor = {
-  kind: 'user',
-  userId: '0190a000-0000-7000-8000-000000000001',
-  sessionId: 's',
-  roles: ['admin'],
-}
-const learner: Actor = { ...admin, roles: ['learner'] }
+const ADMIN_ID = '0190a000-0000-7000-8000-000000000001'
+const admin: Actor = testUser(['admin'], { userId: ADMIN_ID })
+const learner: Actor = testUser(['learner'], { userId: ADMIN_ID })
+const adminWithout2fa: Actor = testUser(['admin'], { userId: ADMIN_ID, twoFactorEnabled: false })
+const adminNotSteppedUp: Actor = testUser(['admin'], {
+  userId: ADMIN_ID,
+  twoFactorVerifiedAt: null,
+})
 
 const ctxFor = (db: Db, actor: Actor, afterOutbox?: () => void) =>
   createCtx({
@@ -55,6 +57,16 @@ describe('feature flags', () => {
     })
   })
 
+  it('requires admins to have 2FA on and verified in this session', async () => {
+    await withRollback(async (db) => {
+      await seed(db)
+      expect(await codeOf(listFeatureFlags(ctxFor(db, adminWithout2fa)))).toBe(
+        'TWO_FACTOR_REQUIRED',
+      )
+      expect(await codeOf(listFeatureFlags(ctxFor(db, adminNotSteppedUp)))).toBe('STEP_UP_REQUIRED')
+    })
+  })
+
   it('returns FEATURE_FLAG_NOT_FOUND for unknown keys', async () => {
     await withRollback(async (db) => {
       expect(await codeOf(setFeatureFlag(ctxFor(db, admin), { key: 'nope', enabled: true }))).toBe(
@@ -66,6 +78,7 @@ describe('feature flags', () => {
   it('updates the flag, audits it and emits an outbox event in one transaction', async () => {
     await withRollback(async (db) => {
       await seed(db)
+      await insertUser(db, { id: ADMIN_ID, roles: ['admin'] })
       let hookCalls = 0
       const ctx = ctxFor(db, admin, () => {
         hookCalls++
@@ -80,7 +93,7 @@ describe('feature flags', () => {
       expect(audits).toHaveLength(1)
       expect(audits[0]?.before).toEqual({ enabled: false })
       expect(audits[0]?.after).toEqual({ enabled: true })
-      expect(audits[0]?.actorId).toBe(admin.kind === 'user' ? admin.userId : null)
+      expect(audits[0]?.actorId).toBe(ADMIN_ID)
 
       const events = await db
         .select()

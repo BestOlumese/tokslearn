@@ -10,28 +10,28 @@ export const metadata = {
   sourceCitation: 'vercel-optimize gate threshold',
   description:
     'A single day in the billing window deviates sharply from the window baseline. Triage branches: bot or AI crawler spike, viral moment, pricing-model migration (legacy SKU → new), code regression. Without daily-granularity data, this gate stays dormant.',
-};
+}
 
-const TOTAL_MULTIPLIER = 2;
-const SKU_MULTIPLIER = 3;
-const MIN_BILLED_FLOOR = 5; // skip spikes whose absolute value is too small to matter
+const TOTAL_MULTIPLIER = 2
+const SKU_MULTIPLIER = 3
+const MIN_BILLED_FLOOR = 5 // skip spikes whose absolute value is too small to matter
 
 export function gate(signals) {
-  const days = signals?.usage?.breakdown?.data;
-  if (!Array.isArray(days) || days.length < 3) return [];
+  const days = signals?.usage?.breakdown?.data
+  if (!Array.isArray(days) || days.length < 3) return []
 
-  const dayTotals = days.map(dayTotal);
-  const mean = dayTotals.reduce((a, b) => a + b, 0) / dayTotals.length;
-  if (mean <= MIN_BILLED_FLOOR) return [];
+  const dayTotals = days.map(dayTotal)
+  const mean = dayTotals.reduce((a, b) => a + b, 0) / dayTotals.length
+  if (mean <= MIN_BILLED_FLOOR) return []
 
   const totalSpikeDays = dayTotals
     .map((value, idx) => ({ idx, value }))
-    .filter((d) => d.value > mean * TOTAL_MULTIPLIER && d.value > MIN_BILLED_FLOOR);
+    .filter((d) => d.value > mean * TOTAL_MULTIPLIER && d.value > MIN_BILLED_FLOOR)
 
-  const skuStats = aggregateSkuStats(days);
-  const skuSpikes = [];
+  const skuStats = aggregateSkuStats(days)
+  const skuSpikes = []
   for (const stat of skuStats) {
-    if (stat.mean <= MIN_BILLED_FLOOR) continue;
+    if (stat.mean <= MIN_BILLED_FLOOR) continue
     for (const sample of stat.samples) {
       if (sample.value > stat.mean * SKU_MULTIPLIER && sample.value > MIN_BILLED_FLOOR) {
         skuSpikes.push({
@@ -40,16 +40,16 @@ export function gate(signals) {
           dayValue: sample.value,
           skuMean: stat.mean,
           multiplier: stat.mean > 0 ? sample.value / stat.mean : null,
-        });
+        })
       }
     }
   }
 
-  if (totalSpikeDays.length === 0 && skuSpikes.length === 0) return [];
+  if (totalSpikeDays.length === 0 && skuSpikes.length === 0) return []
 
-  const candidates = [];
+  const candidates = []
   if (totalSpikeDays.length > 0) {
-    const peak = totalSpikeDays.reduce((a, b) => (a.value > b.value ? a : b));
+    const peak = totalSpikeDays.reduce((a, b) => (a.value > b.value ? a : b))
     candidates.push({
       kind: metadata.id,
       scope: 'account',
@@ -58,7 +58,8 @@ export function gate(signals) {
       confidence: 0.78,
       o11ySignal: `total_spike day_idx=${peak.idx} day_billed=${peak.value.toFixed(2)} window_mean=${mean.toFixed(2)} mult=${(peak.value / mean).toFixed(1)}x`,
       reason: 'total billed cost on one day exceeds 2× the window mean',
-      question: 'Which workload generated the day-over-day spike — bot or AI-crawler traffic on a cacheable route, a viral event, a pricing-model migration, or a code regression?',
+      question:
+        'Which workload generated the day-over-day spike — bot or AI-crawler traffic on a cacheable route, a viral event, a pricing-model migration, or a code regression?',
       evidence: {
         metric: 'usage.breakdown.data.total',
         spikeDay: peak.idx,
@@ -67,10 +68,10 @@ export function gate(signals) {
         multiplier: peak.value / mean,
         skuName: 'total',
       },
-    });
+    })
   }
   // Up to 3 SKU-specific candidates; the rest fold into 'multiple SKUs spiking' framing.
-  const orderedSkuSpikes = skuSpikes.sort((a, b) => b.dayValue - a.dayValue).slice(0, 3);
+  const orderedSkuSpikes = skuSpikes.sort((a, b) => b.dayValue - a.dayValue).slice(0, 3)
   for (const spike of orderedSkuSpikes) {
     candidates.push({
       kind: metadata.id,
@@ -89,33 +90,33 @@ export function gate(signals) {
         skuMean: spike.skuMean,
         multiplier: spike.multiplier,
       },
-    });
+    })
   }
-  return candidates;
+  return candidates
 }
 
 function dayTotal(day) {
   if (Array.isArray(day?.services)) {
-    return day.services.reduce((a, s) => a + Number(s.billedCost ?? s.cost ?? 0), 0);
+    return day.services.reduce((a, s) => a + Number(s.billedCost ?? s.cost ?? 0), 0)
   }
-  return Number(day?.billedCost ?? day?.cost ?? 0);
+  return Number(day?.billedCost ?? day?.cost ?? 0)
 }
 
 function aggregateSkuStats(days) {
-  const byName = new Map();
+  const byName = new Map()
   days.forEach((day, idx) => {
-    const services = Array.isArray(day?.services) ? day.services : [];
+    const services = Array.isArray(day?.services) ? day.services : []
     for (const svc of services) {
-      const name = String(svc?.name ?? '').trim();
-      if (!name) continue;
-      const value = Number(svc.billedCost ?? svc.cost ?? 0);
-      if (!byName.has(name)) byName.set(name, { name, samples: [] });
-      byName.get(name).samples.push({ idx, value });
+      const name = String(svc?.name ?? '').trim()
+      if (!name) continue
+      const value = Number(svc.billedCost ?? svc.cost ?? 0)
+      if (!byName.has(name)) byName.set(name, { name, samples: [] })
+      byName.get(name).samples.push({ idx, value })
     }
-  });
+  })
   for (const stat of byName.values()) {
-    const sum = stat.samples.reduce((a, s) => a + s.value, 0);
-    stat.mean = stat.samples.length > 0 ? sum / stat.samples.length : 0;
+    const sum = stat.samples.reduce((a, s) => a + s.value, 0)
+    stat.mean = stat.samples.length > 0 ? sum / stat.samples.length : 0
   }
-  return [...byName.values()];
+  return [...byName.values()]
 }
