@@ -3,6 +3,7 @@ import { healthContract } from './health'
 import { meContract, usersContract } from './identity'
 import { instructorsContract, kycContract, payoutAccountsContract } from './instructors'
 import { mediaContract } from './media'
+import { catalogContract, studioContract } from './studio'
 
 /** The whole API surface. Web, Expo and the OpenAPI spec all come from this object. */
 export const contract = {
@@ -10,6 +11,8 @@ export const contract = {
   me: meContract,
   users: usersContract,
   media: mediaContract,
+  catalog: catalogContract,
+  studio: studioContract,
   instructors: instructorsContract,
   kyc: kycContract,
   payoutAccounts: payoutAccountsContract,
@@ -72,3 +75,27 @@ export {
 export { UploadPurpose } from './media'
 export { RichMark, RichNode, RichTextDoc, richMarkTypes, richNodeTypes } from './rich-text'
 export { CLIENT_HEADER, Cursor, IDEMPOTENCY_HEADER, IsoDateTime, MoneyDto, Page } from './shared'
+export {
+  BundleDto,
+  CategoryDto,
+  ChecklistKey,
+  CourseLevel,
+  CourseStatus,
+  Kobo,
+  LessonPreviewDto,
+  LessonType,
+  NewLessonType,
+  RefundPolicyDays,
+  ReviewChecklistKey,
+  ReviewDto,
+  ReviewQueueRow,
+  RevisionStatus,
+  StaffDto,
+  StudioCourseDto,
+  StudioCourseRow,
+  StudioLessonDto,
+  StudioResourceDto,
+  StudioSectionDto,
+  UploadAuthorizationDto,
+  VideoStatus,
+} from './studio'

@@ -3,6 +3,7 @@ import { base } from './base'
 import { RoleSchema, SessionDto } from './identity'
 import { adminInstructorsContract } from './instructors'
 import { Cursor, IsoDateTime, Page } from './shared'
+import { adminCourseReviewsContract } from './studio'
 
 export const FeatureFlagKey = z
   .string()
@@ -174,4 +175,5 @@ export const adminContract = {
       .output(Page(AuditEntryDto)),
   },
   instructors: adminInstructorsContract,
+  courseReviews: adminCourseReviewsContract,
 }
