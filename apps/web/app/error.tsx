@@ -1,8 +1,10 @@
 'use client'
-// Error boundaries must be client components (Next.js). Sentry captures via onRequestError
-// on the server and the browser SDK on the client.
+// Error boundaries must be client components (Next.js). Server errors reach Sentry through
+// onRequestError; errors caught here are reported from the browser.
 
 import { Button } from '@tokslearn/ui/button'
+import { useEffect } from 'react'
+import { reportClientError } from '@/lib/report-client-error'
 
 export default function RouteError({
   error,
@@ -11,6 +13,10 @@ export default function RouteError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    reportClientError(error)
+  }, [error])
+
   return (
     <div className="mx-auto max-w-page px-4 pt-10 sm:px-6 sm:pt-16 lg:px-8">
       <h1 className="text-h1-sm text-ink sm:text-h1">This page didn't load</h1>

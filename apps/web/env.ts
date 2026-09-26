@@ -11,9 +11,10 @@ const optional = z.string().min(1).optional()
 export const env = createEnv({
   server: {
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    APP_VERSION: z.string().default('dev'),
+    APP_VERSION: z.string().default(process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'dev'),
     DATABASE_URL: z.url(),
     DATABASE_URL_DIRECT: z.url().optional(),
+    DATABASE_URL_UNPOOLED: z.url().optional(),
     UPSTASH_REDIS_REST_URL: z.url().optional(),
     UPSTASH_REDIS_REST_TOKEN: optional,
     BETTER_AUTH_SECRET: z.string().min(32).optional(),
@@ -63,7 +64,12 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_HOST: z.url().optional(),
   },
   experimental__runtimeEnv: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    // Previews get their own URL each deploy; Vercel exposes it as NEXT_PUBLIC_VERCEL_URL.
+    NEXT_PUBLIC_APP_URL:
+      process.env.NEXT_PUBLIC_APP_URL ??
+      (process.env.NEXT_PUBLIC_VERCEL_URL
+        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+        : undefined),
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
     NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
     NEXT_PUBLIC_DOJAH_WIDGET_ID: process.env.NEXT_PUBLIC_DOJAH_WIDGET_ID,

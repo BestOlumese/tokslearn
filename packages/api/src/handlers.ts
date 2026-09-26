@@ -7,7 +7,10 @@ import { generateOpenApiSpec } from './openapi'
 import { router } from './router'
 
 export interface HandlerOptions {
-  /** e.g. https://tokslearn.com — requests carrying cookies must come from here. */
+  /**
+   * e.g. https://tokslearn.com. Cookie-carrying requests must come from this origin or from the
+   * origin that served the request (preview deployments each have their own URL).
+   */
   appOrigin: string
   /** Called for 5xx errors with the original cause (Sentry). */
   reportError?: (error: unknown, requestId: string | undefined) => void
@@ -23,7 +26,8 @@ const json = (status: number, body: unknown) =>
 function csrfRejection(request: Request, appOrigin: string, requireClientHeader: boolean) {
   const origin = request.headers.get('origin')
   const hasCookies = (request.headers.get('cookie') ?? '').length > 0
-  if (hasCookies && origin !== null && origin !== appOrigin) {
+  const sameOrigin = origin === appOrigin || origin === new URL(request.url).origin
+  if (hasCookies && origin !== null && !sameOrigin) {
     return json(403, { code: 'FORBIDDEN', message: "You don't have access to this." })
   }
   if (requireClientHeader && !request.headers.get(CLIENT_HEADER)) {

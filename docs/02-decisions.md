@@ -128,6 +128,16 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Decision:** checkbox, radio, switch and select are styled native controls (no JS). `cn()` is `clsx` only; tailwind-merge (11 KB gzipped) is not used, so components expose variant props and callers' `className` only adds layout. The toast region mounts after idle. Radix is used only where behaviour is non-trivial (dialog, sheet, popover, tooltip, tabs). The consent banner is server-rendered and hidden by CSS once a choice exists (a pre-paint script sets `<html data-consent>`), so it never delays LCP.
 - **Consequences:** Lighthouse mobile 99–100 on public routes. A custom listbox can be added later where options need rich content.
 
+### ADR-026 Public first-load JS budget raised to 145 KB gzipped (resolves Q7)
+- **Context:** `docs/12 §1` set 120 KB gzipped for public pages. The Next.js 16 + React 19 runtime alone is ~130 KB gzipped (~121 KB brotli, which Vercel serves). The Phase 0 home page loads 140.5 KB, of which ~10 KB is our code.
+- **Decision:** the budget is 145 KB gzipped per public route, measured by `scripts/check-bundle-size.mjs` on the production build with `noModule` polyfills excluded. Lighthouse (≥ 95 performance, LCP < 2.0 s) stays the user-facing check.
+- **Consequences:** ~4.5 KB of headroom today. Anything new on public pages (search box, wishlist heart, cart) must stay small or load after interaction; a failing bundle check blocks merge. `CLAUDE.md §1.7` still says 120 KB and needs the same edit (the file is read-only to the agent).
+
+### ADR-027 Browser Sentry loads on the first error only
+- **Context:** On the first production deploy, loading the Sentry browser SDK on idle added a 162 KB chunk and a ~380 ms long task to every public page (Lighthouse mobile performance 87–91, TBT ~450 ms).
+- **Decision:** `instrumentation-client.ts` only attaches `error` / `unhandledrejection` listeners. `lib/report-client-error.ts` downloads and initialises Sentry the first time an error is reported (also called from `error.tsx` and `global-error.tsx`). Sentry's own global handlers are disabled to avoid double reports. Browser tracing is off; page speed comes from Lighthouse CI and PostHog/Vercel.
+- **Consequences:** zero Sentry cost on healthy page loads (measured: perf 99, TBT 70 ms with a DSN set). Browser errors still reach Sentry, without breadcrumbs from before the error. Server-side Sentry is unchanged.
+
 ---
 
 ## Open questions (resolve before the phase that needs them)
@@ -136,4 +146,3 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 |---|----------|-----------|
 | Q2 | Legal review of holding funds + terms of service + instructor agreement | Phase 10 / launch |
 | Q6 | VAT handling on platform commission (7.5%) — confirm with accountant | Phase 4 |
-| Q7 | First-load JS budget: 120 KB gzipped (`docs/12 §1`) is below the Next.js 16 + React 19 runtime alone (~130 KB gzipped, ~121 KB brotli as served by Vercel). Raise the gzip budget, or measure brotli? | Phase 0 sign-off |

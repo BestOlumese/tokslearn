@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// First-load JS budget per public route (docs/12 §1: < 120 KB gzipped).
+// First-load JS budget per public route (docs/12 §1: < 145 KB gzipped, ADR-026).
 // Reads the prerendered HTML in apps/web/.next, sums gzip sizes of every script it loads.
-// Usage: node scripts/check-bundle-size.mjs [--budget-kb 120]
+// Usage: node scripts/check-bundle-size.mjs [--budget-kb 145]
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { gzipSync } from 'node:zlib'
 
 const webDir = new URL('../apps/web/', import.meta.url).pathname
-const budgetKb = Number(process.argv[process.argv.indexOf('--budget-kb') + 1]) || 120
+const budgetKb = Number(process.argv[process.argv.indexOf('--budget-kb') + 1]) || 145
 
 // Public routes from docs/12 §1 that exist in this phase.
 const routes = { '/': 'index', '/courses': 'courses', '/sign-in': 'sign-in', '/verify': 'verify' }

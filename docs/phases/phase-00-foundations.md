@@ -30,7 +30,7 @@ styleguide page, deployed to Vercel with Neon.
 
 ### 0.3 Database
 - [ ] Neon project (region AWS eu-central-1), branches `main`, `staging`, `dev`.
-  - _Needs the Neon account (docs/22 §1). Code is ready: set `DATABASE_URL`/`DATABASE_URL_DIRECT`, then `pnpm db:migrate && pnpm db:seed`._
+  - _Project recreated in eu-central-1 (first one was us-east-1). `main` migrated and seeded 2026-09-26. Still to confirm: `staging` and `dev` branches exist._
 - [x] `packages/db`: Drizzle config (`casing: 'snake_case'`), neon-serverless Pool client, `uuidv7` helper, money helpers, base columns helper (`id`, `createdAt`, `updatedAt`).
 - [x] Tables for this phase: `settings`, `feature_flags`, `outbox`, `idempotency_keys`, `audit_log`.
 - [x] Migration workflow scripts: `db:generate`, `db:migrate`, `db:studio`, `db:seed`.
@@ -62,9 +62,9 @@ styleguide page, deployed to Vercel with Neon.
 
 ### 0.7 Deploy
 - [ ] Vercel project (Pro), root `apps/web`, region `fra1`, Neon integration for preview branches, env vars per environment, spend alerts.
-  - _Needs the Vercel and GitHub accounts. `apps/web/vercel.json` pins `fra1` and runs migrations before the build._
-- [ ] Domain placeholder or Vercel URL live; `/api/v1/health` green in production.
-  - _After the Vercel project exists. `/api/v1/health` is green locally (database ok, redis not_configured)._
+  - _Project live and deploying; Inngest synced. Still to confirm: Neon integration for preview branches, per-environment env vars, spend alerts._
+- [x] Domain placeholder or Vercel URL live; `/api/v1/health` green in production.
+  - _https://tokslearn.vercel.app — 2026-09-26: `status: ok`, database ok, redis ok, environment production. Playwright smoke 8/8 against production._
 
 ## Acceptance checklist
 - [ ] `pnpm typecheck lint test` pass locally and in CI.
@@ -74,5 +74,5 @@ styleguide page, deployed to Vercel with Neon.
 - [ ] `/styleguide` reviewed with `web-design-guidelines` + `avoid-ai-design`; no P0/P1 findings.
   - _web-design-guidelines: findings fixed. avoid-ai-design: checked by hand against docs/11 §6 (no P0/P1); its scanner runs once the skill is installed._
 - [ ] Lighthouse mobile on `/` ≥ 95 perf, 100 a11y.
-  - _Local production build: `/` 99 perf, 100 a11y, 100 best practices, 100 SEO, LCP 1.7 s, CLS 0. Re-check on the first preview deploy. First-load JS budget is open question Q7 in docs/02._
+  - _Local production build: `/` 99 perf, 100 a11y, LCP 1.7 s, CLS 0. First production deploy: 87 perf (browser Sentry on every page); fixed by ADR-027, measured 99 locally with a DSN set — re-check after the fix deploys. First-load JS budget is 145 KB gzipped (ADR-026); current 140.9 KB._
 - [x] `docs/02-decisions.md` has the "Pinned versions" ADR.

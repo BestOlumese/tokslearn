@@ -11,6 +11,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/learn', '/teach', '/admin', '/account', '/api', '/styleguide'],
     },
-    sitemap: `${env.NEXT_PUBLIC_APP_URL}/sitemap.xml`,
+    // `sitemap` is added with app/sitemap.ts in Phase 3 (docs/12 §5).
   }
 }

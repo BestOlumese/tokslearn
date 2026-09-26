@@ -16,6 +16,23 @@ describe('RPC handler CSRF checks', () => {
     expect(res.status).toBe(403)
   })
 
+  it('accepts cookie requests from the origin that served them (preview URLs)', async () => {
+    const res = await handlers.handleRpc(
+      new Request('https://tokslearn-git-feature.vercel.app/api/rpc/health/ping', {
+        method: 'POST',
+        headers: {
+          cookie: 'a=b',
+          origin: 'https://tokslearn-git-feature.vercel.app',
+          'x-tokslearn-client': 'web',
+          'content-type': 'application/json',
+        },
+        body: '{}',
+      }),
+      testContext(),
+    )
+    expect(res.status).toBe(200)
+  })
+
   it('requires the first-party client header', async () => {
     const res = await handlers.handleRpc(
       new Request('https://tokslearn.com/api/rpc/health/ping', { method: 'POST' }),
