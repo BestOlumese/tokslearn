@@ -46,7 +46,7 @@ styleguide page, deployed to Vercel with Neon.
 
 ### 0.5 Design foundation
 - [ ] Install skills per `docs/18-skills-setup.md`.
-  - _Blocked by the local permission policy on installing third-party skills. Reviewed and pinned sources are listed in the Phase 0 summary; the owner installs them. The web-design-guidelines review ran by fetching its rules directly._
+  - _Installed by the owner: avoid-ai-design and the Vercel skills are in `.claude/skills`. Still missing: `frontend-design` (anthropics/skills)._
 - [x] `packages/ui/tokens.css` exactly as `11 §1`, Tailwind v4 `@theme`, Figtree via `next/font`.
 - [x] Restyled primitives: Button, Input, Textarea, Select, Checkbox, Radio, Switch, Label, Dialog, Sheet, Popover, Tooltip, Tabs, Toast, Badge, Avatar, Skeleton, Progress, Table, EmptyState.
 - [x] `/styleguide` page (dev + staff only) showing tokens and every component state.
@@ -73,6 +73,6 @@ styleguide page, deployed to Vercel with Neon.
   - _Needs Vercel + Neon integration; `.github/workflows/preview.yml` runs Playwright and Lighthouse on each preview._
 - [ ] `/styleguide` reviewed with `web-design-guidelines` + `avoid-ai-design`; no P0/P1 findings.
   - _web-design-guidelines: findings fixed. avoid-ai-design: checked by hand against docs/11 §6 (no P0/P1); its scanner runs once the skill is installed._
-- [ ] Lighthouse mobile on `/` ≥ 95 perf, 100 a11y.
-  - _Local production build: `/` 99 perf, 100 a11y, LCP 1.7 s, CLS 0. First production deploy: 87 perf (browser Sentry on every page); fixed by ADR-027, measured 99 locally with a DSN set — re-check after the fix deploys. First-load JS budget is 145 KB gzipped (ADR-026); current 140.9 KB._
+- [x] Lighthouse mobile on `/` ≥ 95 perf, 100 a11y.
+  - _Production 2026-09-26 (after ADR-027): `/` 97, `/courses` 97, `/sign-in` 100, `/verify` 99 performance; 100 accessibility, best practices and SEO on all; LCP 1.1–1.5 s, CLS 0. First-load JS 140.9 KB of the 145 KB budget (ADR-026)._
 - [x] `docs/02-decisions.md` has the "Pinned versions" ADR.
