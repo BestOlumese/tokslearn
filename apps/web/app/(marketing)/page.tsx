@@ -1,11 +1,12 @@
 import { buttonClasses } from '@tokslearn/ui/button'
 import Link from 'next/link'
 import { SearchIcon } from '@/components/icons/search-icon'
-import { FactsCard } from '@/components/site/facts-card'
+import { TopicGrid } from '@/components/site/topic-grid'
 import { VerifyForm } from '@/components/site/verify-form'
+import { exampleSearches } from '@/lib/topics'
 
 // Pre-launch home. The catalogue home (categories, course rows, "Continue learning") replaces the
-// middle sections in Phase 3 (docs/20 §1). Nothing here is invented: example values are marked.
+// middle sections in Phase 3 (docs/20 §1). The topic panel becomes the real category list then.
 
 export default function HomePage() {
   return (
@@ -14,11 +15,11 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-catalog gap-12 px-4 pt-12 pb-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16 lg:px-8 lg:pt-20 lg:pb-24">
           <div>
             <h1 className="max-w-[16ch] text-display-sm text-ink sm:text-display">
-              Learn skills people will pay you for
+              Online courses from Nigerian instructors
             </h1>
             <p className="mt-5 max-w-[34rem] text-body-lg text-ink-2">
-              Online courses from Nigerian instructors, priced in naira. Learn at your pace, on your
-              phone or laptop.
+              Excel, programming, design, marketing and more. Pay in naira by card, bank transfer or
+              USSD, then watch the lessons on your phone or laptop.
             </p>
             <search className="mt-8 max-w-[560px]">
               <form action="/courses" className="flex gap-2">
@@ -44,31 +45,21 @@ export default function HomePage() {
                 </button>
               </form>
             </search>
-            <p className="mt-4 text-body-sm text-ink-3">
-              The first courses are in review now. Create a free account to be ready when they open.
+            <p className="mt-4 flex flex-wrap items-center gap-2 text-body-sm text-ink-3">
+              <span>Try:</span>
+              {exampleSearches.map((term) => (
+                <Link
+                  key={term}
+                  href={`/courses?q=${encodeURIComponent(term)}`}
+                  className="inline-flex h-11 items-center rounded-full border border-border px-4 text-ink-2 hover:border-ink-3 hover:text-ink sm:h-9"
+                >
+                  {term}
+                </Link>
+              ))}
             </p>
           </div>
 
-          <FactsCard
-            title="Know what you're buying"
-            note="Example course"
-            rows={[
-              {
-                label: 'Course',
-                value: 'Excel for Accountants',
-                detail: 'by Tunde Bakare, chartered accountant',
-              },
-              { label: 'Price', value: '₦15,000', detail: 'Card, bank transfer or USSD' },
-              { label: 'Length', value: '12 lessons, 3 h 40 min' },
-              {
-                label: 'Refunds',
-                value: 'Within 7 days',
-                detail: 'if you’ve watched less than 30%',
-              },
-              { label: 'Certificate', value: 'After a 60-minute exam', detail: 'Pass mark 70%' },
-            ]}
-            footer="Every course page shows these details before you pay."
-          />
+          <TopicGrid />
         </div>
       </section>
 
