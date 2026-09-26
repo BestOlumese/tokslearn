@@ -80,16 +80,18 @@ export function ResourceList({ lesson }: { lesson: StudioLessonDto }) {
                   id={`important-${r.id}`}
                   checked={r.isImportant}
                   disabled={locked}
-                  onChange={(e) =>
-                    act((version) =>
+                  onChange={(e) => {
+                    // Read now: the write runs later in a queue, after React resets the box.
+                    const isImportant = e.target.checked
+                    void act((version) =>
                       api.studio.resources.update({
                         courseId: course.id,
                         version,
                         resourceId: r.id,
-                        isImportant: e.target.checked,
+                        isImportant,
                       }),
                     )
-                  }
+                  }}
                 />
                 <Label htmlFor={`important-${r.id}`} kind="option">
                   Important

@@ -187,7 +187,13 @@ export function CurriculumEditor() {
           description="Add your first section below, then add lessons to it."
         />
       ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <DndContext
+          // A fixed id keeps dnd-kit's aria-describedby the same on server and client.
+          id="curriculum"
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={onDragEnd}
+        >
           <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
             <ol className="flex flex-col gap-4">
               {sections.map((section, i) => (

@@ -121,16 +121,18 @@ function LessonEditor({
           <Switch
             id="lesson-preview"
             checked={lesson.isPreview}
-            onChange={(e) =>
+            onChange={(e) => {
+              // Read now: the write runs later in a queue, after React resets the controlled box.
+              const isPreview = e.target.checked
               void save((version) =>
                 api.studio.lessons.update({
                   courseId: course.id,
                   version,
                   lessonId: lesson.id,
-                  isPreview: e.target.checked,
+                  isPreview,
                 }),
               )
-            }
+            }}
           />
         </div>
         <Field id="lesson-section" label="Section">
