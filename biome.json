@@ -14,7 +14,9 @@
       "!**/migrations",
       "!**/.next",
       "!**/dist",
-      "!**/next-env.d.ts"
+      "!**/next-env.d.ts",
+      "!**/skills-lock.json",
+      "!**/.agents"
     ]
   },
   "overrides": [

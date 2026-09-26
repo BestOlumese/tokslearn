@@ -1,14 +1,26 @@
+import { buttonClasses } from '@tokslearn/ui/button'
+import { EmptyState } from '@tokslearn/ui/empty-state'
 import type { Metadata } from 'next'
-import { PagePlaceholder } from '@/components/page-placeholder'
+import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 
-export const metadata: Metadata = { title: 'Admin', robots: { index: false } }
+export const metadata: Metadata = { title: 'Admin' }
 
-export default function Page() {
+// docs/20 §6 `/admin` dashboard arrives in Phase 10.
+export default function AdminHomePage() {
   return (
-    <PagePlaceholder
-      title="Admin"
-      message="The back office fills in as each area is built. Feature flags are ready now."
-      action={{ href: '/admin/settings/flags', label: 'Open feature flags' }}
-    />
+    <div>
+      <AdminPageHeader title="Back office" />
+      <EmptyState
+        className="max-w-[640px]"
+        title="Dashboard not built yet"
+        description="Orders, revenue and alerts arrive in Phase 10. Users, the audit log and feature flags work now."
+        action={
+          <Link href="/admin/users" className={buttonClasses({ variant: 'secondary' })}>
+            Open users
+          </Link>
+        }
+      />
+    </div>
   )
 }

@@ -14,6 +14,8 @@
   "dependencies": {
     "@tokslearn/core": "workspace:*",
     "@tokslearn/db": "workspace:*",
+    "@tokslearn/emails": "workspace:*",
+    "@tokslearn/integrations": "workspace:*",
     "inngest": "4.21.0",
     "zod": "4.6.5"
   },

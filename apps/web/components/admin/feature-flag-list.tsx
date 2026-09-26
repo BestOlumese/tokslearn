@@ -1,15 +1,18 @@
-import { canManageFeatureFlags, listFeatureFlags } from '@tokslearn/core/admin'
+import { listFeatureFlags } from '@tokslearn/core/admin'
 import { EmptyState } from '@tokslearn/ui/empty-state'
-import { Forbidden } from '@/components/forbidden'
-import { getServerCtx } from '@/lib/server-ctx'
+import { requireSignedInCtx } from '@/lib/require-user'
 import { FeatureFlagRow } from './feature-flag-row'
+import { staffErrorState } from './staff-error'
 
 export async function FeatureFlagList() {
-  const ctx = await getServerCtx()
-  // Cosmetic check for a friendly state; the service enforces the same rule.
-  if (!canManageFeatureFlags(ctx.actor)) return <Forbidden />
-
-  const flags = await listFeatureFlags(ctx)
+  const path = '/admin/settings/flags'
+  const ctx = await requireSignedInCtx(path)
+  let flags: Awaited<ReturnType<typeof listFeatureFlags>>
+  try {
+    flags = await listFeatureFlags(ctx)
+  } catch (error) {
+    return staffErrorState(error, path)
+  }
   if (flags.length === 0) {
     return (
       <EmptyState

@@ -20,6 +20,7 @@ export function testContext(overrides: Partial<ApiContext> & { actor?: Actor } =
     ipHash: 'ip-hash-1',
     resolveActor: async () => actor,
     cache: noopCache,
+    providers: {},
     rateLimiter: createMemoryRateLimiter(),
     version: 'test',
     environment: 'test',

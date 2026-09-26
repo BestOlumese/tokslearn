@@ -11,3 +11,10 @@ export function apiErrorMessage(error: unknown): string {
   // No error code means the request never got a server answer: offline or timed out.
   return "We couldn't reach Tokslearn. Check your connection and try again."
 }
+
+/** The stable `data.code` of an API error, or null for network failures. */
+export function apiErrorCode(error: unknown): string | null {
+  if (!(error instanceof ORPCError)) return null
+  const code = ErrorCodeSchema.safeParse((error.data as Record<string, unknown> | undefined)?.code)
+  return code.success ? code.data : null
+}

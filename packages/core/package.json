@@ -7,7 +7,11 @@
   "exports": {
     "./kernel": "./src/kernel/index.ts",
     "./admin": "./src/admin/index.ts",
-    "./analytics": "./src/analytics/index.ts"
+    "./analytics": "./src/analytics/index.ts",
+    "./identity": "./src/identity/index.ts",
+    "./media": "./src/media/index.ts",
+    "./notifications": "./src/notifications/index.ts",
+    "./testing": "./src/kernel/testing.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -18,6 +22,8 @@
   "dependencies": {
     "@tokslearn/contract": "workspace:*",
     "@tokslearn/db": "workspace:*",
+    "@tokslearn/emails": "workspace:*",
+    "@tokslearn/integrations": "workspace:*",
     "drizzle-orm": "0.45.3"
   },
   "devDependencies": {

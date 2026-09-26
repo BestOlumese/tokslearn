@@ -1,14 +1,14 @@
 import { sql } from 'drizzle-orm'
 import { boolean, index, integer, jsonb, pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core'
 import { baseColumns, timestamps, tstz } from '../columns'
+import { user } from './identity'
 
 // Append-only. Written for every staff action and every money-affecting action (docs/05 §2).
-// actor_id gets its FK to `user` in Phase 1.
 export const auditLog = pgTable(
   'audit_log',
   {
     ...baseColumns(),
-    actorId: uuid(),
+    actorId: uuid().references(() => user.id, { onDelete: 'restrict' }),
     actorKind: text().notNull(),
     action: text().notNull(),
     targetType: text().notNull(),
@@ -28,7 +28,7 @@ export const auditLog = pgTable(
 export const settings = pgTable('settings', {
   key: text().primaryKey(),
   value: jsonb().notNull(),
-  updatedBy: uuid(),
+  updatedBy: uuid().references(() => user.id, { onDelete: 'restrict' }),
   ...timestamps(),
 })
 
@@ -37,7 +37,7 @@ export const featureFlags = pgTable('feature_flags', {
   enabled: boolean().notNull().default(false),
   rules: jsonb().notNull().default(sql`'{}'::jsonb`),
   description: text().notNull().default(''),
-  updatedBy: uuid(),
+  updatedBy: uuid().references(() => user.id, { onDelete: 'restrict' }),
   ...timestamps(),
 })
 

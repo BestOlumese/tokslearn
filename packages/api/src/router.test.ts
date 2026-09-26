@@ -1,16 +1,13 @@
 import { createRouterClient, ORPCError } from '@orpc/server'
+import { testUser } from '@tokslearn/core/testing'
 import { createMemoryRateLimiter } from '@tokslearn/integrations/upstash'
 import { describe, expect, it } from 'vitest'
 import { generateOpenApiSpec } from './openapi'
 import { router } from './router'
 import { testContext } from './test-context'
 
-const admin = {
-  kind: 'user' as const,
-  userId: '0190a000-0000-7000-8000-000000000001',
-  sessionId: 's',
-  roles: ['admin' as const],
-}
+const ADMIN_ID = '0190a000-0000-7000-8000-000000000001'
+const admin = testUser(['admin'], { userId: ADMIN_ID })
 
 async function errorOf(p: Promise<unknown>) {
   try {

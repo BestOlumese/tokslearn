@@ -138,6 +138,21 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Decision:** `instrumentation-client.ts` only attaches `error` / `unhandledrejection` listeners. `lib/report-client-error.ts` downloads and initialises Sentry the first time an error is reported (also called from `error.tsx` and `global-error.tsx`). Sentry's own global handlers are disabled to avoid double reports. Browser tracing is off; page speed comes from Lighthouse CI and PostHog/Vercel.
 - **Consequences:** zero Sentry cost on healthy page loads (measured: perf 99, TBT 70 ms with a DSN set). Browser errors still reach Sentry, without breadcrumbs from before the error. Server-side Sentry is unchanged.
 
+### ADR-028 Emails carrying sign-in secrets skip the outbox
+- **Context:** `docs/23` sends every email through the `email-send` job, and core queues emails through the outbox (`notifications.sendEmail`). Verification links, reset links and sign-in codes would then be stored in our `outbox` table.
+- **Decision:** the auth layer sends those emails straight to Inngest (`auth/email.requested`), which triggers the same `email-send` job. Everything else (deletion notice, new sign-in, receipts later) goes through the outbox. Both paths use `{id}:{businessKey}` idempotency keys, and Resend receives the same key.
+- **Consequences:** secrets never sit in our database. If Inngest is unreachable at that moment the email is lost, and the user presses "resend"; the auth response itself never fails because of email.
+
+### ADR-029 Better Auth integration choices (Phase 1)
+- **Sessions:** stored in Postgres and cached in Upstash (`storeSessionInDatabase`), so the sessions page, admin tools and IDOR checks can read them. Revocation goes through Better Auth's internal adapter (clears both).
+- **Cookie cache bypassed for the actor:** API and page requests call `getSession` with `disableCookieCache`, so a revoked or suspended session stops at once instead of within 5 minutes. The lookup hits Redis; we already query Postgres for roles on each request.
+- **Admin plugin endpoints disabled** (`disabledPaths`): the plugin stays for ban enforcement at sign-in and its schema fields, but all staff actions go through core services, which require 2FA verified in the session and write the audit log. Impersonation returns in Phase 10 with its own audited flow.
+- **Breached-password check fails open:** our own before-hook calls Have I Been Pwned (k-anonymity) with a 3 s timeout for sign-up, password change and reset. Compromised passwords are rejected; if the service is down the check is skipped and logged. The stock plugin returned 500 and blocked sign-up during an outage.
+- **Staff 2FA and step-up** read `session.two_factor_verified_at`, set by an after-hook when a TOTP or backup-code check passes. Staff who sign in with an email code must still enter an authenticator code before admin tools open.
+- **Auth pages use `fetch`, not the Better Auth client SDK,** and Google sign-in is a plain link to `/api/auth-start/google`. Together with a Zod-free message module this keeps every auth page under the 145 KB budget (ADR-026).
+- **Signed-in header on static pages** comes from a non-secret `tl_signed_in` cookie set at sign-in and cleared at sign-out. It only switches header links; it is never used for authorization.
+- **Account lockout:** 10 failed passwords in 15 minutes locks that email for 15 minutes, doubling per further lock within a day (max 24 h). Keys store a hash of the email.
+
 ---
 
 ## Open questions (resolve before the phase that needs them)

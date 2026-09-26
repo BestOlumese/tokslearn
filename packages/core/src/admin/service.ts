@@ -2,9 +2,10 @@ import { actorUserId } from '../kernel/actor'
 import { cacheTags } from '../kernel/cache'
 import { type Ctx, inTransaction } from '../kernel/ctx'
 import { ConflictError, ForbiddenError, NotFoundError } from '../kernel/errors'
+import { requireStaff } from '../kernel/guards'
 import { log } from '../kernel/logger'
 import * as repo from './repo'
-import { canDispatchOutbox, canManageFeatureFlags } from './rules'
+import { canDispatchOutbox, canManageFeatureFlags, canViewAuditLog } from './rules'
 
 // ── Health ───────────────────────────────────────────────
 export type DependencyStatus = 'ok' | 'down' | 'not_configured'
@@ -50,7 +51,7 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
 }
 
 // ── Audit ────────────────────────────────────────────────
-export interface AuditEntry {
+export interface AuditInput {
   action: string
   targetType: string
   targetId: string
@@ -59,7 +60,7 @@ export interface AuditEntry {
 }
 
 /** Every staff action and money-affecting action writes one row (docs/05 §2). */
-export async function writeAudit(ctx: Ctx, entry: AuditEntry): Promise<void> {
+export async function writeAudit(ctx: Ctx, entry: AuditInput): Promise<void> {
   await repo.insertAudit(ctx.db, {
     actorId: actorUserId(ctx.actor),
     actorKind: ctx.actor.kind,
@@ -71,6 +72,30 @@ export async function writeAudit(ctx: Ctx, entry: AuditEntry): Promise<void> {
     ipHash: ctx.ipHash,
     requestId: ctx.requestId,
   })
+}
+
+export type AuditEntry = Awaited<ReturnType<typeof repo.listAudit>>[number]
+
+const encodeCursor = (e: { createdAt: Date; id: string }) =>
+  Buffer.from(`${e.createdAt.toISOString()}|${e.id}`).toString('base64url')
+
+function decodeCursor(cursor: string | undefined) {
+  if (!cursor) return null
+  const [iso, id] = Buffer.from(cursor, 'base64url').toString('utf8').split('|')
+  const createdAt = new Date(iso ?? '')
+  return id && !Number.isNaN(createdAt.getTime()) ? { createdAt, id } : null
+}
+
+/** Audit log search for /admin/audit (docs/20 §6). Admins only. */
+export async function listAuditLog(
+  ctx: Ctx,
+  filters: Omit<repo.AuditFilters, 'cursor'> & { cursor?: string | undefined },
+): Promise<{ items: AuditEntry[]; nextCursor: string | null }> {
+  requireStaff(ctx.actor, canViewAuditLog)
+  const rows = await repo.listAudit(ctx.db, { ...filters, cursor: decodeCursor(filters.cursor) })
+  const items = rows.slice(0, filters.limit)
+  const last = items.at(-1)
+  return { items, nextCursor: rows.length > filters.limit && last ? encodeCursor(last) : null }
 }
 
 // ── Feature flags ────────────────────────────────────────
@@ -94,7 +119,7 @@ const toFlag = (row: {
 })
 
 export async function listFeatureFlags(ctx: Ctx): Promise<FeatureFlag[]> {
-  if (!canManageFeatureFlags(ctx.actor)) throw new ForbiddenError('STAFF_ONLY')
+  requireStaff(ctx.actor, canManageFeatureFlags)
   const rows = await repo.listFlags(ctx.db)
   return rows.map(toFlag)
 }
@@ -103,7 +128,7 @@ export async function setFeatureFlag(
   ctx: Ctx,
   input: { key: string; enabled: boolean },
 ): Promise<FeatureFlag> {
-  if (!canManageFeatureFlags(ctx.actor)) throw new ForbiddenError('STAFF_ONLY')
+  requireStaff(ctx.actor, canManageFeatureFlags)
 
   return inTransaction(ctx, async (tx) => {
     const before = await repo.getFlagForUpdate(tx.db, input.key)

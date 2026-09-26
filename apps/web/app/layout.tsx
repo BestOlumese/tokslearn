@@ -4,8 +4,6 @@ import { type ReactNode, Suspense } from 'react'
 import { ConsentBanner } from '@/components/consent-banner'
 import { LazyToaster } from '@/components/lazy-toaster'
 import { PageviewTracker } from '@/components/pageview-tracker'
-import { SiteFooter } from '@/components/site-footer'
-import { SiteHeader } from '@/components/site-header'
 import { SkipLink } from '@/components/skip-link'
 import { env } from '@/env'
 import { consentBootScript } from '@/lib/consent'
@@ -48,11 +46,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="flex min-h-dvh flex-col bg-canvas text-ink">
         <SkipLink />
-        <SiteHeader />
-        <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
-          {children}
-        </main>
-        <SiteFooter />
+        {/* Each route group adds its own frame: SiteChrome for most pages, AuthChrome for sign-in. */}
+        {children}
         <ConsentBanner />
         <Suspense fallback={null}>
           <PageviewTracker />

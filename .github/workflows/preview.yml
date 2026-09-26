@@ -29,10 +29,11 @@ jobs:
             echo "::error::GitHub secret VERCEL_AUTOMATION_BYPASS_SECRET is missing. Create it in Vercel (Settings → Deployment Protection → Protection Bypass for Automation) and add it under GitHub → Settings → Secrets and variables → Actions."
             exit 1
           fi
-          type=$(curl -s -o /dev/null -w '%{content_type}' -H "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET" "$BASE_URL/api/v1/health")
-          case "$type" in
-            application/json*) echo "Preview reachable ($type)";;
-            *) echo "::error::Vercel rejected the bypass secret (got $type from /api/v1/health). Copy the value again from Vercel into the GitHub secret."; exit 1;;
+          read -r status type < <(curl -s -o /tmp/health.json -w '%{http_code} %{content_type}\n' -H "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET" "$BASE_URL/api/v1/health")
+          case "$status $type" in
+            "200 application/json"*) echo "Preview reachable"; cat /tmp/health.json;;
+            401*|302*|307*) echo "::error::Vercel rejected the bypass secret (HTTP $status). Copy the value again from Vercel into the GitHub secret."; exit 1;;
+            *) echo "::error::The preview app failed /api/v1/health with HTTP $status. Usually a missing Vercel env var for Preview (BETTER_AUTH_SECRET first). Check the deployment's Runtime Logs in Vercel."; head -c 500 /tmp/health.json; exit 1;;
           esac
       - run: pnpm --filter @tokslearn/web exec playwright install --with-deps chromium
       - name: Playwright smoke

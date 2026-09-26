@@ -25,7 +25,10 @@ export function Styleguide() {
     <div className="mx-auto max-w-page px-4 pt-10 sm:px-6 lg:px-8">
       <h1 className="text-h1-sm text-ink sm:text-h1">Styleguide</h1>
       <p className="mt-2 max-w-prose text-body text-ink-2">
-        Tokens and components from docs/11-design-system.md. Light theme only.
+        Tokens and components from docs/11-design-system.md. Light theme only.{' '}
+        <a href="/styleguide/emails" className="text-brand underline underline-offset-4">
+          Email previews
+        </a>
       </p>
       <nav aria-label="Styleguide sections" className="mt-6">
         <ul className="flex flex-wrap gap-x-4 gap-y-1">

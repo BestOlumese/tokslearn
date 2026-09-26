@@ -22,6 +22,7 @@
   "dependencies": {
     "@upstash/ratelimit": "2.2.0",
     "@upstash/redis": "1.39.0",
+    "aws4fetch": "1.0.20",
     "posthog-node": "5.53.0",
     "server-only": "0.0.1"
   },

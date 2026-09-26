@@ -11,3 +11,20 @@ export const outboxDispatchRequested = eventType('outbox/dispatch.requested', {
 export const featureFlagUpdated = eventType('feature_flag.updated', {
   schema: z.object({ key: z.string(), enabled: z.boolean() }),
 })
+
+const emailRequest = z.object({
+  id: z.string(),
+  to: z.email(),
+  data: z.record(z.string(), z.unknown()),
+  idempotencyKey: z.string(),
+})
+
+/** From the outbox (core `notifications.sendEmail`). */
+export const emailRequested = eventType('notification.email_requested', { schema: emailRequest })
+
+/** Straight from the auth layer: emails with sign-in secrets skip the outbox (ADR-028). */
+export const authEmailRequested = eventType('auth/email.requested', { schema: emailRequest })
+
+export const exportRequested = eventType('user.export_requested', {
+  schema: z.object({ userId: z.string() }),
+})

@@ -4,6 +4,7 @@ import { getDb } from '@tokslearn/db'
 import { requestOutboxDispatch } from '@tokslearn/jobs'
 import { headers } from 'next/headers'
 import { resolveActor } from './actor'
+import { getProviders } from './auth'
 import { nextCache } from './next-cache'
 import { ipHashFrom, requestIdFrom } from './request'
 
@@ -19,6 +20,7 @@ export async function getServerCtx(): Promise<Ctx> {
     requestId: requestIdFrom(h),
     ipHash: ipHashFrom(h),
     cache: nextCache,
+    providers: getProviders(),
     onOutboxWritten: requestOutboxDispatch,
   })
 }

@@ -1,8 +1,8 @@
 import * as admin from '@tokslearn/core/admin'
 import { createCtx, systemActor } from '@tokslearn/core/kernel'
-import { getDb } from '@tokslearn/db'
 import { inngest } from '../client'
 import { outboxDispatchRequested } from '../events'
+import { jobRuntime } from '../runtime'
 
 const MAX_BATCHES = 10
 
@@ -24,7 +24,7 @@ export const outboxDispatch = inngest.createFunction(
       const result = await step.run(`dispatch-batch-${batch}`, () => {
         const ctx = createCtx({
           actor: systemActor('outbox-dispatch'),
-          db: getDb(),
+          db: jobRuntime().db(),
           requestId: runId,
         })
         return admin.dispatchOutbox(ctx, async (messages) => {

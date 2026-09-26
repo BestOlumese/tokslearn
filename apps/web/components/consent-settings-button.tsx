@@ -3,14 +3,14 @@
 
 import { reopenConsent } from '@/lib/consent'
 
-export function ConsentSettingsButton() {
+export function ConsentSettingsButton({
+  className = 'inline-flex min-h-11 items-center text-body-sm text-ink-2 underline-offset-4 hover:text-ink hover:underline',
+}: {
+  className?: string
+}) {
   return (
-    <button
-      type="button"
-      onClick={reopenConsent}
-      className="inline-flex min-h-11 items-center text-body-sm text-ink-2 underline-offset-4 hover:text-ink hover:underline"
-    >
-      Analytics settings
+    <button type="button" onClick={reopenConsent} className={className}>
+      Change my analytics choice
     </button>
   )
 }

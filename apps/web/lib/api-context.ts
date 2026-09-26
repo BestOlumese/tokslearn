@@ -4,6 +4,7 @@ import { getDb } from '@tokslearn/db'
 import { requestOutboxDispatch } from '@tokslearn/jobs'
 import { env } from '@/env'
 import { resolveActor } from './actor'
+import { getProviders } from './auth'
 import { nextCache } from './next-cache'
 import { getRateLimiter, getRedisPing } from './redis'
 import { ipHashFrom, requestIdFrom } from './request'
@@ -18,6 +19,7 @@ export function createApiContext(request: Request): ApiContext {
     ipHash: ipHashFrom(request.headers),
     resolveActor: () => resolveActor(request.headers),
     cache: nextCache,
+    providers: getProviders(),
     rateLimiter: getRateLimiter(),
     onOutboxWritten: requestOutboxDispatch,
     ...(pingRedis ? { pingRedis } : {}),

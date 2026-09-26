@@ -5,6 +5,7 @@ import { type CacheAdapter, noopCache } from './cache'
 import { type Clock, systemClock } from './clock'
 import type { EventEmitter } from './events'
 import { log } from './logger'
+import type { Providers } from './ports'
 
 type Hook = () => Promise<void> | void
 
@@ -18,6 +19,8 @@ export interface Ctx {
   readonly ipHash: string | null
   readonly cache: CacheAdapter
   readonly events: EventEmitter
+  /** Injected providers; read them with `provider(ctx, 'storage')`. */
+  readonly providers: Partial<Providers>
   /** Runs `fn` after the outermost transaction commits (or right away outside a transaction). */
   afterCommit(fn: Hook): void
 }
@@ -31,6 +34,7 @@ export interface CtxInit {
   cache?: CacheAdapter
   /** Called after outbox rows commit, e.g. to trigger the Inngest outbox dispatcher now. */
   onOutboxWritten?: Hook
+  providers?: Partial<Providers>
 }
 
 interface Scope {
@@ -60,6 +64,7 @@ function build(init: CtxInit, db: DbOrTx, scope: Scope, now: Date): Ctx {
     requestId: init.requestId,
     ipHash: init.ipHash ?? null,
     cache: init.cache ?? noopCache,
+    providers: init.providers ?? {},
     afterCommit,
     events: {
       emit: async (name, payload) => {
@@ -100,4 +105,11 @@ export async function inTransaction<T>(ctx: Ctx, fn: (tx: Ctx) => Promise<T>): P
   })
   await runHooks(scope.hooks ?? [], ctx.requestId)
   return result
+}
+
+/** Returns an injected provider or fails loudly: a missing provider is a wiring bug, not user error. */
+export function provider<K extends keyof Providers>(ctx: Ctx, key: K): Providers[K] {
+  const value = ctx.providers[key]
+  if (!value) throw new Error(`Provider "${key}" is not configured for this context`)
+  return value as Providers[K]
 }

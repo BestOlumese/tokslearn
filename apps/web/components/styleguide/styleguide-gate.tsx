@@ -1,9 +1,11 @@
 import { canViewStyleguide } from '@tokslearn/core/admin'
+import type { ReactNode } from 'react'
 import { Forbidden } from '@/components/forbidden'
 import { getServerCtx } from '@/lib/server-ctx'
 import { Styleguide } from './styleguide'
 
-export async function StyleguideGate() {
+/** Staff-only outside local/preview (docs/20 §6 `/styleguide`). */
+export async function StyleguideGateFor({ children }: { children: ReactNode }) {
   const ctx = await getServerCtx()
   if (!canViewStyleguide(ctx.actor)) {
     return (
@@ -12,5 +14,13 @@ export async function StyleguideGate() {
       </div>
     )
   }
-  return <Styleguide />
+  return children
+}
+
+export async function StyleguideGate() {
+  return (
+    <StyleguideGateFor>
+      <Styleguide />
+    </StyleguideGateFor>
+  )
 }

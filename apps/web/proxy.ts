@@ -1,22 +1,17 @@
+import { getSessionCookie } from 'better-auth/cookies'
 import { type NextRequest, NextResponse } from 'next/server'
 
-// Next 16 proxy (formerly middleware). Only cheap cookie-presence redirects live here: no DB,
-// no business logic (docs/07 §2). Matches signed-in areas only, so public pages stay on the CDN.
-
-const SESSION_COOKIES = ['__Secure-tokslearn.session_token', 'tokslearn.session_token']
+// Next 16 proxy. Only a cheap cookie-presence check that redirects signed-out visitors to
+// sign-in: no DB, no session validation (docs/07 §2). Services re-check every request.
 
 export function proxy(request: NextRequest) {
-  // Phase 1 turns this on once Better Auth issues the session cookie.
-  const authEnabled = false
-  const hasSession = SESSION_COOKIES.some((name) => request.cookies.has(name))
-  if (authEnabled && !hasSession) {
-    const url = new URL('/sign-in', request.url)
-    url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
-    return NextResponse.redirect(url)
-  }
-  return NextResponse.next()
+  if (getSessionCookie(request, { cookiePrefix: 'tokslearn' })) return NextResponse.next()
+  const url = new URL('/sign-in', request.url)
+  url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
+  return NextResponse.redirect(url)
 }
 
 export const config = {
-  matcher: ['/learn/:path*', '/account/:path*', '/teach/:path*', '/admin/:path*'],
+  // `/teach` itself is the public instructor landing page; the studio lives under it.
+  matcher: ['/learn/:path*', '/account/:path*', '/teach/:path+', '/admin/:path*'],
 }

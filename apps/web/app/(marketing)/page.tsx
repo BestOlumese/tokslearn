@@ -1,87 +1,125 @@
 import { buttonClasses } from '@tokslearn/ui/button'
 import Link from 'next/link'
+import { SearchIcon } from '@/components/icons/search-icon'
+import { TopicGrid } from '@/components/site/topic-grid'
+import { VerifyForm } from '@/components/site/verify-form'
+import { exampleSearches } from '@/lib/topics'
 
-// Phase 0 home: honest about what exists today. The catalog home (categories, course rows,
-// "Continue learning") replaces it in Phase 3 (docs/20 §1).
-
-const promises = [
-  {
-    title: 'Reviewed before it goes live',
-    body: 'Our team checks every course and every instructor’s identity before a course can be sold.',
-  },
-  {
-    title: 'Refund rules shown before you pay',
-    body: 'Each course states its refund window, up to 14 days, and what ends it, such as watching 30% of the lessons.',
-  },
-  {
-    title: 'Certificates anyone can check',
-    body: 'Each certificate has a code. An employer can enter it at tokslearn.com/verify to see who earned it and for which course.',
-  },
-] as const
+// Pre-launch home. The catalogue home (categories, course rows, "Continue learning") replaces the
+// middle sections in Phase 3 (docs/20 §1). The topic panel becomes the real category list then.
 
 export default function HomePage() {
   return (
-    <div className="mx-auto max-w-page px-4 sm:px-6 lg:px-8">
-      <section className="grid gap-10 pt-10 pb-10 sm:pt-16 lg:grid-cols-12 lg:gap-8 lg:pt-20 lg:pb-16">
-        <div className="lg:col-span-7">
-          <h1 className="text-display-sm text-ink sm:text-display">
-            Courses from people who do the work, paid for in naira.
-          </h1>
-          <p className="mt-5 max-w-[34rem] text-body-lg text-ink-2">
-            Tokslearn is a course marketplace for Nigeria. We are getting the first instructors’
-            courses through review, and the catalogue opens once they pass.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href="/teach" className={buttonClasses()}>
-              See how to apply as an instructor
-            </Link>
-            <Link href="/verify" className={buttonClasses({ variant: 'tertiary' })}>
-              Verify a certificate
-            </Link>
+    <>
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto grid max-w-catalog gap-12 px-4 pt-12 pb-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16 lg:px-8 lg:pt-20 lg:pb-24">
+          <div>
+            <h1 className="max-w-[16ch] text-display-sm text-ink sm:text-display">
+              Online courses from Nigerian instructors
+            </h1>
+            <p className="mt-5 max-w-[34rem] text-body-lg text-ink-2">
+              Excel, programming, design, marketing and more. Pay in naira by card, bank transfer or
+              USSD, then watch the lessons on your phone or laptop.
+            </p>
+            <search className="mt-8 max-w-[560px]">
+              <form action="/courses" className="flex gap-2">
+                <label htmlFor="hero-search" className="sr-only">
+                  Search for a course
+                </label>
+                <div className="relative flex-1">
+                  <SearchIcon className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-3" />
+                  <input
+                    id="hero-search"
+                    name="q"
+                    type="search"
+                    maxLength={100}
+                    placeholder="Search courses"
+                    className="h-14 w-full rounded-control border border-border-strong bg-surface pr-4 pl-12 text-body text-ink placeholder:text-ink-3 hover:border-ink-3 focus-visible:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className={buttonClasses({ size: 'lg', className: 'h-14 px-7' })}
+                >
+                  Search
+                </button>
+              </form>
+            </search>
+            <p className="mt-4 flex flex-wrap items-center gap-2 text-body-sm text-ink-3">
+              <span>Try:</span>
+              {exampleSearches.map((term) => (
+                <Link
+                  key={term}
+                  href={`/courses?q=${encodeURIComponent(term)}`}
+                  className="inline-flex h-11 items-center rounded-full border border-border px-4 text-ink-2 hover:border-ink-3 hover:text-ink sm:h-9"
+                >
+                  {term}
+                </Link>
+              ))}
+            </p>
+          </div>
+
+          <TopicGrid />
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="audience-title"
+        className="mx-auto max-w-catalog px-4 pt-16 sm:px-6 lg:px-8 lg:pt-20"
+      >
+        <h2 id="audience-title" className="sr-only">
+          Learn or teach on Tokslearn
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="flex flex-col rounded-dialog border border-border bg-surface p-7 sm:p-9">
+            <h3 className="text-h2 text-ink">Learn on Tokslearn</h3>
+            <p className="mt-3 text-body text-ink-2">
+              Pay once per course and keep access. If a course isn’t right for you, the refund rules
+              on its page tell you exactly how long you have.
+            </p>
+            <p className="mt-3 text-body text-ink-2">
+              When you finish, your certificate gets a code any employer can check.
+            </p>
+            <div className="mt-auto pt-7">
+              <Link href="/sign-up" className={buttonClasses({ variant: 'secondary' })}>
+                Create a free account
+              </Link>
+            </div>
+          </div>
+          <div className="flex flex-col rounded-dialog border border-border bg-surface p-7 sm:p-9">
+            <h3 className="text-h2 text-ink">Teach on Tokslearn</h3>
+            <p className="mt-3 text-body text-ink-2">
+              Keep 97% of sales that come from your own links and coupons, and at least half of the
+              sales we bring you. You set the price.
+            </p>
+            <p className="mt-3 text-body text-ink-2">
+              We pay out monthly on the 5th, straight to your Nigerian bank account.
+            </p>
+            <div className="mt-auto pt-7">
+              <Link href="/teach" className={buttonClasses({ variant: 'secondary' })}>
+                See how teaching works
+              </Link>
+            </div>
           </div>
         </div>
-
-        <aside
-          aria-labelledby="payments-heading"
-          className="self-start rounded-card border border-border bg-surface p-6 lg:col-span-5 lg:mt-3"
-        >
-          <h2 id="payments-heading" className="text-h4 text-ink">
-            How paying works
-          </h2>
-          <dl className="mt-4 divide-y divide-border text-body-sm">
-            <div className="flex justify-between gap-4 py-3">
-              <dt className="text-ink-2">Currency</dt>
-              <dd className="font-medium text-ink">Naira (₦)</dd>
-            </div>
-            <div className="flex justify-between gap-4 py-3">
-              <dt className="text-ink-2">Pay with</dt>
-              <dd className="text-right font-medium text-ink">Card, bank transfer or USSD</dd>
-            </div>
-            <div className="flex justify-between gap-4 py-3">
-              <dt className="text-ink-2">Processed by</dt>
-              <dd className="font-medium text-ink">Paystack</dd>
-            </div>
-            <div className="flex justify-between gap-4 pt-3">
-              <dt className="text-ink-2">Refund window</dt>
-              <dd className="font-medium text-ink tabular-nums">None, 3, 7 or 14 days</dd>
-            </div>
-          </dl>
-        </aside>
       </section>
 
-      <section aria-labelledby="promises-heading" className="border-t border-border pt-10 lg:pt-14">
-        <h2 id="promises-heading" className="text-h2 text-ink">
-          What every course on Tokslearn gives you
-        </h2>
-        <ul className="mt-6 max-w-[760px] divide-y divide-border border-y border-border">
-          {promises.map((p) => (
-            <li key={p.title} className="grid gap-1 py-5 sm:grid-cols-[16rem_1fr] sm:gap-8">
-              <h3 className="text-h4 text-ink">{p.title}</h3>
-              <p className="text-body text-ink-2">{p.body}</p>
-            </li>
-          ))}
-        </ul>
+      <section
+        aria-labelledby="verify-title"
+        className="mx-auto max-w-catalog px-4 pt-6 sm:px-6 lg:px-8"
+      >
+        <div className="flex flex-col gap-6 rounded-dialog bg-brand-soft p-7 sm:p-9 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-md">
+            <h2 id="verify-title" className="text-h3 text-brand-ink">
+              Checking someone’s certificate?
+            </h2>
+            <p className="mt-1 text-body text-ink-2">
+              Enter the code printed on it to see who earned it and for which course.
+            </p>
+          </div>
+          <VerifyForm id="home-verify" compact />
+        </div>
       </section>
-    </div>
+    </>
   )
 }
