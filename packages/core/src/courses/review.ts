@@ -451,7 +451,7 @@ export async function decideReview(
     if (!course) throw new NotFoundError('COURSE_NOT_FOUND')
     if (revision.status !== 'submitted') throw new ConflictError('COURSE_NOT_IN_REVIEW')
     if (course.instructorId === reviewer.userId) {
-      throw new ForbiddenError('FORBIDDEN', { reason: 'own_course' })
+      throw new ForbiddenError('SELF_REVIEW_NOT_ALLOWED')
     }
     const checklist = Object.fromEntries(
       reviewChecklistKeys.map((k) => [k, Boolean(input.checklist[k])]),

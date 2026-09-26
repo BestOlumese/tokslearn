@@ -303,7 +303,7 @@ describe('instructor onboarding', () => {
             reason: 'Approving myself.',
           }),
         ),
-      ).toBe('FORBIDDEN')
+      ).toBe('SELF_REVIEW_NOT_ALLOWED')
       expect(
         await codeOf(getApplicationDetail(ctx(rev), '01920000-0000-7000-8000-00000000ffff')),
       ).toBe('APPLICATION_NOT_FOUND')
