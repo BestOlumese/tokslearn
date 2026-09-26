@@ -64,7 +64,12 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_HOST: z.url().optional(),
   },
   experimental__runtimeEnv: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    // Previews get their own URL each deploy; Vercel exposes it as NEXT_PUBLIC_VERCEL_URL.
+    NEXT_PUBLIC_APP_URL:
+      process.env.NEXT_PUBLIC_APP_URL ??
+      (process.env.NEXT_PUBLIC_VERCEL_URL
+        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+        : undefined),
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
     NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
     NEXT_PUBLIC_DOJAH_WIDGET_ID: process.env.NEXT_PUBLIC_DOJAH_WIDGET_ID,
