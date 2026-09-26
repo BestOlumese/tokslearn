@@ -11,6 +11,8 @@ const SKIP = new Set([
   '.git',
   'test-results',
   'playwright-report',
+  '.agents',
+  '.claude',
 ])
 
 /** Recursively lists files under `dir` whose name matches `pattern`. */

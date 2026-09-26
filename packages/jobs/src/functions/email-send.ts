@@ -25,15 +25,13 @@ export const emailSend = inngest.createFunction(
       renderEmail(id as EmailId, data as unknown as EmailData[EmailId]),
     )
     const sent = await step.run('send', () =>
-      jobRuntime()
-        .emailSender()
-        .send({
-          to,
-          subject: rendered.subject,
-          html: rendered.html,
-          text: rendered.text,
-          idempotencyKey,
-        }),
+      jobRuntime().emailSender().send({
+        to,
+        subject: rendered.subject,
+        html: rendered.html,
+        text: rendered.text,
+        idempotencyKey,
+      }),
     )
     return { template: id, providerId: sent.id }
   },

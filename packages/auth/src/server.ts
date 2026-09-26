@@ -47,15 +47,13 @@ export function createAuth(deps: AuthDeps) {
   // Email sending must never block or break an auth response; failures are logged and the user
   // can press "resend".
   const send = (email: EmailRequest) =>
-    deps
-      .sendEmail(email)
-      .catch((error: unknown) =>
-        log('error', 'auth email failed', {
-          module: 'auth',
-          action: email.id,
-          error: String(error),
-        }),
-      )
+    deps.sendEmail(email).catch((error: unknown) =>
+      log('error', 'auth email failed', {
+        module: 'auth',
+        action: email.id,
+        error: String(error),
+      }),
+    )
 
   const auth = betterAuth({
     appName: 'Tokslearn',

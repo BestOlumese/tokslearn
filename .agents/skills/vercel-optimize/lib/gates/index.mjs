@@ -1,18 +1,18 @@
-import * as buildMinutesFanout from './build-minutes-fanout.mjs'
-import * as coldStart from './cold-start.mjs'
-import * as cwvPoor from './cwv-poor.mjs'
-import * as externalApiSlow from './external-api-slow.mjs'
-import * as isrOverrevalidation from './isr-overrevalidation.mjs'
-import * as middlewareHeavy from './middleware-heavy.mjs'
-import * as observabilityEventsAttribution from './observability-events-attribution.mjs'
-import * as platformBotProtection from './platform-bot-protection.mjs'
-import * as platformFluidCompute from './platform-fluid-compute.mjs'
-import * as regionMisconfig from './region-misconfig.mjs'
-import * as routeErrors from './route-errors.mjs'
-import * as scannerDriven from './scanner-driven.mjs'
-import * as slowRoute from './slow-route.mjs'
-import * as uncachedRoute from './uncached-route.mjs'
-import * as usageSpikeTriage from './usage-spike-triage.mjs'
+import * as uncachedRoute from './uncached-route.mjs';
+import * as slowRoute from './slow-route.mjs';
+import * as routeErrors from './route-errors.mjs';
+import * as coldStart from './cold-start.mjs';
+import * as isrOverrevalidation from './isr-overrevalidation.mjs';
+import * as cwvPoor from './cwv-poor.mjs';
+import * as platformFluidCompute from './platform-fluid-compute.mjs';
+import * as platformBotProtection from './platform-bot-protection.mjs';
+import * as middlewareHeavy from './middleware-heavy.mjs';
+import * as externalApiSlow from './external-api-slow.mjs';
+import * as scannerDriven from './scanner-driven.mjs';
+import * as observabilityEventsAttribution from './observability-events-attribution.mjs';
+import * as usageSpikeTriage from './usage-spike-triage.mjs';
+import * as buildMinutesFanout from './build-minutes-fanout.mjs';
+import * as regionMisconfig from './region-misconfig.mjs';
 
 // Intentionally NOT registered:
 //   - `oversized_memory`: Fluid Compute floor is 2GB; per-route memory right-sizing isn't a customer lever.
@@ -34,12 +34,12 @@ export const gates = [
   usageSpikeTriage,
   buildMinutesFanout,
   regionMisconfig,
-]
+];
 
 // Overridable via `--max-candidates N` or `VERCEL_OPTIMIZE_MAX_CANDIDATES` (accepts `all`).
 // `MAX_CODE_CANDIDATES` is a back-compat alias for tests importing the old name.
-export const DEFAULT_MAX_CODE_CANDIDATES = 6
-export const MAX_CODE_CANDIDATES = DEFAULT_MAX_CODE_CANDIDATES
+export const DEFAULT_MAX_CODE_CANDIDATES = 6;
+export const MAX_CODE_CANDIDATES = DEFAULT_MAX_CODE_CANDIDATES;
 
 // Bump on any threshold change so report + iteration baselines can detect gate-logic drift.
-export const GATE_VERSION = '1.8.0'
+export const GATE_VERSION = '1.8.0';
