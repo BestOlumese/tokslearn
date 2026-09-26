@@ -45,7 +45,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.error('Set DATABASE_URL to seed.')
     process.exit(1)
   }
-  const handle = createDb(url, { max: 1 })
+  const handle = createDb(url, { max: 1, tcp: true })
   try {
     await seed(handle.db)
     console.info('Settings and feature flags seeded.')

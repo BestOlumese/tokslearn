@@ -8,12 +8,12 @@ import { createDb, schema } from '@tokslearn/db'
 import { eq } from 'drizzle-orm'
 
 const [email, role] = process.argv.slice(2)
-const url = process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL
+const url = process.env.DATABASE_URL_DIRECT || process.env.DATABASE_URL
 if (!url) throw new Error('Set DATABASE_URL')
 const valid = roles.find((r) => r === role)
 if (!email || !valid) throw new Error(`Usage: grant-role <email> <${roles.join('|')}>`)
 
-const { db, close } = createDb(url, { max: 1 })
+const { db, close } = createDb(url, { max: 1, tcp: true })
 try {
   const [u] = await db.select().from(schema.user).where(eq(schema.user.email, email.toLowerCase()))
   if (!u) throw new Error(`No account for ${email}. Sign up first, then run this again.`)

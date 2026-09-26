@@ -11,7 +11,7 @@ if (!url) throw new Error('Set DATABASE_URL')
 if (process.env.NEXT_PUBLIC_APP_ENV === 'production') throw new Error('Not in production')
 if (!password || password.length < 10) throw new Error('Set SEED_PASSWORD (10+ characters)')
 
-const { db, close } = createDb(url, { max: 1 })
+const { db, close } = createDb(url, { max: 1, tcp: true })
 try {
   const hash = await hashPassword(password)
   for (const u of seedUsers) {
