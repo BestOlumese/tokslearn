@@ -53,6 +53,7 @@ export const CategoryDto = z.object({
   name: z.string(),
   children: z.array(z.object({ id: z.uuid(), slug: z.string(), name: z.string() })),
 })
+export type CategoryDto = z.infer<typeof CategoryDto>
 
 export const StudioResourceDto = z.object({
   id: z.uuid(),

@@ -4,3 +4,68 @@
 
 /* Tailwind scans app files automatically; workspace UI primitives live outside this folder. */
 @source "../../../packages/ui/src";
+
+/*
+ * Rich text from the course editor (descriptions, article lessons). The server renders h3/h4,
+ * lists, quotes, code and links only (packages/core/src/courses/rich-text.ts); the editor uses
+ * h2/h3 for the same two levels.
+ */
+@layer components {
+  .prose-content > * + * {
+    margin-top: 0.875rem;
+  }
+  /* Rendered: h3 = heading, h4 = subheading. In the editor: h2 and h3. */
+  .prose-content h3,
+  .prose-editor h2 {
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-top: 1.5rem;
+  }
+  .prose-content h4,
+  .prose-editor h3 {
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-top: 1.25rem;
+  }
+  .prose-content > :first-child {
+    margin-top: 0;
+  }
+  .prose-content ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+  .prose-content ol {
+    list-style: decimal;
+    padding-left: 1.5rem;
+  }
+  .prose-content li + li {
+    margin-top: 0.375rem;
+  }
+  .prose-content blockquote {
+    border-left: 3px solid var(--color-border-strong);
+    padding-left: 1rem;
+    color: var(--color-ink-2);
+  }
+  .prose-content pre {
+    overflow-x: auto;
+    border-radius: var(--radius-control, 8px);
+    background: var(--color-surface-sunken);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  .prose-content code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .prose-content a {
+    color: var(--color-brand-ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .prose-content hr {
+    border-color: var(--color-border);
+  }
+}

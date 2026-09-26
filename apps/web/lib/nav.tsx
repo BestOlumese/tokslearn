@@ -1,8 +1,11 @@
 import {
   Bell,
+  BookOpen,
   ClipboardCheck,
+  FileCheck2,
   Flag,
   KeyRound,
+  Layers,
   ScrollText,
   ShieldCheck,
   UserRound,
@@ -45,6 +48,7 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
         label: 'Applications',
         icon: icon(ClipboardCheck),
       },
+      { href: '/admin/reviews/courses', label: 'Course reviews', icon: icon(FileCheck2) },
     ],
   },
   {
@@ -52,6 +56,17 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [
       { href: '/admin/audit', label: 'Audit log', icon: icon(ScrollText) },
       { href: '/admin/settings/flags', label: 'Feature flags', icon: icon(Flag) },
+    ],
+  },
+]
+
+/** Instructor studio (docs/20 §5). More items arrive with their phases. */
+export const studioNavGroups: ReadonlyArray<SideNavGroup> = [
+  {
+    label: 'Studio',
+    items: [
+      { href: '/teach/courses', label: 'Courses', icon: icon(BookOpen) },
+      { href: '/teach/bundles', label: 'Bundles', icon: icon(Layers) },
     ],
   },
 ]
