@@ -86,7 +86,10 @@ export function CourseReviewDecision({ review }: { review: ReviewDto }) {
               <Checkbox
                 id={`check-${k}`}
                 checked={Boolean(ticked[k])}
-                onChange={(e) => setTicked((t) => ({ ...t, [k]: e.target.checked }))}
+                onChange={(e) => {
+                  const on = e.target.checked
+                  setTicked((t) => ({ ...t, [k]: on }))
+                }}
                 className="mt-0.5"
               />
               <Label htmlFor={`check-${k}`} kind="option">

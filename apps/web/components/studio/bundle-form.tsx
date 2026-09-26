@@ -124,11 +124,10 @@ export function BundleForm({
                 <Checkbox
                   id={`course-${c.id}`}
                   checked={selected.includes(c.id)}
-                  onChange={(e) =>
-                    setSelected((s) =>
-                      e.target.checked ? [...s, c.id] : s.filter((x) => x !== c.id),
-                    )
-                  }
+                  onChange={(e) => {
+                    const on = e.target.checked
+                    setSelected((s) => (on ? [...s, c.id] : s.filter((x) => x !== c.id)))
+                  }}
                   className="mt-0.5"
                 />
                 <Label htmlFor={`course-${c.id}`} kind="option">

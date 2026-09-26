@@ -8,7 +8,13 @@ export async function uploadFile(file: File, purpose: 'avatar' | 'cover' | 'reso
     mime: file.type || 'application/octet-stream',
     sizeBytes: file.size,
   })
-  const put = await fetch(upload.uploadUrl, { method: 'PUT', headers: upload.headers, body: file })
+  let put: Response
+  try {
+    put = await fetch(upload.uploadUrl, { method: 'PUT', headers: upload.headers, body: file })
+  } catch {
+    // The storage host refused the browser (usually its CORS rules) or the network dropped.
+    throw new Error('upload_failed')
+  }
   if (!put.ok) throw new Error('upload_failed')
   return api.media.completeFileUpload({ fileId: upload.fileId })
 }
