@@ -95,6 +95,7 @@ export interface Me {
   timezone: string
   roles: Role[]
   twoFactorEnabled: boolean
+  hasPassword: boolean
   links: Array<{ kind: LinkKind; url: string }>
   deletionScheduledFor: Date | null
   createdAt: Date
@@ -106,10 +107,11 @@ const scheduledDeletion = (requestedAt: Date | null) =>
   requestedAt ? new Date(requestedAt.getTime() + DELETION_GRACE_DAYS * DAY_MS) : null
 
 async function buildMe(ctx: Ctx, db: DbOrTx, userId: string): Promise<Me> {
-  const [user, roles, links] = await Promise.all([
+  const [user, roles, links, hasPassword] = await Promise.all([
     repo.getUser(db, userId),
     repo.rolesOf(db, userId),
     repo.linksOf(db, userId),
+    repo.hasPasswordAccount(db, userId),
   ])
   if (!user || user.deletedAt) throw new NotFoundError('USER_NOT_FOUND')
   return {
@@ -124,6 +126,7 @@ async function buildMe(ctx: Ctx, db: DbOrTx, userId: string): Promise<Me> {
     timezone: user.timezone ?? 'Africa/Lagos',
     roles,
     twoFactorEnabled: user.twoFactorEnabled ?? false,
+    hasPassword,
     links,
     deletionScheduledFor: scheduledDeletion(user.deletionRequestedAt),
     createdAt: user.createdAt,

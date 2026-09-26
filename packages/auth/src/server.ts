@@ -7,9 +7,10 @@ import { type Db, schema } from '@tokslearn/db'
 import type { EmailRequest } from '@tokslearn/emails/catalog'
 import { betterAuth, type SecondaryStorage } from 'better-auth'
 import { APIError, createAuthMiddleware } from 'better-auth/api'
-import { admin, bearer, emailOTP, haveIBeenPwned, twoFactor } from 'better-auth/plugins'
+import { admin, bearer, emailOTP, twoFactor } from 'better-auth/plugins'
 import { eq } from 'drizzle-orm'
 import { uuidv7 } from 'uuidv7'
+import { isBreached, passwordFields } from './breached-password'
 import { createLockout } from './lockout'
 
 // Better Auth configuration (docs/07 §1). One instance serves web (cookies) and mobile (bearer).
@@ -37,6 +38,32 @@ export interface AuthDeps {
 
 const { user, session, account, verification, twoFactor: twoFactorTable } = schema
 
+/** Readable by browser JS; see the after hook. */
+export const SIGNED_IN_HINT = 'tl_signed_in'
+
+/**
+ * The admin plugin stays for ban enforcement at sign-in and its schema fields, but its HTTP
+ * endpoints are off: staff actions go through core services, which check 2FA and write the audit
+ * log (docs/07 §3). Impersonation returns with its own audited flow in Phase 10.
+ */
+const ADMIN_PLUGIN_PATHS = [
+  '/admin/ban-user',
+  '/admin/create-user',
+  '/admin/get-user',
+  '/admin/has-permission',
+  '/admin/impersonate-user',
+  '/admin/list-users',
+  '/admin/list-user-sessions',
+  '/admin/remove-user',
+  '/admin/revoke-user-session',
+  '/admin/revoke-user-sessions',
+  '/admin/set-role',
+  '/admin/set-user-password',
+  '/admin/stop-impersonating',
+  '/admin/unban-user',
+  '/admin/update-user',
+]
+
 const PASSWORD_MESSAGE =
   'This password appeared in a data breach, so it isn’t safe to use. Choose a different one.'
 
@@ -60,6 +87,8 @@ export function createAuth(deps: AuthDeps) {
     baseURL: deps.baseURL,
     secret: deps.secret,
     trustedOrigins: deps.trustedOrigins,
+    disabledPaths: ADMIN_PLUGIN_PATHS,
+    telemetry: { enabled: false },
     database: drizzleAdapter(deps.db, {
       provider: 'pg',
       schema: { user, session, account, verification, twoFactor: twoFactorTable },
@@ -168,7 +197,9 @@ export function createAuth(deps: AuthDeps) {
     },
 
     plugins: [
-      admin({ adminRoles: ['admin', 'super_admin'], defaultRole: 'learner' }),
+      admin({
+        bannedUserMessage: 'This account has been suspended. Contact support.',
+      }),
       twoFactor({ issuer: 'Tokslearn' }),
       emailOTP({
         otpLength: 6,
@@ -190,7 +221,6 @@ export function createAuth(deps: AuthDeps) {
         },
       }),
       bearer(),
-      haveIBeenPwned({ customPasswordCompromisedMessage: PASSWORD_MESSAGE }),
     ],
 
     databaseHooks: {
@@ -223,6 +253,17 @@ export function createAuth(deps: AuthDeps) {
 
     hooks: {
       before: createAuthMiddleware(async (ctx) => {
+        const passwordField = passwordFields[ctx.path]
+        if (passwordField) {
+          const password = (ctx.body as Record<string, unknown> | undefined)?.[passwordField]
+          if (typeof password === 'string' && (await isBreached(password))) {
+            throw new APIError('BAD_REQUEST', {
+              code: 'PASSWORD_COMPROMISED',
+              message: PASSWORD_MESSAGE,
+            })
+          }
+        }
+
         // Lock an email after 10 failed password attempts in 15 minutes (docs/07 §6).
         if (ctx.path === '/sign-in/email') {
           const email = String((ctx.body as { email?: unknown } | undefined)?.email ?? '')
@@ -278,6 +319,19 @@ export function createAuth(deps: AuthDeps) {
             idempotencyKey: `password-changed:${u.id}:${Date.now()}`,
           })
         }
+
+        // Non-secret hint so static pages can show the signed-in header without a server
+        // round trip. Never used for authorization.
+        if (ctx.context.newSession) {
+          ctx.setCookie(SIGNED_IN_HINT, '1', {
+            path: '/',
+            maxAge: 60 * 60 * 24 * 30,
+            sameSite: 'lax',
+            secure: deps.production,
+            httpOnly: false,
+          })
+        }
+        if (ctx.path === '/sign-out') ctx.setCookie(SIGNED_IN_HINT, '', { path: '/', maxAge: 0 })
 
         const signedIn = ctx.context.newSession
         if (signedIn && (ctx.path.startsWith('/sign-in') || ctx.path.startsWith('/callback'))) {

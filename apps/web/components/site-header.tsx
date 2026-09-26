@@ -1,6 +1,6 @@
-import { buttonClasses } from '@tokslearn/ui/button'
 import Link from 'next/link'
 import { primaryNav } from '@/lib/site'
+import { HeaderAccount } from './header-account'
 import { Wordmark } from './wordmark'
 
 export function SiteHeader() {
@@ -29,14 +29,7 @@ export function SiteHeader() {
           >
             Courses
           </Link>
-          <Link href="/sign-in" className={buttonClasses({ variant: 'tertiary', size: 'sm' })}>
-            Sign in
-          </Link>
-          <span className="hidden sm:contents">
-            <Link href="/sign-up" className={buttonClasses({ variant: 'secondary', size: 'sm' })}>
-              Create account
-            </Link>
-          </span>
+          <HeaderAccount />
         </div>
       </div>
     </header>

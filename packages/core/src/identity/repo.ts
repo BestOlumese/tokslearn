@@ -124,6 +124,14 @@ export async function removeRole(db: DbOrTx, userId: string, role: Role) {
   await db.delete(userRoles).where(and(eq(userRoles.userId, userId), eq(userRoles.role, role)))
 }
 
+export async function hasPasswordAccount(db: DbOrTx, userId: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: account.id })
+    .from(account)
+    .where(and(eq(account.userId, userId), eq(account.providerId, 'credential')))
+  return Boolean(row)
+}
+
 // ── Links ────────────────────────────────────────────────
 export async function linksOf(db: DbOrTx, userId: string) {
   return db

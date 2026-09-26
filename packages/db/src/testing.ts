@@ -34,4 +34,4 @@ export async function closeTestDb(): Promise<void> {
   handle = undefined
 }
 
-export { seed } from './seed'
+export { seed, seedDemoUsers } from './seed'

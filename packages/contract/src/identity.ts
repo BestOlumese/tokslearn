@@ -39,6 +39,8 @@ export const MeDto = z.object({
   timezone: z.string(),
   roles: z.array(RoleSchema),
   twoFactorEnabled: z.boolean(),
+  /** False for accounts created with Google or email codes only. */
+  hasPassword: z.boolean(),
   links: z.array(ProfileLink),
   deletionScheduledFor: IsoDateTime.nullable(),
   createdAt: IsoDateTime,

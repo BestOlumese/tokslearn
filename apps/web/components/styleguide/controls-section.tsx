@@ -95,7 +95,7 @@ export function ControlsSection() {
             required
             helper="Two or three sentences about what you teach."
           >
-            {(p) => <Textarea {...p} />}
+            {(p) => <Textarea required {...p} />}
           </Field>
           <Field id="sg-refund" label="Refund window">
             {(p) => (

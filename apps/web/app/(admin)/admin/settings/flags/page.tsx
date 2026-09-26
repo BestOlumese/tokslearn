@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Feature flags', robots: { index: fal
 // docs/20 §6 `/admin/settings/flags` (admin, Phase 0).
 export default function FeatureFlagsPage() {
   return (
-    <div className="mx-auto max-w-page px-4 pt-10 sm:px-6 sm:pt-12 lg:px-8">
+    <div>
       <h1 className="text-h1-sm text-ink sm:text-h1">Feature flags</h1>
       <p className="mt-2 max-w-prose text-body text-ink-2">
         Turn features on or off for everyone. Changes reach every server within a minute, and each

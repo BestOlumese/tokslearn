@@ -29,8 +29,11 @@ export function describeDevice(userAgent: string | null | undefined): string {
 }
 
 /** `102.89.34.7` → `102.89.x.x`; IPv6 keeps the first two groups. */
-export function ipHint(ip: string | null | undefined): string | null {
-  if (!ip) return null
+export function ipHint(raw: string | null | undefined): string | null {
+  if (!raw) return null
+  // IPv4 wrapped as IPv6 (::ffff:1.2.3.4) is still an IPv4 address.
+  const ip = raw.replace(/^::ffff:/i, '')
+  if (/^(::1|0{0,4}(:0{0,4}){6}:0{0,3}1)$/.test(ip) || ip === '127.0.0.1') return 'This computer'
   if (ip.includes(':')) {
     const groups = ip.split(':').filter(Boolean)
     return groups.length >= 2 ? `${groups[0]}:${groups[1]}:…` : null

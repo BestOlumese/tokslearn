@@ -9,8 +9,19 @@ import { gzipSync } from 'node:zlib'
 const webDir = new URL('../apps/web/', import.meta.url).pathname
 const budgetKb = Number(process.argv[process.argv.indexOf('--budget-kb') + 1]) || 145
 
-// Public routes from docs/12 §1 that exist in this phase.
-const routes = { '/': 'index', '/courses': 'courses', '/sign-in': 'sign-in', '/verify': 'verify' }
+// Public routes from docs/12 §1 plus every auth page (all public, all static).
+const routes = {
+  '/': 'index',
+  '/courses': 'courses',
+  '/verify': 'verify',
+  '/sign-in': 'sign-in',
+  '/sign-in/code': 'sign-in/code',
+  '/sign-up': 'sign-up',
+  '/verify-email': 'verify-email',
+  '/forgot-password': 'forgot-password',
+  '/reset-password': 'reset-password',
+  '/two-factor': 'two-factor',
+}
 
 let failed = false
 for (const [route, file] of Object.entries(routes)) {

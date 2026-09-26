@@ -4,10 +4,11 @@
 
 - Adapter: Drizzle (Postgres). Tables generated with the Better Auth CLI into `packages/db/src/schema/auth.ts`, then extended with our columns.
 - Methods: email + password (min 10 chars, breached-password check via HIBP k-anonymity), email OTP for passwordless sign-in and verification, Google OAuth.
-- Plugins (v1): `admin` (ban/impersonate for staff with audit), `twoFactor` (TOTP + backup codes), `emailOTP`, `bearer` (API/mobile tokens), `haveIBeenPwned`. Later: `organization` (Phase 13), `apiKey` (public API), `@better-auth/expo` (Phase 14).
-- Session: cookie `__Secure-tokslearn.session`, `httpOnly`, `secure`, `sameSite=lax`, 30-day rolling, refreshed daily. Cookie cache enabled (short, e.g. 5 min) to avoid a DB hit per request.
+- Plugins (v1): `admin` (ban enforcement only; its HTTP endpoints are disabled so staff actions go through audited core services, ADR-029), `twoFactor` (TOTP + backup codes), `emailOTP`, `bearer` (API/mobile tokens). Breached passwords are checked by our own fail-open hook against Have I Been Pwned (ADR-029). Later: `organization` (Phase 13), `apiKey` (public API), `@better-auth/expo` (Phase 14).
+- Session: cookie `__Secure-tokslearn.session_token`, `httpOnly`, `secure`, `sameSite=lax`, 30-day rolling, refreshed daily. Sessions are stored in Postgres and cached in Redis. The cookie cache (5 min) exists but actor resolution bypasses it so revocation is immediate (ADR-029).
 - Secondary storage: Upstash Redis for sessions and rate limits (reduces DB load at scale).
-- Emails (verification, OTP, reset) via Resend templates in `packages/emails`.
+- Emails (verification, OTP, reset) via Resend templates in `packages/emails`, sent straight to the `email-send` job so secrets never enter the outbox (ADR-028).
+- Bootstrap: the first super admin is granted with `pnpm --filter @tokslearn/auth grant-role <email> super_admin` (audited as a system action).
 - Trusted origins: web domain(s) + `tokslearn://` scheme (Phase 14).
 
 ## 2. Mounting

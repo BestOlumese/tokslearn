@@ -59,6 +59,8 @@ describe('device hints', () => {
   it('hides the end of IP addresses', () => {
     expect(ipHint('102.89.34.7')).toBe('102.89.x.x')
     expect(ipHint('2c0f:f5c0:440:1::1')).toBe('2c0f:f5c0:…')
+    expect(ipHint('::ffff:102.89.34.7')).toBe('102.89.x.x')
+    expect(ipHint('::1')).toBe('This computer')
     expect(ipHint(null)).toBeNull()
   })
 })

@@ -27,7 +27,10 @@ export function canActOnUser(actor: UserActor, targetId: string, targetRoles: Re
 
 const staffOrder: ReadonlyArray<Role> = ['super_admin', 'admin', 'finance', 'support', 'reviewer']
 
-/** Value mirrored into Better Auth's `user.role` for its admin plugin (docs/07 §3). */
+/**
+ * Value mirrored into Better Auth's `user.role` (docs/07 §3). Informational only: the admin
+ * plugin's endpoints are disabled and our checks read `user_roles`.
+ */
 export function mirroredRole(roles: ReadonlyArray<Role>): string {
   return (
     staffOrder.find((r) => roles.includes(r)) ??

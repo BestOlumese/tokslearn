@@ -8,6 +8,14 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./messages": {
+      "types": "./src/messages.ts",
+      "default": "./src/messages.ts"
+    },
+    "./auth-messages": {
+      "types": "./src/auth-messages.ts",
+      "default": "./src/auth-messages.ts"
     }
   },
   "publishConfig": {
