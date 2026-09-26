@@ -23,10 +23,16 @@ const isNeon = (url: string) => new URL(url).hostname.endsWith('.neon.tech')
  * Neon URLs use the WebSocket Pool driver (interactive transactions, ADR-011).
  * Anything else (Docker Postgres for tests and local dev) uses node-postgres.
  * Both drivers expose the same Drizzle Postgres API.
+ *
+ * `tcp: true` forces node-postgres even for Neon. One-off CLI scripts use it: Node's WebSocket
+ * tries IPv6 only, which fails on networks without an IPv6 route, while TCP falls back to IPv4.
  */
-export function createDb(connectionString: string, options: { max?: number } = {}): DbHandle {
+export function createDb(
+  connectionString: string,
+  options: { max?: number; tcp?: boolean } = {},
+): DbHandle {
   const max = options.max ?? 10
-  if (isNeon(connectionString)) {
+  if (!options.tcp && isNeon(connectionString)) {
     const pool = new NeonPool({ connectionString, max })
     return {
       db: drizzleNeon({ client: pool, schema, casing: 'snake_case' }),

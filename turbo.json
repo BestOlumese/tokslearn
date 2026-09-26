@@ -8,7 +8,23 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.test.ts", "!e2e/**"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": ["NEXT_PUBLIC_*", "SENTRY_*", "DATABASE_URL", "SKIP_ENV_VALIDATION"]
+      "env": [
+        "NEXT_PUBLIC_*",
+        "SENTRY_*",
+        "DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "BETTER_AUTH_*",
+        "GOOGLE_*",
+        "RESEND_*",
+        "EMAIL_*",
+        "R2_*",
+        "UPSTASH_*",
+        "INNGEST_*",
+        "PAYSTACK_*",
+        "DOJAH_*",
+        "BUNNY_*",
+        "DAILY_*"
+      ]
     },
     "dev": {
       "cache": false,
