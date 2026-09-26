@@ -29,8 +29,8 @@ styleguide page, deployed to Vercel with Neon.
 - [x] `/api/v1/health` route (returns version, DB + Redis status).
 
 ### 0.3 Database
-- [ ] Neon project (region AWS eu-central-1), branches `main`, `staging`, `dev`.
-  - _Project recreated in eu-central-1 (first one was us-east-1). `main` migrated and seeded 2026-09-26. Still to confirm: `staging` and `dev` branches exist._
+- [x] Neon project (region AWS eu-central-1), branches `main`, `staging`, `dev`.
+  - _eu-central-1 (the first project was us-east-1 and was recreated). `main` migrated and seeded; `staging` and `dev` branched from `main` on 2026-09-26. Local `.env.local` uses `dev`._
 - [x] `packages/db`: Drizzle config (`casing: 'snake_case'`), neon-serverless Pool client, `uuidv7` helper, money helpers, base columns helper (`id`, `createdAt`, `updatedAt`).
 - [x] Tables for this phase: `settings`, `feature_flags`, `outbox`, `idempotency_keys`, `audit_log`.
 - [x] Migration workflow scripts: `db:generate`, `db:migrate`, `db:studio`, `db:seed`.
@@ -45,8 +45,8 @@ styleguide page, deployed to Vercel with Neon.
 - [x] `packages/integrations`: folder per provider with interface + fake; Upstash Redis client.
 
 ### 0.5 Design foundation
-- [ ] Install skills per `docs/18-skills-setup.md`.
-  - _Installed by the owner: avoid-ai-design and the Vercel skills are in `.claude/skills`. Still missing: `frontend-design` (anthropics/skills)._
+- [x] Install skills per `docs/18-skills-setup.md`.
+  - _In `.claude/skills`: avoid-ai-design, frontend-design, react-best-practices, composition-patterns, web-design-guidelines, writing-guidelines (+ other Vercel skills)._
 - [x] `packages/ui/tokens.css` exactly as `11 §1`, Tailwind v4 `@theme`, Figtree via `next/font`.
 - [x] Restyled primitives: Button, Input, Textarea, Select, Checkbox, Radio, Switch, Label, Dialog, Sheet, Popover, Tooltip, Tabs, Toast, Badge, Avatar, Skeleton, Progress, Table, EmptyState.
 - [x] `/styleguide` page (dev + staff only) showing tokens and every component state.
@@ -62,7 +62,7 @@ styleguide page, deployed to Vercel with Neon.
 
 ### 0.7 Deploy
 - [ ] Vercel project (Pro), root `apps/web`, region `fra1`, Neon integration for preview branches, env vars per environment, spend alerts.
-  - _Project live and deploying; Inngest synced. Still to confirm: Neon integration for preview branches, per-environment env vars, spend alerts._
+  - _Live on https://tokslearn.vercel.app, functions in `fra1`, Inngest synced, env vars split per environment (production DB URLs on Production only). Neon integration connected for Preview on 2026-09-26. **Open:** the project is on Hobby, where Spend Management is unavailable and commercial use is not allowed. Upgrade to Pro and set a $50 spend limit before live payments (tracked in Phase 11)._
 - [x] Domain placeholder or Vercel URL live; `/api/v1/health` green in production.
   - _https://tokslearn.vercel.app — 2026-09-26: `status: ok`, database ok, redis ok, environment production. Playwright smoke 8/8 against production._
 

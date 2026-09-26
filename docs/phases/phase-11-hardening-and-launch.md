@@ -14,6 +14,7 @@
 - [ ] Email domain: SPF, DKIM, DMARC verified; deliverability test to Gmail/Yahoo/Outlook.
 - [ ] Monitoring: Sentry alerts, uptime checks, status page, spend alerts on every provider.
 - [ ] Content: 5–10 instructors onboarded with real courses; seed categories; homepage rows curated.
+- [ ] Vercel: upgrade Hobby → Pro (ADR-012: Hobby forbids commercial use) and turn on Spend Management with a $50 limit and email alerts. Must happen before live keys below (carried over from Phase 0).
 - [ ] Switch Paystack/Bunny/Daily/Dojah to live keys; test ₦100 live purchase + refund end to end.
 - [ ] Launch checklist sign-off, tag release.
 
