@@ -1,0 +1,69 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "root": true,
+  "extends": ["./packages/config/biome.base.json"],
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/.claude/skills",
+      "!**/migrations",
+      "!**/.next",
+      "!**/dist",
+      "!**/next-env.d.ts"
+    ]
+  },
+  "overrides": [
+    {
+      "includes": [
+        "apps/web/app/**/page.tsx",
+        "apps/web/app/**/layout.tsx",
+        "apps/web/app/**/error.tsx",
+        "apps/web/app/**/global-error.tsx",
+        "apps/web/app/**/not-found.tsx",
+        "apps/web/app/**/loading.tsx",
+        "apps/web/app/**/robots.ts",
+        "apps/web/app/**/sitemap.ts",
+        "apps/web/app/**/icon.tsx",
+        "apps/web/next.config.ts",
+        "apps/web/playwright.config.ts",
+        "**/vitest.config.ts",
+        "**/drizzle.config.ts",
+        "**/tsup.config.ts",
+        "apps/web/lighthouserc.cjs",
+        "apps/web/postcss.config.mjs"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/scripts/**", "**/seed/**", "**/migrate.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/config/tailwind.css"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noImportantStyles": "off"
+          }
+        }
+      }
+    }
+  ]
+}

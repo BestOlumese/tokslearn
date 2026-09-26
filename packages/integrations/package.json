@@ -1,0 +1,35 @@
+{
+  "name": "@tokslearn/integrations",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./paystack": "./src/paystack/index.ts",
+    "./bunny": "./src/bunny/index.ts",
+    "./daily": "./src/daily/index.ts",
+    "./r2": "./src/r2/index.ts",
+    "./dojah": "./src/dojah/index.ts",
+    "./resend": "./src/resend/index.ts",
+    "./upstash": "./src/upstash/index.ts",
+    "./posthog": "./src/posthog/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@upstash/ratelimit": "2.2.0",
+    "@upstash/redis": "1.39.0",
+    "posthog-node": "5.53.0",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@tokslearn/config": "workspace:*",
+    "@types/node": "24.13.6",
+    "typescript": "6.0.3",
+    "vite": "8.3.1",
+    "vitest": "5.0.1"
+  }
+}

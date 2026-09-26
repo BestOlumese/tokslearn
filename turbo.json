@@ -1,0 +1,33 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "globalDependencies": ["tsconfig.json", "biome.json", "packages/config/**"],
+  "globalEnv": ["NODE_ENV", "NEXT_PUBLIC_APP_ENV", "NEXT_PUBLIC_APP_URL", "APP_VERSION"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.test.ts", "!e2e/**"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["NEXT_PUBLIC_*", "SENTRY_*", "DATABASE_URL", "SKIP_ENV_VALIDATION"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", "!e2e/**"]
+    },
+    "test:int": {
+      "cache": false,
+      "outputs": [],
+      "env": ["TEST_DATABASE_URL"]
+    }
+  }
+}

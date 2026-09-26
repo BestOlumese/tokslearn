@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@import "@tokslearn/ui/tokens.css";
+@import "@tokslearn/config/tailwind.css";
+
+/* Tailwind scans app files automatically; workspace UI primitives live outside this folder. */
+@source "../../../packages/ui/src";

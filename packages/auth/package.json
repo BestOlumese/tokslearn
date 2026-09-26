@@ -1,0 +1,17 @@
+{
+  "name": "@tokslearn/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "devDependencies": {
+    "@tokslearn/config": "workspace:*",
+    "typescript": "6.0.3"
+  }
+}

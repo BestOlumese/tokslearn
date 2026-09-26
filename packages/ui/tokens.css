@@ -1,0 +1,171 @@
+/*
+ * Tokslearn design tokens — docs/11-design-system.md §1–3 is the source of truth.
+ * Light theme only (ADR-013): no dark variants, no theme toggle.
+ * Tailwind's default palette, shadows and radii are cleared so defaults
+ * (indigo-500, gray-*, rounded-2xl shadow-xl) cannot sneak in (docs/11 §6.11).
+ */
+@theme {
+  --color-*: initial;
+  --shadow-*: initial;
+  --radius-*: initial;
+  --breakpoint-2xl: initial;
+
+  /* Neutrals — slightly cool, not pure grey */
+  --color-canvas: #f6f7f6;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #eef0ef;
+  --color-border: #e1e5e3;
+  --color-border-strong: #c7cdca;
+
+  --color-ink: #13181d;
+  --color-ink-2: #46505a;
+  --color-ink-3: #66707a;
+  --color-ink-inverse: #ffffff;
+
+  /* Brand — Tokslearn green */
+  --color-brand: #0e6b4e;
+  --color-brand-hover: #0b5941;
+  --color-brand-press: #094a36;
+  --color-brand-soft: #e6f2ec;
+  --color-brand-ink: #0a4f3a;
+
+  /* Accent — warm amber, max one per screen */
+  --color-accent: #b86e0a;
+  --color-accent-soft: #fcf1df;
+  --color-accent-ink: #7a4905;
+
+  /* Status */
+  --color-info: #1d5da8;
+  --color-info-soft: #e7f0fa;
+  --color-success: #0e6b4e;
+  --color-success-soft: #e6f2ec;
+  --color-warning: #9a5b00;
+  --color-warning-soft: #fdf3e1;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+
+  --color-focus: #1d5da8;
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  /* Dialog/sheet backdrop, the only translucent surface */
+  --color-scrim: rgb(19 24 29 / 0.48);
+
+  /* Typography (docs/11 §2). Figtree is injected by next/font as --font-figtree. */
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --text-display: 2.75rem;
+  --text-display--line-height: 3.25rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+  --text-display-sm: 2.125rem;
+  --text-display-sm--line-height: 2.625rem;
+  --text-display-sm--letter-spacing: -0.02em;
+  --text-display-sm--font-weight: 700;
+
+  --text-h1: 2.125rem;
+  --text-h1--line-height: 2.625rem;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h1--font-weight: 700;
+  --text-h1-sm: 1.75rem;
+  --text-h1-sm--line-height: 2.25rem;
+  --text-h1-sm--letter-spacing: -0.015em;
+  --text-h1-sm--font-weight: 700;
+
+  --text-h2: 1.625rem;
+  --text-h2--line-height: 2.125rem;
+  --text-h2--font-weight: 600;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.75rem;
+  --text-h3--font-weight: 600;
+  --text-h4: 1.0625rem;
+  --text-h4--line-height: 1.5rem;
+  --text-h4--font-weight: 600;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.75rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.25rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--font-weight: 500;
+
+  /* Radius: controls 6, cards 10, dialogs 12. Pills use rounded-full. */
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --radius-dialog: 12px;
+
+  /* Borders over shadows; this one is for floating layers only. */
+  --shadow-pop: 0 8px 24px rgb(19 24 29 / 0.1), 0 2px 6px rgb(19 24 29 / 0.06);
+
+  /* Containers */
+  --container-page: 1200px;
+  --container-catalog: 1280px;
+  --container-form: 560px;
+  --container-prose: 68ch;
+
+  /* Motion: 120–180 ms, ease-out enter, ease-in exit (docs/11 §3) */
+  --ease-enter: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  --animate-fade-in: fade-in 160ms var(--ease-enter);
+  --animate-fade-out: fade-out 120ms var(--ease-exit);
+  --animate-pop-in: pop-in 160ms var(--ease-enter);
+  --animate-pop-out: fade-out 120ms var(--ease-exit);
+  --animate-slide-in-right: slide-in-right 180ms var(--ease-enter);
+  --animate-slide-out-right: slide-out-right 120ms var(--ease-exit);
+  --animate-slide-in-bottom: slide-in-bottom 180ms var(--ease-enter);
+  --animate-slide-out-bottom: slide-out-bottom 120ms var(--ease-exit);
+  --animate-spin: spin 700ms linear infinite;
+  --animate-pulse: pulse 1.6s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes slide-out-right {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes slide-in-bottom {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes slide-out-bottom {
+    to {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.55;
+    }
+  }
+}

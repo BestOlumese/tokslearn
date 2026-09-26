@@ -1,0 +1,14 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Block packages published less than a day ago (supply-chain safety, see docs/14 §2).
+minimumReleaseAge: 1440
+
+# Install scripts are denied unless listed here with `true` (docs/14 §2: avoid install scripts).
+allowBuilds:
+  esbuild: true
+  sharp: true
+  '@sentry/cli': true
+  protobufjs: false
+  core-js: false
