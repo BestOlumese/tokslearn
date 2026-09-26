@@ -101,3 +101,136 @@ export const seedUsers: ReadonlyArray<{
     roles: ['learner'] as SeedRole[],
   })),
 ]
+
+/**
+ * Starter category tree, seeded in every environment (instructors pick one when creating a
+ * course). Admins edit it at /admin/categories from Phase 3. Fixed ids; never reuse one.
+ */
+type CategoryTree = ReadonlyArray<
+  readonly [slug: string, name: string, children: ReadonlyArray<readonly [string, string]>]
+>
+
+const categoryTree: CategoryTree = [
+  [
+    'business',
+    'Business',
+    [
+      ['entrepreneurship', 'Entrepreneurship'],
+      ['sales', 'Sales'],
+      ['management', 'Management'],
+      ['project-management', 'Project management'],
+    ],
+  ],
+  [
+    'finance-and-accounting',
+    'Finance and accounting',
+    [
+      ['accounting-and-bookkeeping', 'Accounting and bookkeeping'],
+      ['tax', 'Tax'],
+      ['investing', 'Investing'],
+      ['professional-exam-prep', 'Professional exam prep'],
+    ],
+  ],
+  [
+    'office-and-data',
+    'Office and data',
+    [
+      ['microsoft-excel', 'Microsoft Excel'],
+      ['data-analysis', 'Data analysis'],
+      ['power-bi', 'Power BI'],
+      ['sql', 'SQL'],
+    ],
+  ],
+  [
+    'development',
+    'Development',
+    [
+      ['web-development', 'Web development'],
+      ['mobile-development', 'Mobile development'],
+      ['programming-languages', 'Programming languages'],
+      ['data-science', 'Data science'],
+    ],
+  ],
+  [
+    'design',
+    'Design',
+    [
+      ['graphic-design', 'Graphic design'],
+      ['ui-ux-design', 'UI/UX design'],
+      ['design-tools', 'Design tools'],
+    ],
+  ],
+  [
+    'marketing',
+    'Marketing',
+    [
+      ['digital-marketing', 'Digital marketing'],
+      ['social-media-marketing', 'Social media marketing'],
+      ['content-and-copywriting', 'Content and copywriting'],
+      ['seo', 'SEO'],
+    ],
+  ],
+  [
+    'it-and-security',
+    'IT and security',
+    [
+      ['cloud-computing', 'Cloud computing'],
+      ['cybersecurity', 'Cybersecurity'],
+      ['networking', 'Networking'],
+      ['it-support', 'IT support'],
+    ],
+  ],
+  [
+    'photo-and-video',
+    'Photo and video',
+    [
+      ['photography', 'Photography'],
+      ['video-production', 'Video production'],
+      ['video-editing', 'Video editing'],
+    ],
+  ],
+  [
+    'personal-development',
+    'Personal development',
+    [
+      ['career-development', 'Career development'],
+      ['communication', 'Communication'],
+      ['languages', 'Languages'],
+    ],
+  ],
+]
+
+export const seedCategories = categoryTree.map(([slug, name, children], i) => {
+  const top = String(i + 1).padStart(10, '0')
+  return {
+    id: `01920000-0000-7000-8001-${top}00`,
+    slug,
+    name,
+    children: children.map(([childSlug, childName], j) => ({
+      id: `01920000-0000-7000-8001-${top}${String(j + 1).padStart(2, '0')}`,
+      slug: childSlug,
+      name: childName,
+    })),
+  }
+})
+
+/**
+ * Demo instructors (non-production): one approved with verified KYC and a payout account, one
+ * whose application is submitted with KYC still pending (docs/05 §4). Only last-4 digits and
+ * provider references, never ID numbers.
+ */
+export const seedInstructors = {
+  approved: {
+    id: '01920000-0000-7000-8000-000000000201',
+    name: 'Tobi Adeleke',
+    email: 'instructor@tokslearn.test',
+    username: 'tobi',
+    slug: 'tobi-adeleke',
+  },
+  pending: {
+    id: '01920000-0000-7000-8000-000000000202',
+    name: 'Grace Okon',
+    email: 'instructor2@tokslearn.test',
+    username: 'grace',
+  },
+} as const

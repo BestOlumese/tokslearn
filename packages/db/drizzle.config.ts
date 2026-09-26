@@ -2,7 +2,7 @@ import { defineConfig } from 'drizzle-kit'
 
 // Migrations always use the direct (non-pooled) connection (docs/04 §3).
 const url =
-  process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL
+  process.env.DATABASE_URL_DIRECT || process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL
 
 export default defineConfig({
   dialect: 'postgresql',

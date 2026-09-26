@@ -153,6 +153,12 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Signed-in header on static pages** comes from a non-secret `tl_signed_in` cookie set at sign-in and cleared at sign-out. It only switches header links; it is never used for authorization.
 - **Account lockout:** 10 failed passwords in 15 minutes locks that email for 15 minutes, doubling per further lock within a day (max 24 h). Keys store a hash of the email.
 
+### ADR-030 Course authoring storage (Phase 2)
+- **Metadata in revisions, structure in place.** Title, subtitle, description, outcomes, requirements, cover and promo video live on `course_revisions`; the studio edits the draft revision and the catalog reads the live one. Sections and lessons are edited in place.
+- **After the first publish,** new sections and lessons are created with `live_since` null and stay hidden from learners until a review approves them; removing a live one sets `removal_requested_at` and takes effect on approval. Edits to existing live lessons (title, article, video) apply at once and appear in the next revision's snapshot diff. Full snapshot-based structural editing (docs/10 §1) was judged too heavy for v1; revisit if reviewers report abuse.
+- **Autosave conflicts** use an integer `courses.version` bumped on every studio write, not `updated_at`: Postgres keeps microseconds and JavaScript dates only milliseconds, so a round-tripped timestamp does not compare equal.
+- **Webhooks other than payments** (Bunny, Dojah, Daily) are recorded in `webhook_events` (unique per provider + event id) for idempotency; Paystack keeps `payment_events` (Phase 4). Bunny sends no event id, so ours is `{videoGuid}:{status}`; the handler re-reads the video from Bunny before acting.
+
 ---
 
 ## Open questions (resolve before the phase that needs them)
