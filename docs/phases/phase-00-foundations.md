@@ -67,10 +67,10 @@ styleguide page, deployed to Vercel with Neon.
   - _https://tokslearn.vercel.app — 2026-09-26: `status: ok`, database ok, redis ok, environment production. Playwright smoke 8/8 against production._
 
 ## Acceptance checklist
-- [ ] `pnpm typecheck lint test` pass locally and in CI.
-  - _Local: pass (plus `test:int` against Postgres 17). CI: runs once the repo is on GitHub._
+- [x] `pnpm typecheck lint test` pass locally and in CI.
+  - _GitHub Actions 2026-09-26: `ci` green on PR #3 and on `main` (typecheck, lint, unit + integration tests on Postgres 17, contract standalone build, migration check, build, 145 KB bundle budget, audit). `preview` green on PR #3 (Playwright smoke + Lighthouse CI)._
 - [ ] Preview deploy per PR with its own Neon branch.
-  - _Needs Vercel + Neon integration; `.github/workflows/preview.yml` runs Playwright and Lighthouse on each preview._
+  - _Preview deploys and their checks run per PR (green on PR #3). Still to confirm: the Vercel ↔ Neon integration gives each preview its own database branch._
 - [x] `/styleguide` reviewed with `web-design-guidelines` + `avoid-ai-design`; no P0/P1 findings.
   - _web-design-guidelines: findings fixed (2026-09-25). avoid-ai-design scanner 2026-09-26: 0 P0, 0 P1 after removing an arrow stapled to a CTA; 2 P2 kept on purpose (middle-dot metadata is the docs/11 §7 format)._
 - [x] Lighthouse mobile on `/` ≥ 95 perf, 100 a11y.
