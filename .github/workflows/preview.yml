@@ -12,12 +12,17 @@ jobs:
     timeout-minutes: 20
     env:
       BASE_URL: ${{ github.event.deployment_status.environment_url }}
+      # Vercel → Settings → Deployment Protection → Protection Bypass for Automation.
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      # pnpm first (version from package.json#packageManager), then Node with the pnpm cache.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-      - run: corepack enable && pnpm install --frozen-lockfile
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @tokslearn/web exec playwright install --with-deps chromium
       - name: Playwright smoke
         env:
@@ -28,7 +33,7 @@ jobs:
           LHCI_BASE_URL: ${{ env.BASE_URL }}
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
         run: pnpm dlx @lhci/cli@0.15.1 autorun --config=apps/web/lighthouserc.cjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
