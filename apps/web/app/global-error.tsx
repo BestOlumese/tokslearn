@@ -2,11 +2,11 @@
 // Replaces the root layout when it fails, so it cannot rely on app CSS or fonts.
 
 import { useEffect } from 'react'
+import { reportClientError } from '@/lib/report-client-error'
 
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return
-    void import('@sentry/nextjs').then((Sentry) => Sentry.captureException(error))
+    reportClientError(error)
   }, [error])
 
   return (
