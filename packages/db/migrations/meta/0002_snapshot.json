@@ -1,5 +1,5 @@
 {
-  "id": "adf06312-d6fc-4cb1-8883-e43b1284d790",
+  "id": "6ea6f9ac-c172-4bbc-b85e-32708d3af90c",
   "prevId": "564193f2-db0d-47f4-83d8-3aae089f1e14",
   "version": "7",
   "dialect": "postgresql",
@@ -1040,6 +1040,55 @@
           "primaryKey": false,
           "notNull": false
         },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
+          "type": "course_level",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'all'"
+        },
+        "language": {
+          "name": "language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'en'"
+        },
+        "price_kobo": {
+          "name": "price_kobo",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "0"
+        },
+        "compare_at_kobo": {
+          "name": "compare_at_kobo",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refund_policy_days": {
+          "name": "refund_policy_days",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 7
+        },
+        "certificate_mode": {
+          "name": "certificate_mode",
+          "type": "certificate_mode",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
         "snapshot": {
           "name": "snapshot",
           "type": "jsonb",
@@ -1164,6 +1213,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "course_revisions_category_id_index": {
+          "name": "course_revisions_category_id_index",
+          "columns": [
+            {
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -1206,6 +1270,19 @@
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
+        "course_revisions_category_id_categories_id_fk": {
+          "name": "course_revisions_category_id_categories_id_fk",
+          "tableFrom": "course_revisions",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
         "course_revisions_reviewed_by_user_id_fk": {
           "name": "course_revisions_reviewed_by_user_id_fk",
           "tableFrom": "course_revisions",
@@ -1223,7 +1300,16 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "course_revisions_refund_policy_days": {
+          "name": "course_revisions_refund_policy_days",
+          "value": "\"course_revisions\".\"refund_policy_days\" in (0, 3, 7, 14)"
+        },
+        "course_revisions_price_non_negative": {
+          "name": "course_revisions_price_non_negative",
+          "value": "\"course_revisions\".\"price_kobo\" >= 0"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.course_staff": {

@@ -10,4 +10,4 @@ export {
 export { baseColumns, currency, kobo, timestamps, tstz } from './columns'
 export { newId, publicId } from './ids'
 export * as schema from './schema'
-export { seedInstructors, seedUsers } from './seed/data'
+export { seedCategories, seedInstructors, seedUsers } from './seed/data'

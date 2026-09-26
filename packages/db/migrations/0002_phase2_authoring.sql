@@ -82,12 +82,21 @@ CREATE TABLE "course_revisions" (
 	"requirements" text[] DEFAULT '{}'::text[] NOT NULL,
 	"cover_file_id" uuid,
 	"promo_video_id" uuid,
+	"category_id" uuid,
+	"level" "course_level" DEFAULT 'all' NOT NULL,
+	"language" text DEFAULT 'en' NOT NULL,
+	"price_kobo" bigint DEFAULT 0 NOT NULL,
+	"compare_at_kobo" bigint,
+	"refund_policy_days" smallint DEFAULT 7 NOT NULL,
+	"certificate_mode" "certificate_mode" DEFAULT 'none' NOT NULL,
 	"snapshot" jsonb,
 	"review_checklist" jsonb,
 	"review_notes" text,
 	"reviewed_by" uuid,
 	"reviewed_at" timestamp with time zone,
-	"submitted_at" timestamp with time zone
+	"submitted_at" timestamp with time zone,
+	CONSTRAINT "course_revisions_refund_policy_days" CHECK ("course_revisions"."refund_policy_days" in (0, 3, 7, 14)),
+	CONSTRAINT "course_revisions_price_non_negative" CHECK ("course_revisions"."price_kobo" >= 0)
 );
 --> statement-breakpoint
 CREATE TABLE "course_staff" (
@@ -275,6 +284,7 @@ ALTER TABLE "bundles" ADD CONSTRAINT "bundles_instructor_id_user_id_fk" FOREIGN 
 ALTER TABLE "course_revisions" ADD CONSTRAINT "course_revisions_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "course_revisions" ADD CONSTRAINT "course_revisions_cover_file_id_files_id_fk" FOREIGN KEY ("cover_file_id") REFERENCES "public"."files"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "course_revisions" ADD CONSTRAINT "course_revisions_promo_video_id_video_assets_id_fk" FOREIGN KEY ("promo_video_id") REFERENCES "public"."video_assets"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "course_revisions" ADD CONSTRAINT "course_revisions_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "course_revisions" ADD CONSTRAINT "course_revisions_reviewed_by_user_id_fk" FOREIGN KEY ("reviewed_by") REFERENCES "public"."user"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "course_staff" ADD CONSTRAINT "course_staff_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "course_staff" ADD CONSTRAINT "course_staff_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
@@ -306,6 +316,7 @@ CREATE INDEX "course_revisions_status_submitted_at_index" ON "course_revisions" 
 CREATE INDEX "course_revisions_cover_file_id_index" ON "course_revisions" USING btree ("cover_file_id");--> statement-breakpoint
 CREATE INDEX "course_revisions_promo_video_id_index" ON "course_revisions" USING btree ("promo_video_id");--> statement-breakpoint
 CREATE INDEX "course_revisions_reviewed_by_index" ON "course_revisions" USING btree ("reviewed_by");--> statement-breakpoint
+CREATE INDEX "course_revisions_category_id_index" ON "course_revisions" USING btree ("category_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "course_staff_course_id_user_id_index" ON "course_staff" USING btree ("course_id","user_id");--> statement-breakpoint
 CREATE INDEX "course_staff_user_id_index" ON "course_staff" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "course_staff_invited_by_index" ON "course_staff" USING btree ("invited_by");--> statement-breakpoint

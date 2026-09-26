@@ -70,4 +70,5 @@ export {
   PayoutAccountStatus,
 } from './instructors'
 export { UploadPurpose } from './media'
+export { RichMark, RichNode, RichTextDoc, richMarkTypes, richNodeTypes } from './rich-text'
 export { CLIENT_HEADER, Cursor, IDEMPOTENCY_HEADER, IsoDateTime, MoneyDto, Page } from './shared'

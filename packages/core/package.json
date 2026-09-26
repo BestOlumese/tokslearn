@@ -8,6 +8,8 @@
     "./kernel": "./src/kernel/index.ts",
     "./admin": "./src/admin/index.ts",
     "./analytics": "./src/analytics/index.ts",
+    "./catalog": "./src/catalog/index.ts",
+    "./courses": "./src/courses/index.ts",
     "./identity": "./src/identity/index.ts",
     "./instructors": "./src/instructors/index.ts",
     "./media": "./src/media/index.ts",

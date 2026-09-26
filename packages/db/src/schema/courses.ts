@@ -21,8 +21,9 @@ import { files, videoAssets } from './media'
 
 // Courses and authoring (docs/05 courses, docs/10 §1).
 //
-// Course metadata (title, description, cover…) lives in revisions: the studio edits the draft
-// revision, the catalog reads the live one. Sections and lessons are edited in place; after the
+// Course metadata and settings (title, description, cover, price, refund policy, category…) live
+// in revisions: the studio edits the draft revision; the course row keeps the live copy of the
+// settings for catalog queries. Sections and lessons are edited in place; after the
 // first publish, new ones stay hidden until a review approves them (`live_since` is null) and
 // removals wait for approval (`removal_requested_at`). See ADR-030.
 
@@ -125,6 +126,15 @@ export const courseRevisions = pgTable(
     requirements: text().array().notNull().default(sql`'{}'::text[]`),
     coverFileId: uuid().references(() => files.id, { onDelete: 'restrict' }),
     promoVideoId: uuid().references(() => videoAssets.id, { onDelete: 'restrict' }),
+    // Settings the review rules look at. The course row holds the live copy (catalog reads it);
+    // approval copies these over (ADR-030).
+    categoryId: uuid().references(() => categories.id, { onDelete: 'restrict' }),
+    level: courseLevelEnum().notNull().default('all'),
+    language: text().notNull().default('en'),
+    priceKobo: kobo().notNull().default(sql`0`),
+    compareAtKobo: kobo(),
+    refundPolicyDays: smallint().notNull().default(7),
+    certificateMode: certificateModeEnum().notNull().default('none'),
     /** Frozen outline + settings at submit time; the reviewer diffs it against the live one. */
     snapshot: jsonb().$type<Record<string, unknown>>(),
     /** Reviewer checklist (docs/25 §B) with ticked items. */
@@ -140,6 +150,9 @@ export const courseRevisions = pgTable(
     index().on(t.coverFileId),
     index().on(t.promoVideoId),
     index().on(t.reviewedBy),
+    index().on(t.categoryId),
+    check('course_revisions_refund_policy_days', sql`${t.refundPolicyDays} in (0, 3, 7, 14)`),
+    check('course_revisions_price_non_negative', sql`${t.priceKobo} >= 0`),
   ],
 )
 

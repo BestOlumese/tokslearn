@@ -1,5 +1,5 @@
 import { newId, schema } from '@tokslearn/db'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { type Ctx, provider } from '../kernel/ctx'
 import { ConflictError, NotFoundError, RuleViolationError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
@@ -110,4 +110,28 @@ export function publicFileUrl(ctx: Ctx, key: string | null): string | null {
   const cdn = ctx.providers.urls?.cdn
   if (!key || !cdn) return null
   return `${cdn.replace(/\/$/, '')}/${key}`
+}
+
+/** Short-lived download link for a private file. The caller must have checked access. */
+export async function privateFileUrl(
+  ctx: Ctx,
+  file: { bucket: 'public' | 'private'; key: string },
+  downloadName?: string,
+): Promise<string> {
+  return provider(ctx, 'storage').presignDownload({
+    bucket: file.bucket,
+    key: file.key,
+    expiresInSec: 5 * 60,
+    ...(downloadName ? { downloadName } : {}),
+  })
+}
+
+/** Files by id for other modules (no ownership check: the caller authorizes). */
+export async function getFiles(ctx: Ctx, ids: ReadonlyArray<string>) {
+  if (ids.length === 0) return new Map<string, typeof files.$inferSelect>()
+  const rows = await ctx.db
+    .select()
+    .from(files)
+    .where(inArray(files.id, [...ids]))
+  return new Map(rows.map((r) => [r.id, r]))
 }

@@ -3,7 +3,7 @@ import { base } from './base'
 import { IsoDateTime } from './shared'
 
 /** Purposes enabled so far; more arrive with the features that need them (docs/09 §5). */
-export const UploadPurpose = z.enum(['avatar'])
+export const UploadPurpose = z.enum(['avatar', 'cover', 'resource'])
 
 export const mediaContract = {
   createFileUpload: base
