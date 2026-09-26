@@ -11,8 +11,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "test": "vitest run",
-    "seed:passwords": "tsx src/scripts/seed-passwords.ts",
-    "grant-role": "tsx src/scripts/grant-role.ts"
+    "seed:passwords": "tsx --conditions=react-server src/scripts/seed-passwords.ts",
+    "grant-role": "tsx --conditions=react-server src/scripts/grant-role.ts"
   },
   "devDependencies": {
     "@tokslearn/config": "workspace:*",

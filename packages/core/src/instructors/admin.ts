@@ -141,8 +141,7 @@ export async function decideApplication(
   const decided = await inTransaction(ctx, async (tx) => {
     const app = await repo.lockApplication(tx.db, input.id)
     if (!app || app.status === 'draft') throw new NotFoundError('APPLICATION_NOT_FOUND')
-    if (app.userId === reviewer.userId)
-      throw new ForbiddenError('FORBIDDEN', { reason: 'own_application' })
+    if (app.userId === reviewer.userId) throw new ForbiddenError('SELF_REVIEW_NOT_ALLOWED')
     if (app.status !== 'submitted' && app.status !== 'in_review') {
       throw new ConflictError('APPLICATION_ALREADY_DECIDED')
     }

@@ -27,6 +27,10 @@ export const errorCatalog = {
   INSTRUCTOR_REQUIRED: { status: 'FORBIDDEN', message: 'Apply to teach to use the studio.' },
   KYC_REQUIRED: { status: 'FORBIDDEN', message: 'Complete identity verification to continue.' },
   STAFF_ONLY: { status: 'FORBIDDEN', message: 'This area is for Tokslearn staff.' },
+  SELF_REVIEW_NOT_ALLOWED: {
+    status: 'FORBIDDEN',
+    message: "You can't decide your own application or course. Ask another reviewer.",
+  },
   COURSE_NOT_FOUND: notFound('course'),
   LESSON_NOT_FOUND: notFound('lesson'),
   ORDER_NOT_FOUND: notFound('order'),
