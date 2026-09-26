@@ -10,6 +10,8 @@ export const categories = pgTable(
     ...baseColumns(),
     slug: text().notNull().unique(),
     name: text().notNull(),
+    /** One or two sentences for the category page. */
+    description: text(),
     parentId: uuid().references((): AnyPgColumn => categories.id, { onDelete: 'restrict' }),
     position: integer().notNull().default(0),
   },

@@ -87,6 +87,8 @@ export const courses = pgTable(
     /** Autosave conflict token: every studio write bumps it; a stale value is VERSION_CONFLICT. */
     version: integer().notNull().default(1),
     publishedAt: tstz(),
+    /** Set by staff to show the course in the home page's featured row (docs/20 /admin/courses). */
+    featuredAt: tstz(),
     deletedAt: tstz(),
   },
   (t) => [
