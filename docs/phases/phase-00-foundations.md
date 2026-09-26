@@ -71,8 +71,8 @@ styleguide page, deployed to Vercel with Neon.
   - _Local: pass (plus `test:int` against Postgres 17). CI: runs once the repo is on GitHub._
 - [ ] Preview deploy per PR with its own Neon branch.
   - _Needs Vercel + Neon integration; `.github/workflows/preview.yml` runs Playwright and Lighthouse on each preview._
-- [ ] `/styleguide` reviewed with `web-design-guidelines` + `avoid-ai-design`; no P0/P1 findings.
-  - _web-design-guidelines: findings fixed. avoid-ai-design: checked by hand against docs/11 §6 (no P0/P1); its scanner runs once the skill is installed._
+- [x] `/styleguide` reviewed with `web-design-guidelines` + `avoid-ai-design`; no P0/P1 findings.
+  - _web-design-guidelines: findings fixed (2026-09-25). avoid-ai-design scanner 2026-09-26: 0 P0, 0 P1 after removing an arrow stapled to a CTA; 2 P2 kept on purpose (middle-dot metadata is the docs/11 §7 format)._
 - [x] Lighthouse mobile on `/` ≥ 95 perf, 100 a11y.
   - _Production 2026-09-26 (after ADR-027): `/` 97, `/courses` 97, `/sign-in` 100, `/verify` 99 performance; 100 accessibility, best practices and SEO on all; LCP 1.1–1.5 s, CLS 0. First-load JS 140.9 KB of the 145 KB budget (ADR-026)._
 - [x] `docs/02-decisions.md` has the "Pinned versions" ADR.
