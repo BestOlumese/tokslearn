@@ -2,13 +2,25 @@
 // Previews are noindex on purpose, so the crawlability audit is skipped there.
 const base = process.env.LHCI_BASE_URL ?? 'http://localhost:3000'
 const routes = ['/', '/courses', '/sign-in', '/verify']
+// Vercel Deployment Protection bypass for previews (same secret as Playwright).
+const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
 
 module.exports = {
   ci: {
     collect: {
       url: routes.map((r) => `${base}${r}`),
       numberOfRuns: 3,
-      settings: { skipAudits: ['is-crawlable'] },
+      settings: {
+        skipAudits: ['is-crawlable'],
+        ...(bypass
+          ? {
+              extraHeaders: JSON.stringify({
+                'x-vercel-protection-bypass': bypass,
+                'x-vercel-set-bypass-cookie': 'true',
+              }),
+            }
+          : {}),
+      },
     },
     assert: {
       assertions: {

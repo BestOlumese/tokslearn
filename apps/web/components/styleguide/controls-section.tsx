@@ -7,7 +7,7 @@ import { Radio } from '@tokslearn/ui/radio'
 import { Select } from '@tokslearn/ui/select'
 import { Switch } from '@tokslearn/ui/switch'
 import { Textarea } from '@tokslearn/ui/textarea'
-import { ArrowRight, Download, Trash2 } from 'lucide-react'
+import { Download, Trash2 } from 'lucide-react'
 import { Demo } from './demo'
 import { Section } from './section'
 
@@ -45,9 +45,9 @@ export function ControlsSection() {
               Add to wishlist
             </Button>
           </Demo>
-          <Demo label="Link styled as button · focus: press Tab to see the 2 px ring">
+          <Demo label="Link styled as a tertiary button (press Tab to see the 2 px focus ring)">
             <a href="#buttons" className={buttonClasses({ variant: 'tertiary' })}>
-              Read the refund rules {icon(ArrowRight)}
+              Read the refund rules
             </a>
           </Demo>
         </div>
