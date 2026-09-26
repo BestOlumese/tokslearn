@@ -53,9 +53,10 @@ export function getAuth(): Auth {
 
 /** All core providers, including session revocation through Better Auth. */
 export function getProviders(): Providers {
-  providers ??= {
-    ...baseProviders(),
+  // Object.assign, not spread: provider getters (Dojah, Paystack, Bunny) stay lazy, so a
+  // missing key only fails the feature that needs it.
+  providers ??= Object.assign(baseProviders(), {
     sessions: createSessionAdmin(getAuth(), getDb()),
-  }
+  })
   return providers
 }

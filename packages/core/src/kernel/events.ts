@@ -10,6 +10,14 @@ export interface DomainEvents {
   'user.deletion_cancelled': { userId: string }
   'user.export_requested': { userId: string }
   'user.banned': { userId: string; banned: boolean }
+  'instructor.application_submitted': { applicationId: string; userId: string }
+  'instructor.application_decided': { applicationId: string; userId: string; approved: boolean }
+  'kyc.completed': {
+    userId: string
+    kycCheckId: string
+    status: 'verified' | 'failed' | 'manual_review'
+  }
+  'payout_account.added': { userId: string; payoutAccountId: string; replaced: boolean }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */
   'notification.email_requested': {
     id: string

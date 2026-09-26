@@ -1,5 +1,5 @@
 import type { Db, DbOrTx } from '@tokslearn/db'
-import type { Actor, Role, UserActor } from '../kernel/actor'
+import { type Actor, actorUserId, type Role, type UserActor } from '../kernel/actor'
 import { type Ctx, inTransaction, provider } from '../kernel/ctx'
 import { ConflictError, ForbiddenError, NotFoundError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
@@ -7,6 +7,7 @@ import { getOwnedUploadedFile, publicFileUrl } from '../media'
 import { sendEmail } from '../notifications'
 import { describeDevice, ipHint } from './device'
 import * as repo from './repo'
+import { mirroredRole } from './rules'
 
 export const DELETION_GRACE_DAYS = 14
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -327,3 +328,23 @@ export async function getPublicProfile(ctx: Ctx, username: string) {
 }
 
 export type { Actor }
+
+/**
+ * For the instructors module only, after its own reviewer check (docs/07 §5 step 5): grants the
+ * instructor role inside the caller's transaction. Staff role changes go through `setRole`.
+ */
+export async function grantInstructorRole(ctx: Ctx, userId: string): Promise<void> {
+  await repo.grantRole(ctx.db, userId, 'instructor', actorUserId(ctx.actor))
+  const roles = await repo.rolesOf(ctx.db, userId)
+  await repo.updateUser(ctx.db, userId, { role: mirroredRole(roles) })
+}
+
+/** Name and email for notifications sent by other modules. Never returned to clients. */
+export async function getUserContact(
+  ctx: Ctx,
+  userId: string,
+): Promise<{ name: string; email: string }> {
+  const row = await repo.getUser(ctx.db, userId)
+  if (!row || row.deletedAt) throw new NotFoundError('USER_NOT_FOUND')
+  return { name: row.name, email: row.email }
+}

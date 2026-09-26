@@ -1,3 +1,6 @@
+import type { VideoProvider } from '@tokslearn/integrations/bunny'
+import type { KycProvider } from '@tokslearn/integrations/dojah'
+import type { PayoutProvider } from '@tokslearn/integrations/paystack'
 import type { FileStorage } from '@tokslearn/integrations/r2'
 
 /**
@@ -22,4 +25,10 @@ export interface Providers {
   storage: FileStorage
   sessions: SessionAdmin
   urls: Urls
+  /** Dojah BVN/NIN + selfie (docs/07 §5). */
+  kyc: KycProvider
+  /** Paystack bank directory and transfer recipients. */
+  payouts: PayoutProvider
+  /** Bunny Stream. */
+  video: VideoProvider
 }

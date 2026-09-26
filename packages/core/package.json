@@ -9,6 +9,7 @@
     "./admin": "./src/admin/index.ts",
     "./analytics": "./src/analytics/index.ts",
     "./identity": "./src/identity/index.ts",
+    "./instructors": "./src/instructors/index.ts",
     "./media": "./src/media/index.ts",
     "./notifications": "./src/notifications/index.ts",
     "./testing": "./src/kernel/testing.ts"

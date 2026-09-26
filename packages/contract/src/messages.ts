@@ -37,6 +37,12 @@ export const errorCatalog = {
   FILE_NOT_FOUND: notFound('file'),
   SESSION_NOT_FOUND: notFound('session'),
   FEATURE_FLAG_NOT_FOUND: notFound('feature flag'),
+  APPLICATION_NOT_FOUND: notFound('application'),
+  CATEGORY_NOT_FOUND: notFound('category'),
+  SECTION_NOT_FOUND: notFound('section'),
+  BUNDLE_NOT_FOUND: notFound('bundle'),
+  REVISION_NOT_FOUND: notFound('course version'),
+  VIDEO_NOT_FOUND: notFound('video'),
 
   // Instructor onboarding
   APPLICATION_EXISTS: {
@@ -60,6 +66,22 @@ export const errorCatalog = {
   BANK_NAME_MISMATCH: {
     status: 'UNPROCESSABLE_CONTENT',
     message: "The account name doesn't match your verified name. We've sent it for manual review.",
+  },
+  APPLICATION_NOT_EDITABLE: {
+    status: 'CONFLICT',
+    message: "Your application is in review, so it can't be changed now.",
+  },
+  APPLICATION_INCOMPLETE: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Finish every step before you submit.',
+  },
+  APPLICATION_ALREADY_DECIDED: {
+    status: 'CONFLICT',
+    message: 'This application already has a decision.',
+  },
+  BANK_PROVIDER_UNAVAILABLE: {
+    status: 'SERVICE_UNAVAILABLE',
+    message: "We can't reach the bank directory right now. Try again in a few minutes.",
   },
 
   // Authoring and media
@@ -85,6 +107,22 @@ export const errorCatalog = {
   VIDEO_PROCESSING_FAILED: {
     status: 'UNPROCESSABLE_CONTENT',
     message: 'Processing failed. Upload the video again.',
+  },
+  VIDEO_PROVIDER_UNAVAILABLE: {
+    status: 'SERVICE_UNAVAILABLE',
+    message: 'Video uploads are temporarily unavailable. Try again shortly.',
+  },
+  COURSE_NOT_IN_REVIEW: {
+    status: 'CONFLICT',
+    message: "This course isn't waiting for review any more.",
+  },
+  ALREADY_COURSE_STAFF: {
+    status: 'CONFLICT',
+    message: 'That person already helps with this course.',
+  },
+  INVALID_MOVE: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: "That move isn't possible. Reload the curriculum and try again.",
   },
 
   // Catalog, cart, checkout

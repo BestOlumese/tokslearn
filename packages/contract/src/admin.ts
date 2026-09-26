@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { base } from './base'
 import { RoleSchema, SessionDto } from './identity'
+import { adminInstructorsContract } from './instructors'
 import { Cursor, IsoDateTime, Page } from './shared'
 
 export const FeatureFlagKey = z
@@ -172,4 +173,5 @@ export const adminContract = {
       )
       .output(Page(AuditEntryDto)),
   },
+  instructors: adminInstructorsContract,
 }

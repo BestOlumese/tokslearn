@@ -3,6 +3,7 @@ import * as admin from '@tokslearn/core/admin'
 import * as identity from '@tokslearn/core/identity'
 import { staff } from '../base'
 import { toAdminUserRow, toAuditDto, toSessionDto } from '../dto'
+import { adminInstructorsRouter } from './instructors'
 
 const supportPlus = staff('support', 'admin', 'super_admin')
 const adminOnly = staff('admin', 'super_admin')
@@ -64,4 +65,6 @@ export const adminRouter = {
       return { items: page.items.map(toAuditDto), nextCursor: page.nextCursor }
     }),
   },
+
+  instructors: adminInstructorsRouter,
 }
