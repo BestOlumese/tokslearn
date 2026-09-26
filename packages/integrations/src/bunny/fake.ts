@@ -1,36 +1,62 @@
-import type { VideoProvider } from './types'
+import { isValidBunnySignature, playbackToken } from './signing'
+import type { VideoInfo, VideoProvider } from './types'
 
-export function createFakeBunny(): VideoProvider & {
-  markReady(videoId: string, durationSec: number): void
-} {
-  const videos = new Map<
-    string,
-    { status: 'queued' | 'processing' | 'ready' | 'failed'; durationSec: number | null }
-  >()
+/** Test double: videos start processing; `setVideo` moves them to ready or failed. */
+export function createFakeBunny(webhookSecret = 'bunny-test-secret') {
+  const videos = new Map<string, VideoInfo>()
+  const deleted: string[] = []
   let n = 0
-  return {
+  const provider: VideoProvider = {
+    libraryId: 'test-library',
     async createVideo() {
       n++
-      const videoId = `fake-video-${n}`
-      videos.set(videoId, { status: 'queued', durationSec: null })
+      const videoId = `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
+      videos.set(videoId, {
+        status: 'processing',
+        durationSec: null,
+        width: null,
+        height: null,
+        thumbnailUrl: null,
+      })
+      return { videoId }
+    },
+    authorizeUpload({ videoId, expiresAt }) {
+      const exp = Math.floor(expiresAt.getTime() / 1000)
       return {
-        videoId,
-        uploadUrl: `https://video.bunny.test/upload/${videoId}`,
-        uploadExpiresAt: new Date(Date.now() + 3_600_000),
+        endpoint: 'https://video.bunny.test/tusupload',
+        headers: {
+          AuthorizationSignature: `sig-${videoId}-${exp}`,
+          AuthorizationExpire: String(exp),
+          VideoId: videoId,
+          LibraryId: 'test-library',
+        },
+        expiresAt,
       }
     },
     async getVideo(videoId) {
-      return videos.get(videoId) ?? { status: 'failed', durationSec: null }
+      return videos.get(videoId) ?? null
+    },
+    async deleteVideo(videoId) {
+      videos.delete(videoId)
+      deleted.push(videoId)
     },
     playbackUrls({ videoId, expiresAt }) {
       const exp = Math.floor(expiresAt.getTime() / 1000)
+      const token = playbackToken('test-token-key', videoId, exp)
       return {
-        embedUrl: `https://iframe.bunny.test/embed/${videoId}?expires=${exp}`,
-        hlsUrl: `https://vz.bunny.test/${videoId}/playlist.m3u8?expires=${exp}`,
+        embedUrl: `https://iframe.bunny.test/embed/test-library/${videoId}?token=${token}&expires=${exp}`,
+        hlsUrl: `https://vz.bunny.test/${videoId}/playlist.m3u8?token=${token}&expires=${exp}`,
       }
     },
-    markReady(videoId, durationSec) {
-      videos.set(videoId, { status: 'ready', durationSec })
+    verifyWebhookSignature: (rawBody, signature) =>
+      isValidBunnySignature(webhookSecret, rawBody, signature),
+  }
+  return {
+    provider,
+    deleted,
+    setVideo: (videoId: string, info: Partial<VideoInfo>) => {
+      const current = videos.get(videoId)
+      if (current) videos.set(videoId, { ...current, ...info })
     },
   }
 }

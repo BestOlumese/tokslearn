@@ -1,3 +1,5 @@
-export { createFakePaystack } from './fake'
+export { ProviderError } from '../shared/http'
+export { createFakePayouts, createFakePaystack } from './fake'
+export { createPaystackPayouts } from './payouts'
 export { isValidPaystackSignature } from './signature'
-export type { PaymentProvider } from './types'
+export type { Bank, PaymentProvider, PayoutProvider } from './types'
