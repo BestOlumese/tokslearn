@@ -92,6 +92,16 @@ export function PublishPanel() {
           </Button>
         }
       >
+        <p className="mb-4 text-body-sm text-ink-2">
+          Reviewers check against the{' '}
+          <Link
+            href="/content-policy"
+            className="font-medium text-brand-ink underline underline-offset-4"
+          >
+            content rules
+          </Link>
+          .
+        </p>
         <ul className="flex flex-col gap-2.5">
           {course.checklist.map((i) => (
             <li key={i.key} className="flex items-start gap-3">

@@ -159,6 +159,14 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Autosave conflicts** use an integer `courses.version` bumped on every studio write, not `updated_at`: Postgres keeps microseconds and JavaScript dates only milliseconds, so a round-tripped timestamp does not compare equal.
 - **Webhooks other than payments** (Bunny, Dojah, Daily) are recorded in `webhook_events` (unique per provider + event id) for idempotency; Paystack keeps `payment_events` (Phase 4). Bunny sends no event id, so ours is `{videoGuid}:{status}`; the handler re-reads the video from Bunny before acting.
 
+### ADR-031 Phase 2 scope choices
+- **Dojah through its synchronous API, not the widget.** `POST /api/v1/kyc/{bvn|nin}/verify` with a selfie returns the result in the same request, so there is no Dojah webhook to handle. Our own camera capture sends the photo once; the response is reduced to names and the match score before it leaves the client (no ID number, phone, date of birth or photo is kept). Selfie confidence under 80, or a registered name that doesn't match the account name, goes to manual review, which the reviewer settles when deciding the application.
+- **First payout account needs no step-up; replacing it does.** Onboarding shouldn't require 2FA before the applicant is even approved. Replacing an account needs 2FA verified in the last 12 hours, starts a 72-hour payout hold and emails a security notice. A Paystack transfer recipient is created even when the name needs manual review, because we never keep the full account number to create it later; the account status is what gates payouts.
+- **`/teach` stays the public landing page.** The studio opens at `/teach/courses`. The instructor dashboard (docs/20) moves to `/teach/dashboard` in Phase 10, when there are sales and ratings to show. `/admin/instructors` (list and detail) moves to Phase 10 for the same reason; Phase 2 ships the applications queue.
+- **Reviewer decisions are approve or request changes.** Rejecting a course for a policy violation (docs/25 §B) arrives with moderation and strikes (Phases 8–9); until then reviewers request changes and cite the rule number.
+- **Rich text is editor JSON.** The contract accepts only the node and mark types the server renders; the server builds `*_html` from an allowlist with escaped text and http(s)/mailto links only. No HTML from the browser is stored.
+- **Video uploads:** tus-js-client straight to Bunny with signed headers valid for 24 hours, 8 MB chunks and retries. A new upload always creates a new Bunny video (no cross-session resume), because each signature is bound to one video id.
+
 ---
 
 ## Open questions (resolve before the phase that needs them)

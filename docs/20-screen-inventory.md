@@ -36,12 +36,12 @@ Refund policy, contact), cookie/analytics consent banner (first visit), toast re
 | `/courses/[slug]/preview/[lessonId]` | S+ | Preview lesson player (video/article) with sign-up prompt. | Non-preview lesson → redirect to course page | `learn.previewPlayback` | 3 |
 | `/bundles/[slug]` | S+ | Bundle title, included courses (cards), total value vs bundle price, purchase panel. | | `bundles.getBySlug` | 4 |
 | `/instructors/[slug]` | S | Photo, name, headline, bio, links, stats (courses, learners, rating), courses grid, reviews summary. | | `instructors.getBySlug` | 3 |
-| `/teach` | S | Instructor landing: how it works (apply → KYC → publish), commission table in plain numbers, refund rules, payout schedule (monthly on the 5th, ₦5,000 minimum), requirements, "Apply to teach" button, FAQ. | Signed-in instructor → "Go to studio" | static + `settings` | 2 |
+| `/teach` | S | Instructor landing: how it works (apply → KYC → publish), commission table in plain numbers, refund rules, payout schedule (monthly on the 5th, ₦5,000 minimum), requirements, "Apply to teach" button, FAQ. | Signed-in instructor → "Go to studio" (Phase 2: "Apply to teach" sends instructors straight to the studio, and the account menu links to it; the page stays static) | static + `settings` | 2 |
 | `/verify` | S | Certificate code input + explanation. | Invalid format → inline error | — | 7 |
 | `/verify/[code]` | S | Certificate details: recipient, course, instructor, issue date, basis, status (valid/revoked + reason), QR. | Unknown code → "No certificate found with this code" (200 page, noindex) | `certificates.verify` | 7 |
 | `/r/[code]` | — | Referral redirect: sets `tl_ref`, logs click, 302 to target. | Invalid → home | route handler | 4 |
 | `/help`, `/help/[slug]` | S | Help articles (MDX in repo v1): buying, refunds, certificates, exams, teaching, payouts. | | MDX | 11 |
-| `/legal/terms`, `/legal/privacy`, `/legal/refunds`, `/legal/instructor-agreement`, `/legal/content-policy` | S | Legal pages (MDX). | | MDX | 11 |
+| `/legal/terms`, `/legal/privacy`, `/legal/refunds`, `/legal/instructor-agreement`, `/legal/content-policy` | S | Legal pages (MDX). Until then, plain-language drafts live at `/terms`, `/privacy`, `/refund-policy` and `/content-policy` (docs/25 part A, Phase 2). | | MDX | 11 |
 | `/about`, `/contact` | S | Plain company info, contact form (rate-limited, emails support). | | `support.contact` | 11 |
 
 ## 2. Auth
@@ -100,10 +100,10 @@ Left nav: Dashboard, Courses, Bundles, Coupons, Referral links, Learners, Gradin
 | Route | R | Content | States | Data | Ph |
 |-------|---|---------|--------|------|----|
 | `/teach/apply` | D | Multi-step: About you → Expertise & sample → KYC (BVN/NIN + selfie) → Bank account → Review & submit. Progress saved per step. | Submitted/in review/rejected (reason + reapply after 30 days) | `instructors.*`, `kyc.*`, `payoutAccounts.*` | 2 |
-| `/teach` (dashboard) | D | This month: revenue, enrollments, avg rating; to-do list (grading queue count, unanswered questions, courses with changes requested, upcoming live sessions); recent sales. | New instructor → checklist to first course | `analytics.instructorSummary` | 2/10 |
+| `/teach` (dashboard) | D | This month: revenue, enrollments, avg rating; to-do list (grading queue count, unanswered questions, courses with changes requested, upcoming live sessions); recent sales. | New instructor → checklist to first course | `analytics.instructorSummary` | 10 (Phase 2: `/teach` stays the public landing; the studio opens at `/teach/courses`, whose empty state leads to the first course. The dashboard moves to `/teach/dashboard` when there are sales to show, ADR-031) |
 | `/teach/courses` | D | Table: title, status badge, learners, rating, revenue, last updated; "New course". | | `studio.courses.list` | 2 |
 | `/teach/courses/new` | D | Title + category → creates draft → redirects to editor. | | | 2 |
-| `/teach/courses/[id]/details` | D | Title, subtitle, description (Tiptap), outcomes, requirements, level, language, category, tags, cover upload (crop 16:9), promo video. | Autosave indicator; conflict banner | `studio.courses.*` | 2 |
+| `/teach/courses/[id]/details` | D | Title, subtitle, description (Tiptap), outcomes, requirements, level, language, category, tags, cover upload (16:9 frame; cropping later), promo video (Phase 3, with the course page that plays it). | Autosave indicator; conflict banner | `studio.courses.*` | 2 |
 | `/teach/courses/[id]/curriculum` | D/C | Sections/lessons tree, add lesson by type, drag-and-drop + keyboard move, preview toggle, per-lesson editor drawer, upload queue panel. | Video processing/failed per lesson | `studio.sections/lessons.*`, `media.*` | 2 |
 | `/teach/courses/[id]/pricing` | D | Free/paid, price, compare-at, refund policy (none/3/7/14 with explanation of consumption rules), subscription opt-in (hidden until Phase 12). | Price increase > 50% → "requires review" note | | 2 |
 | `/teach/courses/[id]/certificate` | D | Mode (none/completion/exam/external), exam picker, external provider name + URL, completion requirements, preview certificate PDF. | | | 7 |
@@ -113,7 +113,7 @@ Left nav: Dashboard, Courses, Bundles, Coupons, Referral links, Learners, Gradin
 | `/teach/courses/[id]/staff` | D | TAs list, invite, remove. | | | 2 |
 | `/teach/courses/[id]/publish` | D | Checklist (cover, ≥ 1 preview, description length, all videos ready, pricing, refund policy), submit for review, review history with reviewer notes. | Changes requested → notes highlighted | `studio.courses.submit` | 2 |
 | `/teach/courses/[id]/learners` | D | Learners (display name, enrolled date, progress, last active, cohort), filter, message cohort (announcement). No emails shown. | | `studio.learners.list` | 5 |
-| `/teach/bundles`, `/teach/bundles/[id]` | D | List + editor (courses, price). | | `studio.bundles.*` | 2 |
+| `/teach/bundles`, `/teach/bundles/new`, `/teach/bundles/[id]` | D | List + editor (courses, price, draft/active). | | `studio.bundles.*` | 2 |
 | `/teach/coupons` | D | Coupons table + create dialog (code, type, value, scope, limits, dates), usage stats. | | `studio.coupons.*` | 4 |
 | `/teach/referrals` | D | Links per course/profile with copy button, clicks, sales, revenue share explanation (you keep 97%). | | `referrals.*` | 4 |
 | `/teach/grading` | D | Queue: assignment, learner, submitted, late flag, status; grading view (submission, files preview/download, rubric scoring, feedback, return/grade); flagged exam attempts tab (void with reason). | Empty queue | `grading.*` | 6 |
@@ -132,7 +132,7 @@ Left nav by role. Every destructive or money action: confirm dialog with reason 
 | `/admin` | staff | KPIs (today/7d/30d): orders, GMV, platform revenue, refunds rate, failed payments, new instructors, active learners; alerts (ledger integrity, stuck jobs, video failures). | 10 |
 | `/admin/users`, `/admin/users/[id]` | support+ | Search; detail: profile, roles (admin edits), sessions, orders, enrollments, refunds, certificates, audit trail; actions: ban/unban, revoke sessions, impersonate (read-only), grant enrollment, resend receipt. | 1/10 |
 | `/admin/instructors/applications`, `/[id]` | reviewer+ | Queue with filters; detail: answers, sample, KYC result (status, score, matched name — no ID numbers), bank name match; approve/reject/request info. | 2 |
-| `/admin/instructors`, `/[id]` | reviewer+ | Instructor list; detail: courses, earnings summary, strikes, commission override (super admin), suspend. | 2/10 |
+| `/admin/instructors`, `/[id]` | reviewer+ | Instructor list; detail: courses, earnings summary, strikes, commission override (super admin), suspend. | 10 (Phase 2 ships the applications queue; the instructor list needs earnings and strikes, ADR-031) |
 | `/admin/reviews/courses`, `/[revisionId]` | reviewer+ | Course review queue; detail: revision diff, content preview (all lessons watchable), checklist, approve/request changes with notes. | 2 |
 | `/admin/courses` | reviewer+ | All courses, status filters, feature on home, unpublish with reason. | 3 |
 | `/admin/orders`, `/[id]` | finance, support | Orders search (public id, email, Paystack ref); detail with items, ledger entries, Paystack verify button (re-check). | 4 |
