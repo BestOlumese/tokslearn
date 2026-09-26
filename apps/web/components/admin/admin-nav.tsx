@@ -3,10 +3,10 @@
 
 import { usePathname } from 'next/navigation'
 import { SideNavLinks } from '@/components/side-nav-links'
-import { adminNavItems } from '@/lib/nav'
+import { adminNavGroups } from '@/lib/nav'
 
 export function AdminNav() {
   return (
-    <SideNavLinks label="Admin" items={adminNavItems} activeHref={usePathname()} match="prefix" />
+    <SideNavLinks label="Admin" groups={adminNavGroups} activeHref={usePathname()} match="prefix" />
   )
 }

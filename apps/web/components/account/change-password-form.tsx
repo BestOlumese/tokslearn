@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { FormAlert } from '@/components/auth/form-alert'
 import { PasswordInput } from '@/components/auth/password-input'
 import { authFetch } from '@/lib/auth-client'
+import { SettingsPanel } from './settings-panel'
 
 export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
   const [message, setMessage] = useState<{ tone: 'error' | 'success'; text: string } | null>(null)
@@ -17,18 +18,16 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
 
   if (!hasPassword) {
     return (
-      <div className="flex flex-col gap-3">
-        <p className="text-body text-ink-2">
-          You sign in with Google or an email code, so your account has no password. To add one, ask
-          for a reset link to your email.
-        </p>
-        <Link
-          href="/forgot-password"
-          className={buttonClasses({ variant: 'secondary', className: 'self-start' })}
-        >
-          Set a password
-        </Link>
-      </div>
+      <SettingsPanel
+        id="password"
+        title="Password"
+        description="You sign in with Google or an email code, so there's no password on your account yet. We can email you a link to set one."
+        footer={
+          <Link href="/forgot-password" className={buttonClasses({ variant: 'secondary' })}>
+            Set a password
+          </Link>
+        }
+      />
     )
   }
 
@@ -57,44 +56,58 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-5">
-      {message ? <FormAlert tone={message.tone}>{message.text}</FormAlert> : null}
-      <Field id="current" label="Current password">
-        {(p) => <PasswordInput name="current" autoComplete="current-password" required {...p} />}
-      </Field>
-      <Field id="new" label="New password" helper="At least 10 characters.">
-        {(p) => (
-          <PasswordInput
-            name="new"
-            autoComplete="new-password"
-            required
-            minLength={10}
-            maxLength={128}
-            {...p}
-          />
-        )}
-      </Field>
-      <Field id="confirm-new" label="Type the new password again">
-        {(p) => (
-          <PasswordInput
-            name="confirm"
-            autoComplete="new-password"
-            required
-            minLength={10}
-            maxLength={128}
-            {...p}
-          />
-        )}
-      </Field>
-      <div className="flex items-center gap-2">
-        <Checkbox id="revoke" name="revoke" defaultChecked />
-        <Label htmlFor="revoke" kind="option">
-          Sign out my other devices
-        </Label>
-      </div>
-      <Button type="submit" loading={pending} className="self-start">
-        Change password
-      </Button>
+    <form onSubmit={submit}>
+      <SettingsPanel
+        id="password"
+        title="Password"
+        description="Changing your password emails you a notice, so you'll know if someone else did it."
+        footer={
+          <Button type="submit" loading={pending}>
+            Change password
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-5">
+          {message ? <FormAlert tone={message.tone}>{message.text}</FormAlert> : null}
+          <Field id="current" label="Current password">
+            {(p) => (
+              <PasswordInput name="current" autoComplete="current-password" required {...p} />
+            )}
+          </Field>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field id="new" label="New password" helper="At least 10 characters.">
+              {(p) => (
+                <PasswordInput
+                  name="new"
+                  autoComplete="new-password"
+                  required
+                  minLength={10}
+                  maxLength={128}
+                  {...p}
+                />
+              )}
+            </Field>
+            <Field id="confirm-new" label="Confirm new password">
+              {(p) => (
+                <PasswordInput
+                  name="confirm"
+                  autoComplete="new-password"
+                  required
+                  minLength={10}
+                  maxLength={128}
+                  {...p}
+                />
+              )}
+            </Field>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox id="revoke" name="revoke" defaultChecked />
+            <Label htmlFor="revoke" kind="option">
+              Sign out my other devices
+            </Label>
+          </div>
+        </div>
+      </SettingsPanel>
     </form>
   )
 }

@@ -3,8 +3,8 @@
 
 import { usePathname } from 'next/navigation'
 import { SideNavLinks } from '@/components/side-nav-links'
-import { settingsNavItems } from '@/lib/nav'
+import { settingsNavGroups } from '@/lib/nav'
 
 export function SettingsNav() {
-  return <SideNavLinks label="Settings" items={settingsNavItems} activeHref={usePathname()} />
+  return <SideNavLinks label="Settings" groups={settingsNavGroups} activeHref={usePathname()} />
 }

@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Badge } from '@tokslearn/ui/badge'
 import { Button } from '@tokslearn/ui/button'
 import { Skeleton } from '@tokslearn/ui/skeleton'
+import { Laptop, Smartphone } from 'lucide-react'
 import { FormAlert } from '@/components/auth/form-alert'
 import { apiErrorMessage } from '@/lib/api-error'
 import { orpc } from '@/lib/orpc'
@@ -57,8 +58,15 @@ export function SessionsList() {
       {mutationError ? <FormAlert tone="error">{apiErrorMessage(mutationError)}</FormAlert> : null}
       <ul className="divide-y divide-border rounded-card border border-border bg-surface">
         {items.map((s) => (
-          <li key={s.id} className="flex items-center justify-between gap-4 px-4 py-3">
-            <div className="min-w-0">
+          <li key={s.id} className="flex items-center gap-4 px-4 py-3.5">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink-2">
+              {/Android|iPhone|app/.test(s.device) ? (
+                <Smartphone aria-hidden strokeWidth={1.75} className="size-5" />
+              ) : (
+                <Laptop aria-hidden strokeWidth={1.75} className="size-5" />
+              )}
+            </span>
+            <div className="min-w-0 flex-1">
               <p className="flex flex-wrap items-center gap-2 text-body-sm font-medium text-ink">
                 {s.device}
                 {s.current ? <Badge tone="brand">This device</Badge> : null}

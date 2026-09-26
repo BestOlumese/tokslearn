@@ -2,6 +2,7 @@ import { buttonClasses } from '@tokslearn/ui/button'
 import { EmptyState } from '@tokslearn/ui/empty-state'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 
 export const metadata: Metadata = { title: 'Admin' }
 
@@ -9,9 +10,9 @@ export const metadata: Metadata = { title: 'Admin' }
 export default function AdminHomePage() {
   return (
     <div>
-      <h1 className="text-h1-sm text-ink sm:text-h1">Admin</h1>
+      <AdminPageHeader title="Back office" />
       <EmptyState
-        className="mt-6 max-w-[640px]"
+        className="max-w-[640px]"
         title="Dashboard not built yet"
         description="Orders, revenue and alerts arrive in Phase 10. Users, the audit log and feature flags work now."
         action={

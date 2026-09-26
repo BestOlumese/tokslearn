@@ -8,8 +8,8 @@ export const metadata: Metadata = { title: 'Two-factor check', robots: { index: 
 export default function TwoFactorPage() {
   return (
     <AuthShell
-      title="Confirm it's you"
-      intro="Open your authenticator app and enter the code for Tokslearn."
+      title="Enter your security code"
+      intro="Open your authenticator app and type the 6-digit code for Tokslearn."
     >
       <TwoFactorChallenge />
     </AuthShell>

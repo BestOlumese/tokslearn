@@ -18,6 +18,7 @@ import {
 import type { Metadata, Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { staffErrorState } from '@/components/admin/staff-error'
 import { formatDate, roleLabel } from '@/lib/format'
 import { requireSignedInCtx } from '@/lib/require-user'
@@ -30,7 +31,10 @@ type Search = { q?: string; role?: string; cursor?: string }
 export default function AdminUsersPage({ searchParams }: { searchParams: Promise<Search> }) {
   return (
     <div>
-      <h1 className="text-h1-sm text-ink sm:text-h1">Users</h1>
+      <AdminPageHeader
+        title="Users"
+        description="Find an account to see its roles, sessions and history."
+      />
       <Suspense fallback={<UsersSkeleton />}>
         <Users searchParams={searchParams} />
       </Suspense>
@@ -63,7 +67,7 @@ async function Users({ searchParams }: { searchParams: Promise<Search> }) {
     <>
       <form
         aria-label="Search users"
-        className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end"
+        className="flex flex-col gap-3 sm:flex-row sm:items-end"
         action={path}
       >
         <div className="flex flex-1 flex-col gap-1.5">
@@ -97,7 +101,7 @@ async function Users({ searchParams }: { searchParams: Promise<Search> }) {
         </button>
       </form>
 
-      <div className="mt-6">
+      <div className="mt-5">
         {page.items.length === 0 ? (
           <EmptyState
             title="No users match"

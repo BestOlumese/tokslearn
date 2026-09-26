@@ -15,6 +15,7 @@ import {
 import type { Metadata, Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { staffErrorState } from '@/components/admin/staff-error'
 import { formatDateTime } from '@/lib/format'
 import { requireSignedInCtx } from '@/lib/require-user'
@@ -34,10 +35,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 export default function AuditPage({ searchParams }: { searchParams: Promise<Search> }) {
   return (
     <div>
-      <h1 className="text-h1-sm text-ink sm:text-h1">Audit log</h1>
-      <p className="mt-2 text-body text-ink-2">
-        Every staff action and every change that affects money, newest first.
-      </p>
+      <AdminPageHeader
+        title="Audit log"
+        description="Every staff action and every change that affects money, newest first."
+      />
       <Suspense fallback={<Skeleton className="mt-6 h-96 w-full rounded-card" />}>
         <Audit searchParams={searchParams} />
       </Suspense>

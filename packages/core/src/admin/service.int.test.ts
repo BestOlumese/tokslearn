@@ -141,11 +141,23 @@ describe('idempotency keys', () => {
 })
 
 describe('outbox dispatch', () => {
+  // available_at defaults to Postgres now() (microseconds); the job clock is a JS Date
+  // (milliseconds). Pin rows in the past so both land on the same side.
+  const past = new Date(Date.now() - 60_000)
+
   it('sends pending events once and marks them sent', async () => {
     await withRollback(async (db) => {
       await db.insert(schema.outbox).values([
-        { eventName: 'feature_flag.updated', payload: { key: 'a', enabled: true } },
-        { eventName: 'feature_flag.updated', payload: { key: 'b', enabled: false } },
+        {
+          eventName: 'feature_flag.updated',
+          payload: { key: 'a', enabled: true },
+          availableAt: past,
+        },
+        {
+          eventName: 'feature_flag.updated',
+          payload: { key: 'b', enabled: false },
+          availableAt: past,
+        },
       ])
       const sent: string[] = []
       const job = createCtx({ db, actor: systemActor('outbox-dispatch'), requestId: 'job' })
@@ -164,7 +176,9 @@ describe('outbox dispatch', () => {
 
   it('keeps events pending with the error when sending fails', async () => {
     await withRollback(async (db) => {
-      await db.insert(schema.outbox).values({ eventName: 'x.happened', payload: {} })
+      await db
+        .insert(schema.outbox)
+        .values({ eventName: 'x.happened', payload: {}, availableAt: past })
       const job = createCtx({ db, actor: systemActor('outbox-dispatch'), requestId: 'job' })
       const result = await dispatchOutbox(job, async () => {
         throw new Error('inngest down')

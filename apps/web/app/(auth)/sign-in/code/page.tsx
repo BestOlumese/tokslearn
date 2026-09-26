@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { AuthShell } from '@/components/auth/auth-shell'
 import { CodeSignIn } from '@/components/auth/code-sign-in'
 
@@ -10,11 +9,11 @@ export default function CodeSignInPage() {
   return (
     <AuthShell
       title="Sign in with a code"
-      intro="No password needed. We email you a code for accounts that already exist."
+      intro="We’ll email you a 6-digit code. No password needed."
       footer={
-        <Link href="/sign-in" className="font-medium text-brand underline-offset-4 hover:underline">
+        <a href="/sign-in" className="font-medium text-brand underline-offset-4 hover:underline">
           Sign in with a password instead
-        </Link>
+        </a>
       }
     >
       <CodeSignIn />

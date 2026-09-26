@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { AuthShell } from '@/components/auth/auth-shell'
 import { GoogleLink } from '@/components/auth/google-link'
 import { OrDivider } from '@/components/auth/or-divider'
@@ -15,16 +14,13 @@ export const metadata: Metadata = {
 export default function SignInPage() {
   return (
     <AuthShell
-      title="Sign in"
+      title="Welcome back"
       footer={
         <>
           New to Tokslearn?{' '}
-          <Link
-            href="/sign-up"
-            className="font-medium text-brand underline-offset-4 hover:underline"
-          >
+          <a href="/sign-up" className="font-medium text-brand underline-offset-4 hover:underline">
             Create an account
-          </Link>
+          </a>
         </>
       }
     >

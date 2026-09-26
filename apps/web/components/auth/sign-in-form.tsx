@@ -4,7 +4,6 @@
 import { Button } from '@tokslearn/ui/button'
 import { Field } from '@tokslearn/ui/field'
 import { Input } from '@tokslearn/ui/input'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { authFetch, readNext } from '@/lib/auth-client'
 import { FormAlert } from './form-alert'
@@ -68,18 +67,18 @@ export function SignInForm() {
           {(p) => <PasswordInput name="password" autoComplete="current-password" required {...p} />}
         </Field>
         <div className="-mt-2 flex flex-wrap justify-between gap-2 text-body-sm">
-          <Link
+          <a
             href={codeHref}
             className="inline-flex min-h-11 items-center text-brand underline-offset-4 hover:underline"
           >
             Email me a code instead
-          </Link>
-          <Link
+          </a>
+          <a
             href="/forgot-password"
             className="inline-flex min-h-11 items-center text-brand underline-offset-4 hover:underline"
           >
             Forgot password?
-          </Link>
+          </a>
         </div>
         <Button type="submit" loading={pending} className="w-full">
           Sign in

@@ -2,7 +2,6 @@
 // Client component: "check your inbox" with resend, and the landing state from the email link.
 
 import { Button, buttonClasses } from '@tokslearn/ui/button'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { authFetch, safeNext } from '@/lib/auth-client'
@@ -19,9 +18,9 @@ export function VerifyEmailStatus() {
     return (
       <div className="flex flex-col gap-5">
         <FormAlert tone="success">Your email is confirmed. You can now buy courses.</FormAlert>
-        <Link href={next} className={buttonClasses({ className: 'w-full' })}>
+        <a href={next} className={buttonClasses({ className: 'w-full' })}>
           Continue
-        </Link>
+        </a>
       </div>
     )
   }
@@ -64,9 +63,9 @@ export function VerifyEmailStatus() {
       <Button variant="secondary" onClick={resend} loading={pending} className="w-full">
         Send a new link
       </Button>
-      <Link href={next} className={buttonClasses({ variant: 'tertiary', className: 'w-full' })}>
+      <a href={next} className={buttonClasses({ variant: 'tertiary', className: 'w-full' })}>
         I'll do this later
-      </Link>
+      </a>
     </div>
   )
 }

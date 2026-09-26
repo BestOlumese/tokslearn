@@ -112,8 +112,8 @@ export function TwoFactorSettings({
         )}
         <p className="text-body-sm text-ink-2">
           {enabled
-            ? 'You enter a code from your authenticator app when you sign in with a password.'
-            : 'Adds a code from an authenticator app (Google Authenticator, Authy, 1Password) to sign-in. Required for instructors and staff.'}
+            ? 'Your account asks for a code whenever you sign in with your password.'
+            : 'Works with Google Authenticator, Microsoft Authenticator, Authy or 1Password.'}
         </p>
       </div>
 

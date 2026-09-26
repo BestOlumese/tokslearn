@@ -4,7 +4,6 @@
 import { Button } from '@tokslearn/ui/button'
 import { Field } from '@tokslearn/ui/field'
 import { Input } from '@tokslearn/ui/input'
-import Link from 'next/link'
 import { useState } from 'react'
 import { authFetch, readNext } from '@/lib/auth-client'
 import { FormAlert } from './form-alert'
@@ -47,9 +46,9 @@ export function SignUpForm() {
           <FormAlert tone="error">
             {error}{' '}
             {emailTaken ? (
-              <Link href="/sign-in" className="font-medium underline underline-offset-4">
+              <a href="/sign-in" className="font-medium underline underline-offset-4">
                 Sign in
-              </Link>
+              </a>
             ) : null}
           </FormAlert>
         ) : null}
@@ -100,13 +99,13 @@ export function SignUpForm() {
         </Field>
         <p className="text-body-sm text-ink-2">
           By creating an account you agree to our{' '}
-          <Link href="/terms" className="text-brand underline underline-offset-4">
+          <a href="/terms" className="text-brand underline underline-offset-4">
             terms
-          </Link>{' '}
+          </a>{' '}
           and{' '}
-          <Link href="/privacy" className="text-brand underline underline-offset-4">
+          <a href="/privacy" className="text-brand underline underline-offset-4">
             privacy policy
-          </Link>
+          </a>
           .
         </p>
         <Button type="submit" loading={pending} className="w-full">

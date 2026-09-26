@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { FeatureFlagList } from '@/components/admin/feature-flag-list'
 import { FeatureFlagListSkeleton } from '@/components/admin/feature-flag-list-skeleton'
 
@@ -9,12 +10,11 @@ export const metadata: Metadata = { title: 'Feature flags', robots: { index: fal
 export default function FeatureFlagsPage() {
   return (
     <div>
-      <h1 className="text-h1-sm text-ink sm:text-h1">Feature flags</h1>
-      <p className="mt-2 max-w-prose text-body text-ink-2">
-        Turn features on or off for everyone. Changes reach every server within a minute, and each
-        change is saved in the audit log with your name.
-      </p>
-      <div className="mt-8 max-w-[760px]">
+      <AdminPageHeader
+        title="Feature flags"
+        description="Turn features on or off for everyone. Changes reach every server within a minute and are saved in the audit log."
+      />
+      <div className="max-w-[760px]">
         <Suspense fallback={<FeatureFlagListSkeleton />}>
           <FeatureFlagList />
         </Suspense>

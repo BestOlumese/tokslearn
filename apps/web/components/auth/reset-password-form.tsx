@@ -3,7 +3,6 @@
 
 import { Button, buttonClasses } from '@tokslearn/ui/button'
 import { Field } from '@tokslearn/ui/field'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { authFetch } from '@/lib/auth-client'
@@ -23,9 +22,9 @@ export function ResetPasswordForm() {
         <FormAlert tone="error">
           This reset link has expired or was already used. Ask for a new one.
         </FormAlert>
-        <Link href="/forgot-password" className={buttonClasses({ className: 'w-full' })}>
+        <a href="/forgot-password" className={buttonClasses({ className: 'w-full' })}>
           Get a new reset link
-        </Link>
+        </a>
       </div>
     )
   }
@@ -36,9 +35,9 @@ export function ResetPasswordForm() {
         <FormAlert tone="success">
           Your password is changed. For your safety, every device was signed out.
         </FormAlert>
-        <Link href="/sign-in" className={buttonClasses({ className: 'w-full' })}>
+        <a href="/sign-in" className={buttonClasses({ className: 'w-full' })}>
           Sign in with your new password
-        </Link>
+        </a>
       </div>
     )
   }

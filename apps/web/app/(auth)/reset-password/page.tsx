@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Choose a new password', robots: { in
 // docs/20 §2 `/reset-password` (reached from the emailed link).
 export default function ResetPasswordPage() {
   return (
-    <AuthShell title="Choose a new password">
+    <AuthShell title="Set a new password">
       <Suspense fallback={<div className="h-[248px]" />}>
         <ResetPasswordForm />
       </Suspense>

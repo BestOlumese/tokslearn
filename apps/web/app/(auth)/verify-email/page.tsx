@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Confirm your email', robots: { index
 // docs/20 §2 `/verify-email`: "check your inbox", plus the landing state from the link.
 export default function VerifyEmailPage() {
   return (
-    <AuthShell title="Confirm your email">
+    <AuthShell title="Check your email">
       <Suspense fallback={<div className="h-[184px]" />}>
         <VerifyEmailStatus />
       </Suspense>
