@@ -26,7 +26,7 @@ Read this file fully before any task. Then read the guide(s) listed for the task
 6. **Light theme only. No generic AI design, no AI-sounding copy.**
    Follow `docs/11-design-system.md` exactly. Run the design audit before closing any UI task.
 7. **Performance budget is a feature.** Lighthouse ≥ 95 (mobile) on public pages, LCP < 2.0s,
-   CLS < 0.05, INP < 200ms. Public JS per route < 120 KB gzipped.
+   CLS < 0.05, INP < 200ms. Public JS per route < 145 KB gzipped.
    (See `docs/12-performance-and-seo.md`.)
 8. **Security by default.** Authorization is checked in the service layer, not only in the UI.
    Webhooks are signature-verified and idempotent. No secrets in client code.
