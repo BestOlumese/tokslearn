@@ -8,6 +8,7 @@ import {
   gte,
   inArray,
   isNotNull,
+  isNull,
   lt,
   lte,
   or,
@@ -125,6 +126,22 @@ export async function reindexAll(ctx: Ctx): Promise<number> {
     .select({ id: courses.id })
     .from(courses)
     .where(isNotNull(courses.liveRevisionId))
+  for (const { id } of ids) await reindexCourse(ctx, id)
+  return ids.length
+}
+
+/**
+ * Indexes live courses that have no search row yet: courses published before the index existed,
+ * or a reindex that failed. Cheap when nothing is missing, so the deploy runs it every time.
+ */
+export async function reindexMissing(ctx: Ctx): Promise<number> {
+  const ids = await ctx.db
+    .select({ id: courses.id })
+    .from(courses)
+    .leftJoin(cs, eq(cs.courseId, courses.id))
+    .where(
+      and(eq(courses.status, 'published'), isNotNull(courses.liveRevisionId), isNull(cs.courseId)),
+    )
   for (const { id } of ids) await reindexCourse(ctx, id)
   return ids.length
 }

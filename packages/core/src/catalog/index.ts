@@ -35,6 +35,7 @@ export {
   normalizeText,
   reindexAll,
   reindexCourse,
+  reindexMissing,
   SEARCH_MAX_RESULTS,
   searchCourses,
   searchInstructors,

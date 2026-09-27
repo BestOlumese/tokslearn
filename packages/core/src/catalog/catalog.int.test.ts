@@ -17,6 +17,7 @@ import {
   getPublicInstructor,
   listAdminCategories,
   listCourses,
+  reindexMissing,
   searchCourses,
   updateCategory,
 } from '.'
@@ -73,6 +74,13 @@ describe('catalog', () => {
       expect(
         page.course.sections.flatMap((s) => s.lessons).filter((l) => l.isPreview),
       ).toHaveLength(1)
+
+      // Courses live before the index existed get picked up by the deploy step.
+      await db.delete(schema.courseSearch).where(eq(schema.courseSearch.courseId, course.id))
+      expect((await listCourses(anon, { limit: 24 })).items).toEqual([])
+      expect(await reindexMissing(env.ctx({ kind: 'system', reason: 'test' }))).toBe(1)
+      expect(await reindexMissing(env.ctx({ kind: 'system', reason: 'test' }))).toBe(0)
+      expect((await listCourses(anon, { limit: 24 })).items).toHaveLength(1)
 
       const profile = await getPublicInstructor(anon, 'tobi-adeleke')
       expect(profile.kind === 'instructor' && profile.instructor.courseCount).toBe(1)

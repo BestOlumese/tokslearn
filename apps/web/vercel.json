@@ -3,5 +3,5 @@
   "framework": "nextjs",
   "regions": ["fra1"],
   "installCommand": "corepack enable && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm db:migrate && pnpm db:seed:reference && pnpm turbo run build --filter=@tokslearn/web"
+  "buildCommand": "cd ../.. && pnpm db:migrate && pnpm db:seed:reference && pnpm db:reindex && pnpm turbo run build --filter=@tokslearn/web"
 }
