@@ -13,8 +13,10 @@ import { apiErrorCode, apiErrorMessage } from '@/lib/api-error'
 import { api } from '@/lib/orpc'
 import { CategorySelect } from './category-select'
 import { useCourseEditor } from './course-editor-provider'
+import { CourseUrl } from './course-url'
 import { CoverUpload } from './cover-upload'
 import { ListInput } from './list-input'
+import { PromoVideo } from './promo-video'
 import { RichTextEditor } from './rich-text-editor'
 
 type Details = {
@@ -262,6 +264,18 @@ export function DetailsForm({ categories }: { categories: ReadonlyArray<Category
             set('coverFileId', fileId)
           }}
         />
+      </SettingsPanel>
+
+      <SettingsPanel
+        id="promo"
+        title="Trailer"
+        description="Optional. A short video, one to two minutes, that shows how you teach. It plays free on the course page."
+      >
+        <PromoVideo />
+      </SettingsPanel>
+
+      <SettingsPanel id="url" title="Course URL">
+        <CourseUrl />
       </SettingsPanel>
     </div>
   )

@@ -1,7 +1,9 @@
 export {
+  type AdminCategory,
   canManageCategories,
   createCategory,
   deleteCategory,
+  listAdminCategories,
   moveCategory,
   updateCategory,
 } from './admin'

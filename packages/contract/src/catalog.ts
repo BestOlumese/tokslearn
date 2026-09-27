@@ -343,7 +343,27 @@ const CategorySlug = z
   .max(60)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
 
+const AdminCategoryLeaf = z.object({
+  id: z.uuid(),
+  slug: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  position: z.number().int(),
+  courseCount: z.number().int(),
+})
+const AdminCategoryTreeShape = z.array(
+  AdminCategoryLeaf.extend({ children: z.array(AdminCategoryLeaf) }),
+)
+export const AdminCategoryTree = named(AdminCategoryTreeShape)
+export type AdminCategoryTree = z.infer<typeof AdminCategoryTreeShape>
+
 export const adminCategoriesContract = {
+  list: get(
+    '/admin/categories',
+    ['Admin'],
+    'Category tree',
+    'Top categories and subcategories in display order, with how many courses use each. Admins only.',
+  ).output(AdminCategoryTree),
   create: post(
     '/admin/categories',
     'Create a category',

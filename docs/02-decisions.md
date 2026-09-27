@@ -167,6 +167,17 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Rich text is editor JSON.** The contract accepts only the node and mark types the server renders; the server builds `*_html` from an allowlist with escaped text and http(s)/mailto links only. No HTML from the browser is stored.
 - **Video uploads:** tus-js-client straight to Bunny with signed headers valid for 24 hours, 8 MB chunks and retries. A new upload always creates a new Bunny video (no cross-session resume), because each signature is bound to one video id.
 
+### ADR-032 Catalog delivery (Phase 3)
+- **Search index updated inline, not by a job.** `course_search` is rewritten inside the approval, unpublish, restore and slug-change transactions (`reindexCourse`). A reviewer's approval and the index can't disagree, and there is no queue lag to explain to instructors. `reindexAll` exists for backfills. Revisit if approvals start timing out.
+- **Search:** weighted full-text (title A; subtitle, tags, instructor B; description and outcomes C) first, then `pg_trgm` `word_similarity > 0.35` on the normalised title plus tags for typos. Ties go to the course whose own title is closer. Offset paging, capped at 96 results; browsing uses keyset cursors per sort.
+- **Cache tags:** `course:{id}`, `course-slug:{slug}` and `instructor:{id}` expire at once (`{ expire: 0 }`) so a published change shows on the next visit; `catalog` (home rows, listings, counts, sitemaps) is stale-while-revalidate. Measured: an approved subtitle fix is live within 5 seconds (e2e/catalog-publish.spec.ts).
+- **Prerendering:** the 200 most popular courses and every instructor with a live course are built statically; others serve the app shell and fill in on first visit. Old slugs redirect with an instant meta refresh and client redirect (the redirect happens inside a streamed boundary, so the status is already 200). Google treats this as a permanent redirect; a real 308 would need a database lookup in the proxy for every course URL.
+- **Metadata is never streamed** (`htmlLimitedBots: /.*/`). Link previews in WhatsApp, Telegram and LinkedIn, and audits, read only `<head>`; our `generateMetadata` reads cached data, so blocking costs milliseconds.
+- **Public pages ship almost no JS of their own.** Filters are a GET form, mobile filters a `<details>`, curriculum sections `<details>`, paging plain links. Covers are a plain `<img>` (next/image added ~5 KB per page and we don't use its optimizer; resized variants come with an image pipeline). Analytics is one ~0.5 KB island per page with a delegated click listener reading `data-track`. Catalog pages measure 142.5–144.0 KB of the 145 KB budget.
+- **Browser error reporting skips React #419** (a streamed boundary that ended in notFound/redirect). Unknown slugs produce it on every visit; real server errors are reported by server-side Sentry. The Sentry SDK and its setup load only after the first real error.
+- **Share images** are drawn by `next/og` with its bundled font, which has no ₦ glyph; prices there read "NGN 15,000".
+- **Local demo catalog:** `pnpm db:seed:demo-catalog` publishes ten courses through the real services with fake storage and video providers. It refuses production.
+
 ---
 
 ## Open questions (resolve before the phase that needs them)

@@ -4,6 +4,7 @@ import {
   ClipboardCheck,
   FileCheck2,
   Flag,
+  FolderTree,
   KeyRound,
   Layers,
   ScrollText,
@@ -49,6 +50,13 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
         icon: icon(ClipboardCheck),
       },
       { href: '/admin/reviews/courses', label: 'Course reviews', icon: icon(FileCheck2) },
+    ],
+  },
+  {
+    label: 'Catalog',
+    items: [
+      { href: '/admin/courses', label: 'Courses', icon: icon(BookOpen) },
+      { href: '/admin/categories', label: 'Categories', icon: icon(FolderTree) },
     ],
   },
   {

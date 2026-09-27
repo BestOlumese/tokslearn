@@ -15,6 +15,7 @@ import {
   getPreviewPlayback,
   getPublicCourse,
   getPublicInstructor,
+  listAdminCategories,
   listCourses,
   searchCourses,
   updateCategory,
@@ -218,6 +219,12 @@ describe('catalog', () => {
 
       expect(await codeOf(deleteCategory(admin, sub?.id ?? ''))).toBe('CATEGORY_IN_USE')
       expect(await codeOf(deleteCategory(admin, top?.id ?? ''))).toBe('CATEGORY_IN_USE')
+      const tree = await listAdminCategories(admin)
+      const t = tree.find((c) => c.id === top?.id)
+      expect(t?.children.find((c) => c.id === sub?.id)?.courseCount).toBe(1)
+      expect(t?.children.find((c) => c.id === created.id)).toMatchObject({ slug: 'automation' })
+      expect(await codeOf(listAdminCategories(env.ctx(reviewer)))).toBe('STAFF_ONLY')
+
       await deleteCategory(admin, created.id)
       expect(
         await codeOf(

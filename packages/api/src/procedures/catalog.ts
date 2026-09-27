@@ -182,6 +182,12 @@ const toCategoryRow = (c: Awaited<ReturnType<typeof catalog.createCategory>>): C
 })
 
 export const adminCategoriesRouter = {
+  list: admins.admin.categories.list.handler(async ({ context }) =>
+    (await catalog.listAdminCategories(context.ctx)).map((t) => ({
+      ...t,
+      children: t.children.map(({ children: _c, ...leaf }) => leaf),
+    })),
+  ),
   create: admins.admin.categories.create.handler(async ({ context, input }) =>
     toCategoryRow(await catalog.createCategory(context.ctx, input)),
   ),

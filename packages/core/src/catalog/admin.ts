@@ -185,3 +185,48 @@ export async function deleteCategory(ctx: Ctx, id: string) {
   })
   await ctx.cache.invalidate([cacheTags.catalog])
 }
+
+export interface AdminCategory {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  position: number
+  /** Courses (any status) filed directly under this category. */
+  courseCount: number
+  children: AdminCategory[]
+}
+
+/** The whole tree for the editor, in display order, with how many courses use each category. */
+export async function listAdminCategories(ctx: Ctx): Promise<AdminCategory[]> {
+  requireStaff(ctx.actor, canManageCategories)
+  const [rows, used] = await Promise.all([
+    ctx.db
+      .select({
+        id: categories.id,
+        slug: categories.slug,
+        name: categories.name,
+        description: categories.description,
+        parentId: categories.parentId,
+        position: categories.position,
+      })
+      .from(categories)
+      .orderBy(asc(categories.position), asc(categories.name)),
+    ctx.db
+      .select({ id: courses.categoryId, n: count() })
+      .from(courses)
+      .where(isNull(courses.deletedAt))
+      .groupBy(courses.categoryId),
+  ])
+  const counts = new Map(used.map((u) => [u.id, u.n]))
+  const node = (r: (typeof rows)[number]): AdminCategory => ({
+    id: r.id,
+    slug: r.slug,
+    name: r.name,
+    description: r.description,
+    position: r.position,
+    courseCount: counts.get(r.id) ?? 0,
+    children: rows.filter((c) => c.parentId === r.id).map(node),
+  })
+  return rows.filter((r) => r.parentId === null).map(node)
+}
