@@ -22,6 +22,9 @@
     "db:migrate": "pnpm --filter @tokslearn/db db:migrate",
     "db:studio": "pnpm --filter @tokslearn/db db:studio",
     "db:seed": "pnpm --filter @tokslearn/db db:seed",
+    "db:seed:reference": "pnpm --filter @tokslearn/db db:seed:reference",
+    "db:seed:demo-catalog": "pnpm --filter @tokslearn/core seed:demo-catalog",
+    "db:reindex": "pnpm --filter @tokslearn/core reindex:catalog",
     "db:up": "docker compose up -d db"
   },
   "devDependencies": {

@@ -47,6 +47,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `VERSION_CONFLICT` — CONFLICT — autosave stale — "This was changed in another tab. Reload to see the latest version."
 - `PUBLISH_CHECKLIST_INCOMPLETE` — UNPROCESSABLE_CONTENT — (data: missing items) — "Finish the checklist before submitting."
 - `SLUG_TAKEN` — CONFLICT — "That URL is taken. Try another."
+- `CATEGORY_IN_USE` — CONFLICT — delete a category with courses or subcategories — "Move its courses and subcategories first, then delete it."
 - `UPLOAD_TOO_LARGE` — BAD_REQUEST — "Files must be under {limit}."
 - `UNSUPPORTED_FILE_TYPE` — BAD_REQUEST — "This file type isn't supported. Use {types}."
 - `VIDEO_NOT_READY` — CONFLICT — "This video is still processing."

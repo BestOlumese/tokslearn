@@ -13,6 +13,13 @@ const budgetKb = Number(process.argv[process.argv.indexOf('--budget-kb') + 1]) |
 const routes = {
   '/': 'index',
   '/courses': 'courses',
+  '/search': 'search',
+  '/categories': 'categories',
+  '/categories/[slug]': 'categories/business',
+  // Fallback shells: the same scripts as every prerendered course or profile, even on an empty DB.
+  '/courses/[slug]': 'courses/[slug]',
+  '/courses/[slug]/preview/[lessonId]': 'courses/[slug]/preview/[lessonId]',
+  '/instructors/[slug]': 'instructors/[slug]',
   '/verify': 'verify',
   '/teach': 'teach',
   '/content-policy': 'content-policy',

@@ -200,12 +200,29 @@ const categoryTree: CategoryTree = [
   ],
 ]
 
+/** Shown on each top category's page. */
+const categoryDescriptions: Readonly<Record<string, string>> = {
+  business:
+    'Start, run and grow a business: sales, management and planning for Nigerian conditions.',
+  'finance-and-accounting':
+    'Bookkeeping, tax, investing and preparation for professional accounting exams.',
+  'office-and-data': 'Excel, data analysis, Power BI and SQL for everyday work.',
+  development:
+    'Build websites, mobile apps and data projects, from first lines of code to production.',
+  design: 'Graphic design, UI/UX and the tools designers use every day.',
+  marketing: 'Digital, social media and content marketing, and getting found on Google.',
+  'it-and-security': 'Cloud, cybersecurity, networking and IT support skills employers ask for.',
+  'photo-and-video': 'Take better photos, shoot video and edit it for clients and social media.',
+  'personal-development': 'Career skills, communication and languages.',
+}
+
 export const seedCategories = categoryTree.map(([slug, name, children], i) => {
   const top = String(i + 1).padStart(10, '0')
   return {
     id: `01920000-0000-7000-8001-${top}00`,
     slug,
     name,
+    description: categoryDescriptions[slug] ?? null,
     children: children.map(([childSlug, childName], j) => ({
       id: `01920000-0000-7000-8001-${top}${String(j + 1).padStart(2, '0')}`,
       slug: childSlug,

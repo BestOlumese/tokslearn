@@ -7,7 +7,7 @@ import { getServerCtx } from '@/lib/server-ctx'
 
 export const metadata: Metadata = { title: 'Course details' }
 
-// docs/20 §5 `/teach/courses/[id]/details`. Promo video arrives with the course page (Phase 3).
+// docs/20 §5 `/teach/courses/[id]/details`: details, cover, trailer and course URL.
 export default function DetailsPage() {
   return (
     <Suspense fallback={<Skeleton className="h-96 w-full max-w-[860px] rounded-card" />}>

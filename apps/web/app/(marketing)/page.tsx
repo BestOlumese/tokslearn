@@ -1,14 +1,24 @@
 import { buttonClasses } from '@tokslearn/ui/button'
 import Link from 'next/link'
+import { CategoryPanel } from '@/components/catalog/category-panel'
+import { CourseRow } from '@/components/catalog/course-row'
+import { Track } from '@/components/catalog/track'
 import { SearchIcon } from '@/components/icons/search-icon'
-import { TopicGrid } from '@/components/site/topic-grid'
+import { JsonLd } from '@/components/seo/json-ld'
 import { VerifyForm } from '@/components/site/verify-form'
-import { exampleSearches } from '@/lib/topics'
+import { env } from '@/env'
+import { getHome } from '@/lib/catalog-data'
 
-// Pre-launch home. The catalogue home (categories, course rows, "Continue learning") replaces the
-// middle sections in Phase 3 (docs/20 §1). The topic panel becomes the real category list then.
+const exampleSearches = ['Excel', 'Python', 'Figma', 'Digital marketing'] as const
 
-export default function HomePage() {
+// docs/20 §1 `/`: hero with search, categories with counts, course rows (empty rows are hidden),
+// teach band. Fully static: the data is cached and tagged `catalog`, refreshed on publish.
+// "Continue learning" for signed-in learners arrives with enrollments (Phase 5).
+
+export default async function HomePage() {
+  const home = await getHome()
+  const hasPopular = home.popular.some((c) => c.enrollmentCount > 0)
+  const site = env.NEXT_PUBLIC_APP_URL
   return (
     <>
       <section className="border-b border-border bg-surface">
@@ -22,7 +32,7 @@ export default function HomePage() {
               USSD, then watch the lessons on your phone or laptop.
             </p>
             <search className="mt-8 max-w-[560px]">
-              <form action="/courses" className="flex gap-2">
+              <form action="/search" className="flex gap-2">
                 <label htmlFor="hero-search" className="sr-only">
                   Search for a course
                 </label>
@@ -50,7 +60,7 @@ export default function HomePage() {
               {exampleSearches.map((term) => (
                 <Link
                   key={term}
-                  href={`/courses?q=${encodeURIComponent(term)}`}
+                  href={`/search?q=${encodeURIComponent(term)}`}
                   className="inline-flex h-11 items-center rounded-full border border-border px-4 text-ink-2 hover:border-ink-3 hover:text-ink sm:h-9"
                 >
                   {term}
@@ -59,9 +69,40 @@ export default function HomePage() {
             </p>
           </div>
 
-          <TopicGrid />
+          <CategoryPanel categories={home.categories} />
         </div>
       </section>
+
+      {home.courseCount > 0 ? (
+        <div className="mx-auto flex max-w-catalog flex-col gap-14 px-4 pt-14 sm:px-6 lg:px-8 lg:pt-16">
+          <CourseRow
+            id="row-featured"
+            title="Picked by our reviewers"
+            href="/courses"
+            courses={home.featured}
+          />
+          <CourseRow
+            id="row-new"
+            title="New on Tokslearn"
+            href="/courses?sort=newest"
+            courses={home.newest}
+          />
+          <CourseRow
+            id="row-free"
+            title="Free to start"
+            href="/courses?price=free"
+            courses={home.free}
+          />
+          {hasPopular ? (
+            <CourseRow
+              id="row-popular"
+              title="Most learners"
+              href="/courses?sort=popular"
+              courses={home.popular}
+            />
+          ) : null}
+        </div>
+      ) : null}
 
       <section
         aria-labelledby="audience-title"
@@ -120,6 +161,25 @@ export default function HomePage() {
           <VerifyForm id="home-verify" compact />
         </div>
       </section>
+      <Track />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            { '@type': 'Organization', name: 'Tokslearn', url: site, logo: `${site}/icon.svg` },
+            {
+              '@type': 'WebSite',
+              name: 'Tokslearn',
+              url: site,
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${site}/search?q={search_term_string}`,
+                'query-input': 'required name=search_term_string',
+              },
+            },
+          ],
+        }}
+      />
     </>
   )
 }

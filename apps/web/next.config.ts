@@ -48,6 +48,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Metadata always in <head>, never streamed into <body>: link previews (WhatsApp, Telegram,
+  // LinkedIn) and audits read only the head, and our generateMetadata reads cached data (ADR-032).
+  htmlLimitedBots: /.*/,
   reactCompiler: true,
   typedRoutes: true,
   poweredByHeader: false,
@@ -61,6 +64,18 @@ const nextConfig: NextConfig = {
     '@tokslearn/ui',
   ],
   serverExternalPackages: ['pg'],
+  // Covers and avatars are stored as uploaded (often 2–3 MB PNGs). Pages ask /_next/image for a
+  // resized WebP through a plain <img srcset> (lib/image.ts), so there is no next/image JS.
+  // File keys change on every upload, so resized copies can be cached for a month (ADR-032).
+  images: {
+    remotePatterns: [new URL(`${cdnOrigin}/**`)],
+    formats: ['image/webp'],
+    deviceSizes: [640, 828, 1200],
+    imageSizes: [64, 128, 256, 384],
+    qualities: [70],
+    minimumCacheTTL: 2_678_400,
+    maximumRedirects: 0,
+  },
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },

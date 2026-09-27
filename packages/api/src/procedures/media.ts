@@ -1,6 +1,6 @@
 import * as media from '@tokslearn/core/media'
 import { authed } from '../base'
-import { createVideoUploadHandler } from './studio'
+import { createPromoVideoUploadHandler, createVideoUploadHandler } from './studio'
 
 export const mediaRouter = {
   createFileUpload: authed.media.createFileUpload.handler(async ({ context, input }) => {
@@ -22,4 +22,5 @@ export const mediaRouter = {
   }),
 
   createVideoUpload: createVideoUploadHandler,
+  createPromoVideoUpload: createPromoVideoUploadHandler,
 }

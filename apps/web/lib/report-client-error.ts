@@ -1,30 +1,18 @@
-// Browser error reporting that costs nothing until something breaks. The Sentry SDK (~160 KB)
-// is downloaded on the first error only, so normal page loads stay inside the JS budget
-// (docs/12 §1, ADR-027). Server-side Sentry is set up in instrumentation.ts.
-
-type SentryModule = typeof import('@sentry/nextjs')
+// Browser error reporting that costs nothing until something breaks. Everything Sentry-related
+// (SDK ~160 KB and its setup) sits in lib/sentry-client.ts, downloaded on the first error only,
+// so this file, which ships on every page, stays a few lines (docs/12 §1, ADR-027).
+// Server-side Sentry is set up in instrumentation.ts.
 
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN
-let sentry: Promise<SentryModule> | null = null
 
-function loadSentry(): Promise<SentryModule> {
-  sentry ??= import('@sentry/nextjs').then((Sentry) => {
-    Sentry.init({
-      dsn,
-      environment: process.env.NEXT_PUBLIC_APP_ENV ?? 'local',
-      sendDefaultPii: false,
-      tracesSampleRate: 0,
-      // Our own listeners below forward uncaught errors; Sentry's would double-report them.
-      integrations: (defaults) => defaults.filter((i) => i.name !== 'GlobalHandlers'),
-    })
-    return Sentry
-  })
-  return sentry
-}
-
+/**
+ * React #419: a streamed Suspense boundary ended on the server with notFound()/redirect() or a
+ * server error. The not-found case is normal on catalog pages for unknown slugs, and real server
+ * errors are already reported by server-side Sentry, so the browser copy is noise.
+ */
 export function reportClientError(error: unknown): void {
-  if (!dsn) return
-  void loadSentry().then((Sentry) => Sentry.captureException(error))
+  if (!dsn || /#419\b/.test(String(error))) return
+  void import('./sentry-client').then((m) => m.captureClientError(error))
 }
 
 /** Forwards uncaught errors and unhandled promise rejections. Called once from instrumentation-client. */

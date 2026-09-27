@@ -130,6 +130,14 @@ const StudioCourseDtoShape = z.object({
     certificateMode: z.enum(['none', 'completion', 'exam', 'external']),
     coverFileId: z.uuid().nullable(),
     coverUrl: z.string().nullable(),
+    promo: z
+      .object({
+        assetId: z.uuid(),
+        status: VideoStatus,
+        filename: z.string(),
+        durationSec: z.number().int().nullable(),
+      })
+      .nullable(),
     reviewNotes: z.string().nullable(),
   }),
   livePriceKobo: Kobo.nullable(),
@@ -264,6 +272,39 @@ export const studioContract = {
           refundPolicyDays: RefundPolicyDays,
         }),
       )
+      .output(StudioCourseDto),
+
+    changeSlug: post(
+      '/studio/courses/{courseId}/slug',
+      'Change the course URL',
+      'Lowercase letters, numbers and dashes. Once a course has been live, the old URL keeps working.',
+    )
+      .input(
+        courseOut({
+          slug: z
+            .string()
+            .trim()
+            .min(3)
+            .max(80)
+            .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        }),
+      )
+      .output(StudioCourseDto),
+
+    removePromo: post(
+      '/studio/courses/{courseId}/promo/remove',
+      'Remove the trailer',
+      'Detaches the course trailer video.',
+    )
+      .input(courseOut({}))
+      .output(StudioCourseDto),
+
+    refreshPromo: post(
+      '/studio/courses/{courseId}/promo/refresh',
+      'Check the trailer again',
+      'Asks the video host for the latest processing status of the trailer.',
+    )
+      .input(z.strictObject({ courseId: z.uuid() }))
       .output(StudioCourseDto),
 
     submit: post(
@@ -651,3 +692,23 @@ export const adminCourseReviewsContract = {
     )
     .output(ReviewDto),
 }
+
+export const createPromoVideoUpload = base
+  .route({
+    method: 'POST',
+    path: '/media/videos/promo',
+    tags: ['Media'],
+    summary: 'Start a trailer upload',
+    description:
+      'Creates the course trailer video and returns signed headers for a resumable (TUS) upload. Up to 4 GB.',
+  })
+  .input(
+    courseOut({
+      filename: z.string().trim().min(1).max(200),
+      sizeBytes: z.number().int().positive(),
+      mime: z.string().max(100),
+    }),
+  )
+  .output(
+    z.object({ videoAssetId: z.uuid(), upload: UploadAuthorizationDto, course: StudioCourseDto }),
+  )

@@ -15,5 +15,7 @@ export const cacheTags = {
   /** Category tree, course listings, home rows (docs/03 §5). */
   catalog: 'catalog',
   course: (id: string) => `course:${id}`,
+  /** A slug lookup, including "no course here", so a newly published slug isn't a cached 404. */
+  courseSlug: (slug: string) => `course-slug:${slug}`,
   instructor: (id: string) => `instructor:${id}`,
 } as const

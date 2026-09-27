@@ -2,6 +2,7 @@ export type { ApiContext } from './context'
 export { toApiError } from './errors'
 export { createApiHandlers, type HandlerOptions } from './handlers'
 export { generateOpenApiSpec } from './openapi'
+export { toCardDto, toPublicCourseDto } from './procedures/catalog'
 // Core → DTO mappers, so Server Components hand client components the same shape the API returns.
 export { toApplicationDetailDto, toMyApplicationDto } from './procedures/instructors'
 export { toReviewDto, toStudioCourseDto } from './procedures/studio'

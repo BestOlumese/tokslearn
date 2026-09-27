@@ -4,7 +4,7 @@ import { SearchIcon } from '@/components/icons/search-icon'
 export function HeaderSearch({ className = '' }: { className?: string }) {
   return (
     <search className={className}>
-      <form action="/courses" className="relative">
+      <form action="/search" className="relative">
         <label htmlFor="site-search" className="sr-only">
           Search for courses
         </label>

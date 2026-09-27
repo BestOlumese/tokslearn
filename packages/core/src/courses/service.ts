@@ -90,6 +90,12 @@ export interface StudioCourse {
     certificateMode: repo.RevisionRow['certificateMode']
     coverFileId: string | null
     coverUrl: string | null
+    promo: {
+      assetId: string
+      status: 'uploading' | 'processing' | 'ready' | 'failed'
+      filename: string
+      durationSec: number | null
+    } | null
     reviewNotes: string | null
   }
   /** Live price, to warn when an update raises it by more than half. */
@@ -197,9 +203,14 @@ export async function getStudioCourse(ctx: Ctx, courseId: string): Promise<Studi
     courseTagNames(ctx, course.id),
     repo.revisionHistory(ctx.db, course.id),
   ])
-  const cover = revision.coverFileId
-    ? (await getFiles(ctx, [revision.coverFileId])).get(revision.coverFileId)
-    : undefined
+  const [cover, promo] = await Promise.all([
+    revision.coverFileId
+      ? getFiles(ctx, [revision.coverFileId]).then((m) => m.get(revision.coverFileId ?? ''))
+      : Promise.resolve(undefined),
+    revision.promoVideoId
+      ? getVideoAssets(ctx, [revision.promoVideoId]).then((m) => m.get(revision.promoVideoId ?? ''))
+      : Promise.resolve(undefined),
+  ])
   return {
     id: course.id,
     slug: course.slug,
@@ -225,6 +236,14 @@ export async function getStudioCourse(ctx: Ctx, courseId: string): Promise<Studi
       certificateMode: revision.certificateMode,
       coverFileId: revision.coverFileId,
       coverUrl: cover ? publicFileUrl(ctx, cover.key) : null,
+      promo: promo
+        ? {
+            assetId: promo.id,
+            status: promo.status,
+            filename: promo.filename,
+            durationSec: promo.durationSec,
+          }
+        : null,
       reviewNotes: revision.status === 'rejected' ? revision.reviewNotes : null,
     },
     livePriceKobo: course.liveRevisionId ? course.priceKobo : null,
@@ -743,5 +762,48 @@ export async function refreshLessonVideo(ctx: Ctx, input: { courseId: string; le
     const { changed } = await refreshVideoAsset(ctx, lesson.videoAssetId)
     if (changed) await onVideoAssetChanged(ctx, lesson.videoAssetId)
   }
+  return getStudioCourse(ctx, course.id)
+}
+
+/** Uploads the course trailer (docs/20 details: promo video), shown on the course page. */
+export async function startPromoVideoUpload(
+  ctx: Ctx,
+  input: { courseId: string; version: number; filename: string; sizeBytes: number; mime: string },
+) {
+  const user = requireUser(ctx.actor)
+  const course = await repo.getCourse(ctx.db, input.courseId)
+  if (!course) throw new NotFoundError('COURSE_NOT_FOUND')
+  if (!canEditCourse(user, course)) await denyEdit(ctx, user, course)
+  const revision = await repo.getRevision(
+    ctx.db,
+    course.draftRevisionId ?? course.liveRevisionId ?? '',
+  )
+  const { asset, upload } = await createVideoAsset(ctx, {
+    title: `${revision?.title ?? 'Course'} — preview`,
+    filename: input.filename,
+    sizeBytes: input.sizeBytes,
+    mime: input.mime,
+  })
+  const studio = await edit(ctx, course.id, input.version, async (tx, e) => {
+    await repo.updateRevision(tx.db, e.revision.id, { promoVideoId: asset.id })
+  })
+  return { studio, videoAssetId: asset.id, upload }
+}
+
+export async function removePromoVideo(ctx: Ctx, input: { courseId: string; version: number }) {
+  return edit(ctx, input.courseId, input.version, async (tx, e) => {
+    await repo.updateRevision(tx.db, e.revision.id, { promoVideoId: null })
+  })
+}
+
+/** "Check again" for the trailer while Bunny is still encoding it. */
+export async function refreshPromoVideo(ctx: Ctx, input: { courseId: string }) {
+  const { user, course } = await loadViewable(ctx, input.courseId)
+  if (!canEditCourse(user, course)) await denyEdit(ctx, user, course)
+  const revision = await repo.getRevision(
+    ctx.db,
+    course.draftRevisionId ?? course.liveRevisionId ?? '',
+  )
+  if (revision?.promoVideoId) await refreshVideoAsset(ctx, revision.promoVideoId)
   return getStudioCourse(ctx, course.id)
 }

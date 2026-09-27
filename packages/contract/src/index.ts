@@ -1,4 +1,10 @@
 import { adminContract } from './admin'
+import {
+  catalogPublicContract,
+  coursesContract,
+  instructorProfileContract,
+  learnContract,
+} from './catalog'
 import { healthContract } from './health'
 import { meContract, usersContract } from './identity'
 import { instructorsContract, kycContract, payoutAccountsContract } from './instructors'
@@ -11,9 +17,11 @@ export const contract = {
   me: meContract,
   users: usersContract,
   media: mediaContract,
-  catalog: catalogContract,
+  catalog: { ...catalogContract, ...catalogPublicContract },
+  courses: coursesContract,
+  learn: learnContract,
   studio: studioContract,
-  instructors: instructorsContract,
+  instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
   payoutAccounts: payoutAccountsContract,
   admin: adminContract,
@@ -36,6 +44,19 @@ export {
   type ServerAnalyticsEvent,
   serverEvents,
 } from './analytics'
+export {
+  AdminCourseRow,
+  CategoryDirectoryDto,
+  CategoryRow,
+  CourseCardDto,
+  CourseFiltersInput,
+  CourseSort,
+  DurationBucket,
+  HomeDto,
+  PublicCourseDto,
+  PublicInstructorDto,
+  PublicSectionDto,
+} from './catalog'
 export {
   type ErrorCode,
   ErrorCodeSchema,

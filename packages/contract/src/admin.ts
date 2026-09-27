@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { base } from './base'
+import { adminCategoriesContract, adminCoursesContract } from './catalog'
 import { RoleSchema, SessionDto } from './identity'
 import { adminInstructorsContract } from './instructors'
 import { Cursor, IsoDateTime, Page } from './shared'
@@ -176,4 +177,6 @@ export const adminContract = {
   },
   instructors: adminInstructorsContract,
   courseReviews: adminCourseReviewsContract,
+  courses: adminCoursesContract,
+  categories: adminCategoriesContract,
 }

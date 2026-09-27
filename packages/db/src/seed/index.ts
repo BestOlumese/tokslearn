@@ -135,20 +135,31 @@ async function seedDemoInstructors(db: Db): Promise<void> {
 /** Category tree for every environment. Existing rows (possibly edited by admins) are kept. */
 export async function seedCatalog(db: Db): Promise<void> {
   const rows = seedCategories.flatMap((top, i) => [
-    { id: top.id, slug: top.slug, name: top.name, parentId: null, position: i },
+    {
+      id: top.id,
+      slug: top.slug,
+      name: top.name,
+      description: top.description,
+      parentId: null,
+      position: i,
+    },
     ...top.children.map((c, j) => ({
       id: c.id,
       slug: c.slug,
       name: c.name,
+      description: null,
       parentId: top.id,
       position: j,
     })),
   ])
-  // Parents first so the self-reference resolves.
+  // Parents first so the self-reference resolves. Admin edits win: only empty descriptions fill.
   await db
     .insert(categories)
     .values(rows.filter((r) => r.parentId === null))
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: categories.id,
+      set: { description: sql`coalesce(${categories.description}, excluded.description)` },
+    })
   await db
     .insert(categories)
     .values(rows.filter((r) => r.parentId !== null))

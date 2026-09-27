@@ -1,10 +1,16 @@
 import { impl } from './base'
 import { adminRouter } from './procedures/admin'
+import {
+  catalogPublicRouter,
+  coursesRouter,
+  instructorProfileHandlers,
+  learnRouter,
+} from './procedures/catalog'
 import { healthRouter } from './procedures/health'
 import { instructorsRouter, kycRouter, payoutAccountsRouter } from './procedures/instructors'
 import { meRouter } from './procedures/me'
 import { mediaRouter } from './procedures/media'
-import { catalogRouter, studioRouter } from './procedures/studio'
+import { catalogCategoriesHandler, studioRouter } from './procedures/studio'
 import { usersRouter } from './procedures/users'
 
 export const router = impl.router({
@@ -12,9 +18,11 @@ export const router = impl.router({
   me: meRouter,
   users: usersRouter,
   media: mediaRouter,
-  catalog: catalogRouter,
+  catalog: { categories: catalogCategoriesHandler, ...catalogPublicRouter },
+  courses: coursesRouter,
+  learn: learnRouter,
   studio: studioRouter,
-  instructors: instructorsRouter,
+  instructors: { ...instructorsRouter, ...instructorProfileHandlers },
   kyc: kycRouter,
   payoutAccounts: payoutAccountsRouter,
   admin: adminRouter,
