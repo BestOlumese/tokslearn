@@ -1,4 +1,11 @@
 export {
+  type AdminCourseFilter,
+  changeCourseSlug,
+  listAdminCourses,
+  setCourseListing,
+  setFeatured,
+} from './admin'
+export {
   archiveBundle,
   type BundleInput,
   createBundle,
@@ -43,7 +50,9 @@ export {
   moveSection,
   onVideoAssetChanged,
   refreshLessonVideo,
+  refreshPromoVideo,
   removeLesson,
+  removePromoVideo,
   removeResource,
   removeSection,
   renameSection,
@@ -51,6 +60,7 @@ export {
   type StudioLesson,
   type StudioSection,
   startLessonVideoUpload,
+  startPromoVideoUpload,
   updateDetails,
   updateLesson,
   updatePricing,

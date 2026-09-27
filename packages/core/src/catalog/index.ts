@@ -1,4 +1,41 @@
 export {
+  canManageCategories,
+  createCategory,
+  deleteCategory,
+  moveCategory,
+  updateCategory,
+} from './admin'
+export {
+  type CategoryDirectory,
+  getCategoryBySlug,
+  getCategoryDirectory,
+  getHomeRows,
+  getPreviewPlayback,
+  getPublicCourse,
+  getPublicInstructor,
+  PUBLIC_PREVIEW_TTL_SEC,
+  type PublicCourse,
+  type PublicCourseResult,
+  type PublicInstructor,
+  type PublicInstructorResult,
+  type PublicLesson,
+  topInstructorsIn,
+} from './public'
+export {
+  type CourseCard,
+  type CourseFilters,
+  type CourseSort,
+  type DurationBucket,
+  featuredCourses,
+  listCourses,
+  normalizeText,
+  reindexAll,
+  reindexCourse,
+  SEARCH_MAX_RESULTS,
+  searchCourses,
+  searchInstructors,
+} from './search'
+export {
   type CategoryNode,
   categoryNames,
   courseTagNames,

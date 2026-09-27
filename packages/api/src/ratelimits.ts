@@ -26,6 +26,9 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   'studio.lessons.refreshVideo': { limit: 20, windowSec: 60 },
   'media.createVideoUpload': { limit: 30, windowSec: 60 * 60 },
   catalog: { limit: 120, windowSec: 60 },
+  courses: { limit: 120, windowSec: 60 },
+  'courses.search': { limit: 60, windowSec: 60 },
+  'learn.previewPlayback': { limit: 30, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {

@@ -1,7 +1,7 @@
 import type { RichTextDoc } from '@tokslearn/contract'
 import { writeAudit } from '../admin'
 import { track } from '../analytics'
-import { categoryNames } from '../catalog'
+import { categoryNames, reindexCourse } from '../catalog'
 import { getUserContact } from '../identity'
 import { cacheTags } from '../kernel/cache'
 import { type Ctx, inTransaction, provider } from '../kernel/ctx'
@@ -145,6 +145,8 @@ async function applyRevision(
     version: course.version + 1,
   })
   await repo.recomputeTotals(tx.db, course.id)
+  // Inline, not a job: the catalog shows the change as soon as the approval commits (ADR-032).
+  await reindexCourse(tx, course.id)
   await tx.events.emit(firstPublish ? 'course.published' : 'course.updated', {
     courseId: course.id,
     revisionId: revision.id,
@@ -153,6 +155,7 @@ async function applyRevision(
   tx.afterCommit(() =>
     tx.cache.invalidate([
       cacheTags.course(course.id),
+      cacheTags.courseSlug(course.slug),
       cacheTags.catalog,
       cacheTags.instructor(course.instructorId),
     ]),

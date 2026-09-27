@@ -102,6 +102,10 @@ export const errorCatalog = {
     message: 'Finish the checklist before submitting.',
   },
   SLUG_TAKEN: { status: 'CONFLICT', message: 'That URL is taken. Try another.' },
+  CATEGORY_IN_USE: {
+    status: 'CONFLICT',
+    message: 'Move its courses and subcategories first, then delete it.',
+  },
   UPLOAD_TOO_LARGE: { status: 'BAD_REQUEST', message: 'Files must be under {limit}.' },
   UNSUPPORTED_FILE_TYPE: {
     status: 'BAD_REQUEST',

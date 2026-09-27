@@ -111,10 +111,14 @@ export async function refreshVideoAsset(ctx: Ctx, assetId: string) {
 }
 
 /** Signed embed URL for previews. The caller must have checked the viewer may watch it. */
-export function videoPreviewUrl(ctx: Ctx, asset: VideoAsset): string | null {
+export function videoPreviewUrl(
+  ctx: Ctx,
+  asset: VideoAsset,
+  ttlSec: number = PLAYBACK_TTL_SEC,
+): string | null {
   if (asset.status !== 'ready') return null
   return provider(ctx, 'video').playbackUrls({
     videoId: asset.providerVideoId,
-    expiresAt: new Date(ctx.now.getTime() + PLAYBACK_TTL_SEC * 1000),
+    expiresAt: new Date(ctx.now.getTime() + ttlSec * 1000),
   }).embedUrl
 }

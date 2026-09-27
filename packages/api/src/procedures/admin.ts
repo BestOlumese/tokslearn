@@ -3,6 +3,7 @@ import * as admin from '@tokslearn/core/admin'
 import * as identity from '@tokslearn/core/identity'
 import { staff } from '../base'
 import { toAdminUserRow, toAuditDto, toSessionDto } from '../dto'
+import { adminCategoriesRouter, adminCoursesRouter } from './catalog'
 import { adminInstructorsRouter } from './instructors'
 import { adminCourseReviewsRouter } from './studio'
 
@@ -69,4 +70,6 @@ export const adminRouter = {
 
   instructors: adminInstructorsRouter,
   courseReviews: adminCourseReviewsRouter,
+  courses: adminCoursesRouter,
+  categories: adminCategoriesRouter,
 }

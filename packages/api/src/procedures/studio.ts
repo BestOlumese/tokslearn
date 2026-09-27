@@ -87,6 +87,16 @@ export const studioRouter = {
         }),
       ),
     ),
+    changeSlug: authed.studio.courses.changeSlug.handler(async ({ context, input }) => {
+      await courses.changeCourseSlug(context.ctx, input)
+      return toStudioCourseDto(await courses.getStudioCourse(context.ctx, input.courseId))
+    }),
+    removePromo: authed.studio.courses.removePromo.handler(({ context, input }) =>
+      out(courses.removePromoVideo(context.ctx, input)),
+    ),
+    refreshPromo: authed.studio.courses.refreshPromo.handler(({ context, input }) =>
+      out(courses.refreshPromoVideo(context.ctx, input)),
+    ),
     submit: authed.studio.courses.submit.handler(async ({ context, input }) => {
       const r = await courses.submitForReview(context.ctx, input)
       return { outcome: r.outcome, course: toStudioCourseDto(r.studio) }
@@ -173,11 +183,9 @@ export const studioRouter = {
   },
 }
 
-export const catalogRouter = {
-  categories: pub.catalog.categories.handler(async ({ context }) =>
-    catalog.listCategoryTree(context.ctx),
-  ),
-}
+export const catalogCategoriesHandler = pub.catalog.categories.handler(async ({ context }) =>
+  catalog.listCategoryTree(context.ctx),
+)
 
 export const createVideoUploadHandler = authed.media.createVideoUpload.handler(
   async ({ context, input }) => {
@@ -209,3 +217,14 @@ export const adminCourseReviewsRouter = {
     toReviewDto(await courses.decideReview(context.ctx, input)),
   ),
 }
+
+export const createPromoVideoUploadHandler = authed.media.createPromoVideoUpload.handler(
+  async ({ context, input }) => {
+    const r = await courses.startPromoVideoUpload(context.ctx, input)
+    return {
+      videoAssetId: r.videoAssetId,
+      upload: { ...r.upload, expiresAt: r.upload.expiresAt.toISOString() },
+      course: toStudioCourseDto(r.studio),
+    }
+  },
+)

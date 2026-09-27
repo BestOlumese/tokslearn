@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { base } from './base'
 import { IsoDateTime } from './shared'
-import { createVideoUpload } from './studio'
+import { createPromoVideoUpload, createVideoUpload } from './studio'
 
 /** Purposes enabled so far; more arrive with the features that need them (docs/09 §5). */
 export const UploadPurpose = z.enum(['avatar', 'cover', 'resource'])
@@ -45,4 +45,5 @@ export const mediaContract = {
     .output(z.object({ fileId: z.uuid(), url: z.string().nullable() })),
 
   createVideoUpload,
+  createPromoVideoUpload,
 }
