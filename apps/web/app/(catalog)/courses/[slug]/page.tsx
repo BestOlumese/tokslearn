@@ -244,7 +244,7 @@ function InstructorBlock({ course: c }: { course: PublicCourseDto }) {
       <h2 id="instructor-title" className="text-h2 text-ink">
         Your instructor
       </h2>
-      <div className="mt-4 flex gap-4">
+      <div className="mt-4 flex items-center gap-4">
         <Avatar
           name={c.instructor.name}
           src={c.instructor.avatarUrl && resized(c.instructor.avatarUrl, 128)}
@@ -264,13 +264,15 @@ function InstructorBlock({ course: c }: { course: PublicCourseDto }) {
             )}
           </p>
           {c.instructor.headline ? (
-            <p className="text-body-sm text-ink-2">{c.instructor.headline}</p>
-          ) : null}
-          {c.instructor.bio ? (
-            <p className="mt-3 whitespace-pre-line text-body text-ink-2">{c.instructor.bio}</p>
+            <p className="mt-0.5 text-body-sm text-ink-2">{c.instructor.headline}</p>
           ) : null}
         </div>
       </div>
+      {c.instructor.bio ? (
+        <p className="mt-4 max-w-prose whitespace-pre-line text-body text-ink-2">
+          {c.instructor.bio}
+        </p>
+      ) : null}
     </section>
   )
 }
