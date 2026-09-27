@@ -90,10 +90,15 @@ describe('catalog', () => {
         tags: ['JavaScript', 'Web'],
       })
       await publishCourse(env, owner, reviewer, { title: 'Excel for Accountants' })
+      // Same tag, published later: must not outrank the course named JavaScript.
+      await publishCourse(env, owner, reviewer, {
+        title: 'React from Zero',
+        tags: ['JavaScript', 'React'],
+      })
       const anon = env.ctx({ kind: 'anonymous' })
 
       const typo = await searchCourses(anon, { q: 'javascrpit', limit: 24 })
-      expect(typo.items.map((c) => c.title)).toEqual(['JavaScript for Beginners'])
+      expect(typo.items[0]?.title).toBe('JavaScript for Beginners')
       expect(typo.typoMatch).toBe(true)
 
       const exact = await searchCourses(anon, { q: 'excel', limit: 24 })

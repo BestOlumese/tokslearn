@@ -301,9 +301,15 @@ export async function searchCourses(ctx: Ctx, f: CourseFilters & { q: string }) 
     .from(cs)
     .where(and(...conditions))
     .orderBy(
+      // A chosen sort wins; otherwise best match: exact words first, then close spellings.
+      ...(f.sort
+        ? [sortSpec(f.sort).dir === 'desc' ? desc(sortSpec(f.sort).col) : asc(sortSpec(f.sort).col)]
+        : []),
       desc(fts),
       desc(sql`ts_rank_cd(${cs.document}, ${query})`),
       desc(sim),
+      // title_norm includes tags; on a tie the course whose own title is closer wins.
+      desc(sql`word_similarity(${qn}, lower(${cs.title}))`),
       desc(cs.publishedAt),
     )
     .limit(Math.min(f.limit + 1, SEARCH_MAX_RESULTS - offset + 1))

@@ -48,6 +48,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Metadata always in <head>, never streamed into <body>: link previews (WhatsApp, Telegram,
+  // LinkedIn) and audits read only the head, and our generateMetadata reads cached data (ADR-032).
+  htmlLimitedBots: /.*/,
   reactCompiler: true,
   typedRoutes: true,
   poweredByHeader: false,

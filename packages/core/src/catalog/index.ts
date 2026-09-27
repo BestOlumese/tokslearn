@@ -19,6 +19,8 @@ export {
   type PublicInstructor,
   type PublicInstructorResult,
   type PublicLesson,
+  type SitemapKind,
+  sitemapEntries,
   topInstructorsIn,
 } from './public'
 export {

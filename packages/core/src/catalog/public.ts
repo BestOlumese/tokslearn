@@ -453,3 +453,44 @@ export async function getHomeRows(ctx: Ctx) {
     courseCount: total,
   }
 }
+
+export type SitemapKind = 'courses' | 'categories' | 'instructors'
+
+/**
+ * Public URLs for the sitemap (docs/12 §5), one list per kind: live courses, categories with at
+ * least one live course, and instructors with at least one live course. Google takes 50,000 URLs
+ * per file; split by id range when a kind gets near that.
+ */
+export async function sitemapEntries(
+  ctx: Ctx,
+  kind: SitemapKind,
+): Promise<Array<{ slug: string; lastModified: Date }>> {
+  if (kind === 'courses') {
+    return ctx.db
+      .select({ slug: cs.slug, lastModified: cs.updatedAt })
+      .from(cs)
+      .orderBy(desc(cs.publishedAt))
+      .limit(50_000)
+  }
+  if (kind === 'instructors') {
+    const rows = await ctx.db
+      .select({ slug: cs.instructorSlug, lastModified: sql<Date>`max(${cs.updatedAt})` })
+      .from(cs)
+      .where(isNotNull(cs.instructorSlug))
+      .groupBy(cs.instructorSlug)
+      .limit(50_000)
+    return rows.flatMap((r) =>
+      r.slug ? [{ slug: r.slug, lastModified: new Date(r.lastModified) }] : [],
+    )
+  }
+  const [counts, rows] = await Promise.all([
+    categoryCounts(ctx),
+    ctx.db
+      .select({ id: categories.id, slug: categories.slug, lastModified: categories.updatedAt })
+      .from(categories)
+      .orderBy(asc(categories.position)),
+  ])
+  return rows
+    .filter((r) => (counts.get(r.id) ?? 0) > 0)
+    .map((r) => ({ slug: r.slug, lastModified: r.lastModified }))
+}

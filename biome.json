@@ -30,6 +30,7 @@
         "apps/web/app/**/loading.tsx",
         "apps/web/app/**/robots.ts",
         "apps/web/app/**/sitemap.ts",
+        "apps/web/app/**/opengraph-image.tsx",
         "apps/web/app/**/icon.tsx",
         "apps/web/next.config.ts",
         "apps/web/playwright.config.ts",
