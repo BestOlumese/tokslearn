@@ -14,6 +14,7 @@ import { JsonLd } from '@/components/seo/json-ld'
 import { env } from '@/env'
 import { getCourse, topCourseSlugs } from '@/lib/catalog-data'
 import { certificateLabel, formatDate, languageLabel, levelLabel } from '@/lib/format'
+import { resized } from '@/lib/image'
 
 type Params = Promise<{ slug: string }>
 
@@ -244,7 +245,11 @@ function InstructorBlock({ course: c }: { course: PublicCourseDto }) {
         Your instructor
       </h2>
       <div className="mt-4 flex gap-4">
-        <Avatar name={c.instructor.name} src={c.instructor.avatarUrl} size="lg" />
+        <Avatar
+          name={c.instructor.name}
+          src={c.instructor.avatarUrl && resized(c.instructor.avatarUrl, 128)}
+          size="lg"
+        />
         <div className="min-w-0">
           <p className="text-h4 text-ink">
             {c.instructor.slug ? (

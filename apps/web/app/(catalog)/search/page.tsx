@@ -15,6 +15,7 @@ import { Track } from '@/components/catalog/track'
 import { HeaderSearch } from '@/components/site/header-search'
 import { search } from '@/lib/catalog-data'
 import { parseFilters, type RawParams } from '@/lib/catalog-params'
+import { resized } from '@/lib/image'
 
 export const metadata: Metadata = {
   title: 'Search courses',
@@ -89,7 +90,7 @@ async function Results({ searchParams }: { searchParams: Promise<RawParams> }) {
                   href={`/instructors/${i.slug}` as Route}
                   className="flex items-center gap-3 rounded-card border border-border bg-surface px-4 py-3 hover:border-ink-3"
                 >
-                  <Avatar name={i.name} src={i.avatarUrl} size="sm" />
+                  <Avatar name={i.name} src={i.avatarUrl && resized(i.avatarUrl, 64)} size="sm" />
                   <span>
                     <span className="block text-body-sm font-semibold text-ink">{i.name}</span>
                     {i.headline ? (

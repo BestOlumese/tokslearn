@@ -7,6 +7,7 @@ import { Track } from '@/components/catalog/track'
 import { JsonLd } from '@/components/seo/json-ld'
 import { env } from '@/env'
 import { getInstructor, topInstructorSlugs } from '@/lib/catalog-data'
+import { resized } from '@/lib/image'
 
 type Params = Promise<{ slug: string }>
 
@@ -102,7 +103,7 @@ async function Instructor({ params }: { params: Params }) {
           {i.avatarUrl ? (
             // biome-ignore lint/performance/noImgElement: fixed 96px photo, no optimizer needed
             <img
-              src={i.avatarUrl}
+              src={resized(i.avatarUrl, 256)}
               alt=""
               width={96}
               height={96}

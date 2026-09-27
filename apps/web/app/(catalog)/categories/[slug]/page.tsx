@@ -17,6 +17,7 @@ import { JsonLd } from '@/components/seo/json-ld'
 import { env } from '@/env'
 import { browse, getCategory, getDirectory } from '@/lib/catalog-data'
 import { parseFilters, type RawParams } from '@/lib/catalog-params'
+import { resized } from '@/lib/image'
 
 type Params = Promise<{ slug: string }>
 
@@ -139,7 +140,7 @@ async function CategoryHeader({ params }: { params: Params }) {
                     href={`/instructors/${i.slug}` as Route}
                     className="flex items-center gap-2.5 rounded-full py-1 pr-3 hover:bg-surface-sunken"
                   >
-                    <Avatar name={i.name} src={i.avatarUrl} size="sm" />
+                    <Avatar name={i.name} src={i.avatarUrl && resized(i.avatarUrl, 64)} size="sm" />
                     <span className="text-body-sm text-ink">{i.name}</span>
                   </Link>
                 </li>

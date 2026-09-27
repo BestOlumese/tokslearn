@@ -1,7 +1,9 @@
+import { COVER_WIDTHS, resized, srcSet } from '@/lib/image'
+
 /**
- * 16:9 course cover. A plain <img>: covers come from our CDN at the uploaded size, and next/image
- * would add ~5 KB of client JS to every catalog page for no gain (ADR-032). `sizes` is kept for
- * the resized variants (srcset) that arrive with the image pipeline (docs/09 §5).
+ * 16:9 course cover. A plain <img> with a srcset of resized WebPs from /_next/image: the browser
+ * picks the width from `sizes`, and next/image's ~5 KB of client JS stays off catalog pages
+ * (ADR-032).
  */
 export function CourseCover({
   src,
@@ -23,7 +25,8 @@ export function CourseCover({
       {src ? (
         // biome-ignore lint/performance/noImgElement: see above
         <img
-          src={src}
+          src={resized(src, 640)}
+          srcSet={srcSet(src, COVER_WIDTHS)}
           alt={alt}
           width={1280}
           height={720}
