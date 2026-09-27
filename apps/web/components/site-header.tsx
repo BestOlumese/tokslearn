@@ -13,9 +13,12 @@ export function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-border bg-surface">
       <div className="mx-auto flex h-[68px] max-w-catalog items-center gap-3 px-4 sm:px-6 lg:gap-5 lg:px-8">
         <Wordmark />
-        <nav aria-label="Main" className="hidden lg:block">
+        <nav aria-label="Main" className="hidden lg:flex">
           <Link href="/courses" className={navLink}>
             Courses
+          </Link>
+          <Link href="/categories" className={navLink}>
+            Categories
           </Link>
         </nav>
         <HeaderSearch className="hidden max-w-[560px] flex-1 md:block" />
@@ -26,7 +29,7 @@ export function SiteHeader() {
             </Link>
           </span>
           <HeaderAccount />
-          <details className="relative md:hidden">
+          <details className="relative lg:hidden">
             <summary
               aria-label="Menu"
               className="flex size-10 cursor-pointer list-none items-center justify-center rounded-control text-ink-2 hover:bg-surface-sunken [&::-webkit-details-marker]:hidden"
@@ -34,10 +37,15 @@ export function SiteHeader() {
               <MenuIcon />
             </summary>
             <div className="fixed inset-x-0 top-[68px] z-40 border-b border-border bg-surface px-4 pt-4 pb-5 shadow-pop">
-              <HeaderSearch />
-              <nav aria-label="Menu" className="mt-3 flex flex-col">
+              <div className="md:hidden">
+                <HeaderSearch />
+              </div>
+              <nav aria-label="Menu" className="mt-3 flex flex-col md:mt-0">
                 <Link href="/courses" className={`${navLink} h-11`}>
                   Courses
+                </Link>
+                <Link href="/categories" className={`${navLink} h-11`}>
+                  Categories
                 </Link>
                 <Link href="/teach" className={`${navLink} h-11`}>
                   Teach on Tokslearn

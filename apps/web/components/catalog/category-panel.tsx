@@ -27,7 +27,7 @@ const icons: Record<string, typeof Sheet> = {
   'personal-development': Sprout,
 }
 
-/** Home page category list with course counts (docs/11 §5). */
+/** Home page category grid with course counts, below the hero (docs/11 §5). */
 export function CategoryPanel({ categories }: { categories: CategoryDirectoryDto }) {
   return (
     <div className="overflow-hidden rounded-dialog border border-border bg-surface">
@@ -40,7 +40,7 @@ export function CategoryPanel({ categories }: { categories: CategoryDirectoryDto
           All categories
         </Link>
       </div>
-      <ul className="grid gap-px bg-border sm:grid-cols-2">
+      <ul className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
         {categories.slice(0, 8).map((c) => {
           const Icon = icons[c.slug] ?? Sheet
           return (

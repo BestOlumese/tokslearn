@@ -1,7 +1,9 @@
 import { buttonClasses } from '@tokslearn/ui/button'
 import Link from 'next/link'
+import { BuyingFacts } from '@/components/catalog/buying-facts'
 import { CategoryPanel } from '@/components/catalog/category-panel'
 import { CourseRow } from '@/components/catalog/course-row'
+import { CourseSpotlight } from '@/components/catalog/course-spotlight'
 import { Track } from '@/components/catalog/track'
 import { SearchIcon } from '@/components/icons/search-icon'
 import { JsonLd } from '@/components/seo/json-ld'
@@ -18,6 +20,9 @@ const exampleSearches = ['Excel', 'Python', 'Figma', 'Digital marketing'] as con
 export default async function HomePage() {
   const home = await getHome()
   const hasPopular = home.popular.some((c) => c.enrollmentCount > 0)
+  const spotlight = home.featured[0] ?? home.newest[0]
+  const notSpotlight = (list: typeof home.newest) =>
+    list.filter((c) => c.courseId !== spotlight?.courseId)
   const site = env.NEXT_PUBLIC_APP_URL
   return (
     <>
@@ -69,8 +74,24 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <CategoryPanel categories={home.categories} />
+          <div className="w-full max-w-[560px] lg:max-w-[520px] lg:justify-self-end">
+            {spotlight ? (
+              <CourseSpotlight
+                course={spotlight}
+                label={home.featured[0] ? 'Picked by our reviewers' : 'New on Tokslearn'}
+              />
+            ) : (
+              <BuyingFacts />
+            )}
+          </div>
         </div>
+      </section>
+
+      <section
+        aria-label="Categories"
+        className="mx-auto max-w-catalog px-4 pt-12 sm:px-6 lg:px-8 lg:pt-14"
+      >
+        <CategoryPanel categories={home.categories} />
       </section>
 
       {home.courseCount > 0 ? (
@@ -79,13 +100,13 @@ export default async function HomePage() {
             id="row-featured"
             title="Picked by our reviewers"
             href="/courses"
-            courses={home.featured}
+            courses={notSpotlight(home.featured)}
           />
           <CourseRow
             id="row-new"
             title="New on Tokslearn"
             href="/courses?sort=newest"
-            courses={home.newest}
+            courses={home.featured[0] ? home.newest : notSpotlight(home.newest)}
           />
           <CourseRow
             id="row-free"
