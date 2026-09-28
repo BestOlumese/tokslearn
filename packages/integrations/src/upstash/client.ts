@@ -72,5 +72,15 @@ export function createClickCounter(redis: Redis) {
       }
       return out
     },
+    async peek(linkIds: ReadonlyArray<string>): Promise<Map<string, number>> {
+      const out = new Map<string, number>()
+      if (linkIds.length === 0) return out
+      const values = await redis.hmget<Record<string, number | null>>(CLICKS, ...linkIds)
+      for (const [linkId, value] of Object.entries(values ?? {})) {
+        const clicks = Number(value)
+        if (Number.isFinite(clicks) && clicks > 0) out.set(linkId, clicks)
+      }
+      return out
+    },
   }
 }

@@ -17,6 +17,8 @@ export interface ClickCounter {
   increment(linkId: string): Promise<void>
   /** Returns counts since the last drain and subtracts them (increments in between survive). */
   drain(): Promise<Array<{ linkId: string; clicks: number }>>
+  /** Counts not yet moved into the database, without moving them (for live totals). */
+  peek(linkIds: ReadonlyArray<string>): Promise<Map<string, number>>
 }
 
 /** Absolute URLs for links in emails and public file URLs. */
