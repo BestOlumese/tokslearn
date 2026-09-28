@@ -205,6 +205,12 @@ export const orders = pgTable(
     gatewayFeeKobo: kobo(),
     /** When the Paystack transaction was initialized; the reconciliation cron needs it. */
     initializedAt: tstz(),
+    /**
+     * Paystack's one-time access code and hosted page for this order, kept so a retried checkout
+     * (double click, reload) reopens the same payment instead of starting another.
+     */
+    providerAccessCode: text(),
+    authorizationUrl: text(),
     paidAt: tstz(),
     failureReason: text(),
     idempotencyKey: text().unique(),
@@ -259,6 +265,8 @@ export const orderItems = pgTable(
     discountKobo: kobo().notNull().default(sql`0`),
     netPriceKobo: kobo().notNull(),
     attributionSource: attributionSourceEnum().notNull(),
+    /** The referral link that earned `instructor_referral`, for per-link sales in the studio. */
+    referralLinkId: uuid().references(() => referralLinks.id, { onDelete: 'restrict' }),
     commissionRuleId: uuid(),
     platformRateBps: integer().notNull(),
     /** Set when the order is paid (the fee is only known then). */
@@ -274,6 +282,7 @@ export const orderItems = pgTable(
     index().on(t.orderId),
     index().on(t.courseId),
     index().on(t.bundleId),
+    index().on(t.referralLinkId),
     index().on(t.instructorId, t.earningStatus),
     index('order_items_release_due')
       .on(t.refundableUntil)

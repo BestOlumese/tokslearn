@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import { createDb, type Db, type DbHandle } from './client'
 import { runMigrations } from './migrate'
 
@@ -27,6 +28,19 @@ export async function withRollback(fn: (tx: Db) => Promise<void>): Promise<void>
   } catch (error) {
     if (!(error instanceof Rollback)) throw error
   }
+}
+
+/**
+ * Empties every table. Only for tests that must commit (real concurrency); other tests use
+ * `withRollback` and expect an empty database. TRUNCATE skips the ledger's row triggers.
+ */
+export async function resetTestDb(): Promise<void> {
+  const db = await getTestDb()
+  const result = await db.execute(sql`select tablename from pg_tables where schemaname = 'public'`)
+  const tables = (result as unknown as { rows: Array<{ tablename: string }> }).rows
+    .map((r) => `"${r.tablename}"`)
+    .join(', ')
+  if (tables) await db.execute(sql.raw(`truncate ${tables} restart identity cascade`))
 }
 
 export async function closeTestDb(): Promise<void> {

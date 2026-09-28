@@ -23,6 +23,14 @@ export interface DomainEvents {
   'course.updated': { courseId: string; revisionId: string; instructorId: string }
   'course.changes_requested': { courseId: string; revisionId: string }
   'video.status_changed': { videoAssetId: string; status: 'processing' | 'ready' | 'failed' }
+  'enrollment.created': {
+    enrollmentId: string
+    userId: string
+    courseId: string
+    source: string
+  }
+  'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }
+  'order.failed': { orderId: string; reason: string }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */
   'notification.email_requested': {
     id: string

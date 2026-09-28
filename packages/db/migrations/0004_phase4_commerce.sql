@@ -95,6 +95,7 @@ CREATE TABLE "order_items" (
 	"discount_kobo" bigint DEFAULT 0 NOT NULL,
 	"net_price_kobo" bigint NOT NULL,
 	"attribution_source" "attribution_source" NOT NULL,
+	"referral_link_id" uuid,
 	"commission_rule_id" uuid,
 	"platform_rate_bps" integer NOT NULL,
 	"instructor_share_kobo" bigint,
@@ -126,6 +127,8 @@ CREATE TABLE "orders" (
 	"payment_channel" text,
 	"gateway_fee_kobo" bigint,
 	"initialized_at" timestamp with time zone,
+	"provider_access_code" text,
+	"authorization_url" text,
 	"paid_at" timestamp with time zone,
 	"failure_reason" text,
 	"idempotency_key" text,
@@ -281,6 +284,7 @@ ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_orders_id_fk" FOR
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_bundle_id_bundles_id_fk" FOREIGN KEY ("bundle_id") REFERENCES "public"."bundles"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_instructor_id_user_id_fk" FOREIGN KEY ("instructor_id") REFERENCES "public"."user"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order_items" ADD CONSTRAINT "order_items_referral_link_id_referral_links_id_fk" FOREIGN KEY ("referral_link_id") REFERENCES "public"."referral_links"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_coupon_id_coupons_id_fk" FOREIGN KEY ("coupon_id") REFERENCES "public"."coupons"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "referral_links" ADD CONSTRAINT "referral_links_instructor_id_user_id_fk" FOREIGN KEY ("instructor_id") REFERENCES "public"."user"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
@@ -312,6 +316,7 @@ CREATE INDEX "coupons_instructor_id_created_at_index" ON "coupons" USING btree (
 CREATE INDEX "order_items_order_id_index" ON "order_items" USING btree ("order_id");--> statement-breakpoint
 CREATE INDEX "order_items_course_id_index" ON "order_items" USING btree ("course_id");--> statement-breakpoint
 CREATE INDEX "order_items_bundle_id_index" ON "order_items" USING btree ("bundle_id");--> statement-breakpoint
+CREATE INDEX "order_items_referral_link_id_index" ON "order_items" USING btree ("referral_link_id");--> statement-breakpoint
 CREATE INDEX "order_items_instructor_id_earning_status_index" ON "order_items" USING btree ("instructor_id","earning_status");--> statement-breakpoint
 CREATE INDEX "order_items_release_due" ON "order_items" USING btree ("refundable_until") WHERE "order_items"."earning_status" = 'pending';--> statement-breakpoint
 CREATE INDEX "orders_user_id_created_at_index" ON "orders" USING btree ("user_id","created_at" DESC NULLS LAST);--> statement-breakpoint

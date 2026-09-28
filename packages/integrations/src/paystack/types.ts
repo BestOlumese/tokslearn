@@ -9,16 +9,27 @@ export interface PaymentProvider {
     metadata: Readonly<Record<string, string>>
   }): Promise<{ authorizationUrl: string; accessCode: string }>
 
-  verifyTransaction(reference: string): Promise<{
-    status: 'success' | 'failed' | 'abandoned' | 'pending'
-    amountKobo: bigint
-    currency: string
-    channel: string | null
-    paidAt: Date | null
-  }>
+  /**
+   * The transaction as the provider sees it now. `pending` covers everything still in flight
+   * (ongoing, processing, queued); `failed` includes reversed.
+   */
+  verifyTransaction(reference: string): Promise<VerifiedTransaction>
 
   /** HMAC SHA-512 of the raw body with the secret key, compared in constant time. */
   verifyWebhookSignature(rawBody: string, signature: string | null): boolean
+}
+
+export interface VerifiedTransaction {
+  status: 'success' | 'failed' | 'abandoned' | 'pending'
+  /** The reference the provider echoes back; must equal the one asked about. */
+  reference: string
+  amountKobo: bigint
+  currency: string
+  channel: string | null
+  paidAt: Date | null
+  /** What the provider charged for this transaction, in kobo (docs/08 §4). */
+  feesKobo: bigint | null
+  gatewayResponse: string | null
 }
 
 export interface Bank {

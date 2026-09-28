@@ -7,8 +7,10 @@ import * as courseReviewDecision from './templates/course-review-decision'
 import * as dataExportReady from './templates/data-export-ready'
 import * as deletionRequested from './templates/deletion-requested'
 import * as emailChangedOld from './templates/email-changed-old'
+import * as enrollmentFree from './templates/enrollment-free'
 import * as kycResult from './templates/kyc-result'
 import * as newSignIn from './templates/new-sign-in'
+import * as orderReceipt from './templates/order-receipt'
 import * as passwordChanged from './templates/password-changed'
 import * as payoutAccountChanged from './templates/payout-account-changed'
 import * as resetPassword from './templates/reset-password'
@@ -68,6 +70,14 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'course-review-decision': {
     subject: courseReviewDecision.subject,
     element: (d) => <courseReviewDecision.CourseReviewDecision {...d} />,
+  },
+  'order-receipt': {
+    subject: orderReceipt.subject,
+    element: (d) => <orderReceipt.OrderReceipt {...d} />,
+  },
+  'enrollment-free': {
+    subject: enrollmentFree.subject,
+    element: (d) => <enrollmentFree.EnrollmentFree {...d} />,
   },
 }
 

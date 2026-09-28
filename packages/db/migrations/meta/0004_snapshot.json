@@ -1,5 +1,5 @@
 {
-  "id": "62d7d001-68ef-4568-bcd0-cc27561e582a",
+  "id": "1fbcb4e2-20e5-4610-9e45-35105cc75309",
   "prevId": "d2e463c2-db99-4dff-b6d0-74279334bd58",
   "version": "7",
   "dialect": "postgresql",
@@ -1535,6 +1535,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "referral_link_id": {
+          "name": "referral_link_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "commission_rule_id": {
           "name": "commission_rule_id",
           "type": "uuid",
@@ -1640,6 +1646,21 @@
           "method": "btree",
           "with": {}
         },
+        "order_items_referral_link_id_index": {
+          "name": "order_items_referral_link_id_index",
+          "columns": [
+            {
+              "expression": "referral_link_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "order_items_instructor_id_earning_status_index": {
           "name": "order_items_instructor_id_earning_status_index",
           "columns": [
@@ -1724,6 +1745,19 @@
           "tableTo": "user",
           "columnsFrom": [
             "instructor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "order_items_referral_link_id_referral_links_id_fk": {
+          "name": "order_items_referral_link_id_referral_links_id_fk",
+          "tableFrom": "order_items",
+          "tableTo": "referral_links",
+          "columnsFrom": [
+            "referral_link_id"
           ],
           "columnsTo": [
             "id"
@@ -1854,6 +1888,18 @@
         "initialized_at": {
           "name": "initialized_at",
           "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider_access_code": {
+          "name": "provider_access_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "authorization_url": {
+          "name": "authorization_url",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

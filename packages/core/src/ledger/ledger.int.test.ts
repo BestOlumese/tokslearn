@@ -1,5 +1,5 @@
 import { type Db, newId, schema } from '@tokslearn/db'
-import { closeTestDb, getTestDb, withRollback } from '@tokslearn/db/testing'
+import { closeTestDb, getTestDb, resetTestDb, withRollback } from '@tokslearn/db/testing'
 import { sql } from 'drizzle-orm'
 import { afterAll, describe, expect, it } from 'vitest'
 import { systemActor } from '../kernel/actor'
@@ -16,7 +16,10 @@ import {
   post,
 } from '.'
 
-afterAll(closeTestDb)
+afterAll(async () => {
+  await resetTestDb()
+  await closeTestDb()
+})
 
 /** Drizzle wraps the database error; the trigger's message is on `cause`. */
 const appendOnly = (e: unknown) =>

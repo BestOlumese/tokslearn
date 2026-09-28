@@ -1,7 +1,15 @@
+import { ProviderError } from '../shared/http'
 import { isValidPaystackSignature } from './signature'
 import type { PaymentProvider, PayoutProvider } from './types'
 
-type Outcome = 'success' | 'failed' | 'abandoned' | 'pending' | 'amount_mismatch'
+type Outcome = 'success' | 'failed' | 'abandoned' | 'pending' | 'amount_mismatch' | 'unreachable'
+
+/** Paystack's local card pricing: 1.5% + ₦100 (waived under ₦2,500), capped at ₦2,000. */
+export function paystackFee(amountKobo: bigint): bigint {
+  const pct = (amountKobo * 150n + 5_000n) / 10_000n
+  const fee = pct + (amountKobo >= 250_000n ? 10_000n : 0n)
+  return fee > 200_000n ? 200_000n : fee
+}
 
 /**
  * Test double (docs/15 §1): simulate success, failure, amount mismatch and webhook replay.
@@ -10,6 +18,9 @@ type Outcome = 'success' | 'failed' | 'abandoned' | 'pending' | 'amount_mismatch
 export function createFakePaystack(secretKey = 'sk_test_fake') {
   const initialized = new Map<string, bigint>()
   const outcomes = new Map<string, Outcome>()
+  const fees = new Map<string, bigint>()
+  const channels = new Map<string, string>()
+  let verifyCalls = 0
 
   const provider: PaymentProvider = {
     async initializeTransaction(input) {
@@ -20,15 +31,23 @@ export function createFakePaystack(secretKey = 'sk_test_fake') {
       }
     },
     async verifyTransaction(reference) {
+      verifyCalls++
+      if (outcomes.get(reference) === 'unreachable')
+        throw new ProviderError('paystack', null, 'unreachable')
       const amount = initialized.get(reference) ?? 0n
       const outcome = outcomes.get(reference) ?? 'success'
-      const status = outcome === 'amount_mismatch' ? 'success' : outcome
+      const status =
+        outcome === 'amount_mismatch' || outcome === 'unreachable' ? 'success' : outcome
       return {
         status,
+        reference,
         amountKobo: outcome === 'amount_mismatch' ? amount - 100n : amount,
         currency: 'NGN',
-        channel: status === 'success' ? 'card' : null,
+        channel: status === 'success' ? (channels.get(reference) ?? 'card') : null,
         paidAt: status === 'success' ? new Date() : null,
+        // Paystack local cards: 1.5% + ₦100 above ₦2,500, capped at ₦2,000.
+        feesKobo: status === 'success' ? (fees.get(reference) ?? paystackFee(amount)) : null,
+        gatewayResponse: status === 'success' ? 'Approved' : 'Declined',
       }
     },
     verifyWebhookSignature: (rawBody, signature) =>
@@ -38,6 +57,9 @@ export function createFakePaystack(secretKey = 'sk_test_fake') {
   return {
     provider,
     setOutcome: (reference: string, outcome: Outcome) => outcomes.set(reference, outcome),
+    setFee: (reference: string, kobo: bigint) => fees.set(reference, kobo),
+    setChannel: (reference: string, channel: string) => channels.set(reference, channel),
+    verifyCalls: () => verifyCalls,
     initialized,
   }
 }

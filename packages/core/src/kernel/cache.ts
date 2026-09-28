@@ -18,4 +18,6 @@ export const cacheTags = {
   /** A slug lookup, including "no course here", so a newly published slug isn't a cached 404. */
   courseSlug: (slug: string) => `course-slug:${slug}`,
   instructor: (id: string) => `instructor:${id}`,
+  /** A learner's enrollments ("My learning", Continue buttons). */
+  userEnrollments: (userId: string) => `user-enrollments:${userId}`,
 } as const

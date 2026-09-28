@@ -28,7 +28,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `KYC_REQUIRED` — FORBIDDEN — "Complete identity verification to continue."
 - `STAFF_ONLY` — FORBIDDEN — "This area is for Tokslearn staff."
 - `SELF_REVIEW_NOT_ALLOWED` — FORBIDDEN — staff deciding their own application or course — "You can't decide your own application or course. Ask another reviewer."
-- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND` — "We couldn't find that {thing}."
+- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND` — "We couldn't find that {thing}."
 
 ## Instructor onboarding
 - `APPLICATION_EXISTS` — CONFLICT — "You already have an application in progress."
@@ -67,6 +67,8 @@ Format: `CODE` — oRPC status — when — user message.
 - `COUPON_EXPIRED` — UNPROCESSABLE_CONTENT — "This coupon has expired."
 - `COUPON_LIMIT_REACHED` — UNPROCESSABLE_CONTENT — "This coupon has been fully used."
 - `COUPON_NOT_APPLICABLE` — UNPROCESSABLE_CONTENT — "This coupon doesn't apply to the items in your cart."
+- `COUPON_CODE_TAKEN` — CONFLICT — creating a coupon whose code exists — "That code is already in use. Try another."
+- `CART_FULL` — UNPROCESSABLE_CONTENT — more than 20 items — "Your cart holds up to 20 items. Buy these first, then add more."
 - `COHORT_FULL` — UNPROCESSABLE_CONTENT — "This cohort is full. Choose another start date."
 - `COHORT_ENROLLMENT_CLOSED` — UNPROCESSABLE_CONTENT — "Enrollment for this cohort has closed."
 - `PAYMENT_NOT_CONFIRMED` — UNPROCESSABLE_CONTENT — verify says not successful — "Your payment wasn't completed. You haven't been charged."
@@ -116,6 +118,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `APPEAL_USED` — UNPROCESSABLE_CONTENT — "You've already appealed this decision."
 - `PAYOUT_ACCOUNT_REQUIRED` — UNPROCESSABLE_CONTENT — "Add a bank account to receive payouts."
 - `PAYOUT_HOLD_ACTIVE` — UNPROCESSABLE_CONTENT — "Payouts to a new bank account start 72 hours after the change."
+- `COMMISSION_DEFAULT_REQUIRED` — UNPROCESSABLE_CONTENT — ending a default rule — "Every source needs a default rate. Set a new one instead of ending it."
 - `LEDGER_UNBALANCED` — INTERNAL (never user-facing) — Sentry alert.
 
 ## Platform
