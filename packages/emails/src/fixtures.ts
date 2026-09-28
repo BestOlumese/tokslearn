@@ -69,4 +69,35 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     notes: 'Lesson 3 audio is very quiet. Please re-record it.\nAdd one preview lesson.',
     url: 'https://tokslearn.com/teach/courses/example/publish',
   },
+  'order-receipt': {
+    name: 'Amaka',
+    publicId: 'TL-7K3M9Q2A',
+    paidAt: '2026-10-01T09:30:00.000Z',
+    items: [
+      {
+        title: 'Excel for Accountants',
+        netKobo: '1350000',
+        refundLine: 'Refunds until 8 October 2026, if you have watched less than 30%',
+      },
+      {
+        title: 'Power BI Dashboards',
+        netKobo: '2500000',
+        refundLine: 'No refunds for this course',
+      },
+    ],
+    subtotalKobo: '4000000',
+    discountKobo: '150000',
+    totalKobo: '3850000',
+    paymentMethod: 'card',
+    learnUrl: 'https://tokslearn.com/account',
+    receiptUrl: 'https://tokslearn.com/account/orders/TL-7K3M9Q2A',
+  },
+  'enrollment-free': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    lessonCount: 12,
+    duration: '2 h 40 min',
+    certificate: 'Finish every lesson to get a certificate employers can check.',
+    url: 'https://tokslearn.com/account',
+  },
 }

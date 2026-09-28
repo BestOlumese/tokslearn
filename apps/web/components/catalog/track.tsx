@@ -24,6 +24,7 @@ export function Track({
   event?: ClientAnalyticsEvent
   props?: AnalyticsProperties
 }) {
+  'use no memo' // Ships on every catalog page: the compiler's memo cache isn't worth the bytes.
   const key = JSON.stringify(props ?? {})
   useEffect(() => {
     if (!listening) {

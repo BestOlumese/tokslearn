@@ -1,6 +1,6 @@
 import type { VideoProvider } from '@tokslearn/integrations/bunny'
 import type { KycProvider } from '@tokslearn/integrations/dojah'
-import type { PayoutProvider } from '@tokslearn/integrations/paystack'
+import type { PaymentProvider, PayoutProvider } from '@tokslearn/integrations/paystack'
 import type { FileStorage } from '@tokslearn/integrations/r2'
 
 /**
@@ -10,6 +10,13 @@ import type { FileStorage } from '@tokslearn/integrations/r2'
 export interface SessionAdmin {
   revokeSession(sessionId: string): Promise<void>
   revokeAllSessions(userId: string, options?: { exceptSessionId?: string }): Promise<void>
+}
+
+/** Counts referral link clicks cheaply; a job moves the totals into the database. */
+export interface ClickCounter {
+  increment(linkId: string): Promise<void>
+  /** Returns counts since the last drain and subtracts them (increments in between survive). */
+  drain(): Promise<Array<{ linkId: string; clicks: number }>>
 }
 
 /** Absolute URLs for links in emails and public file URLs. */
@@ -29,6 +36,13 @@ export interface Providers {
   kyc: KycProvider
   /** Paystack bank directory and transfer recipients. */
   payouts: PayoutProvider
+  /** Paystack transactions: initialize, verify, webhook signatures (docs/08 §6). */
+  payments: PaymentProvider
+  /**
+   * Referral click counter (Redis in the web app). Optional: without it clicks go straight to
+   * the database.
+   */
+  clickCounter?: ClickCounter | undefined
   /** Bunny Stream. */
   video: VideoProvider
 }

@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm'
 import { createDb, type Db } from '../client'
 import {
   categories,
+  commissionRules,
   featureFlags,
   instructorApplications,
   instructorProfiles,
@@ -11,7 +12,14 @@ import {
   user,
   userRoles,
 } from '../schema'
-import { seedCategories, seedFeatureFlags, seedInstructors, seedSettings, seedUsers } from './data'
+import {
+  seedCategories,
+  seedCommissionDefaults,
+  seedFeatureFlags,
+  seedInstructors,
+  seedSettings,
+  seedUsers,
+} from './data'
 
 /** Demo users and roles (idempotent). Callers must refuse to run this in production. */
 export async function seedDemoUsers(db: Db): Promise<void> {
@@ -182,6 +190,27 @@ export async function seed(db: Db): Promise<void> {
     })
 
   await seedCatalog(db)
+  await seedCommission(db)
+}
+
+/**
+ * Default commission rules. A conflict (the id exists, or an admin already replaced the default
+ * for that source) leaves the table alone.
+ */
+export async function seedCommission(db: Db): Promise<void> {
+  await db
+    .insert(commissionRules)
+    .values(
+      seedCommissionDefaults.map((r) => ({
+        id: r.id,
+        scope: 'default' as const,
+        source: r.source,
+        platformRateBps: r.platformRateBps,
+        startsAt: new Date('2026-01-01T00:00:00Z'),
+        note: 'Launch default (ADR-017)',
+      })),
+    )
+    .onConflictDoNothing()
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

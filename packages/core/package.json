@@ -9,9 +9,13 @@
     "./admin": "./src/admin/index.ts",
     "./analytics": "./src/analytics/index.ts",
     "./catalog": "./src/catalog/index.ts",
+    "./commerce": "./src/commerce/index.ts",
     "./courses": "./src/courses/index.ts",
+    "./enrollments": "./src/enrollments/index.ts",
+    "./fixtures": "./src/testing/index.ts",
     "./identity": "./src/identity/index.ts",
     "./instructors": "./src/instructors/index.ts",
+    "./ledger": "./src/ledger/index.ts",
     "./media": "./src/media/index.ts",
     "./notifications": "./src/notifications/index.ts",
     "./testing": "./src/kernel/testing.ts"
@@ -22,7 +26,8 @@
     "test": "vitest run --project unit",
     "test:int": "vitest run --project integration",
     "seed:demo-catalog": "tsx --conditions=react-server src/scripts/seed-demo-catalog.ts",
-    "reindex:catalog": "tsx --conditions=react-server src/scripts/reindex-catalog.ts"
+    "reindex:catalog": "tsx --conditions=react-server src/scripts/reindex-catalog.ts",
+    "test:money": "vitest run --coverage --coverage.provider=v8 --coverage.include=src/kernel/money.ts --coverage.include='src/ledger/**' --coverage.include='src/commerce/**' --coverage.include='src/enrollments/**' --coverage.exclude='**/*.test.ts' --coverage.exclude='**/index.ts' --coverage.thresholds.lines=95 --coverage.thresholds.functions=95 --coverage.reporter=text-summary"
   },
   "dependencies": {
     "@tokslearn/contract": "workspace:*",
@@ -34,6 +39,8 @@
   "devDependencies": {
     "@tokslearn/config": "workspace:*",
     "@types/node": "24.13.6",
+    "@vitest/coverage-v8": "5.0.1",
+    "fast-check": "4.10.2",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vite": "8.3.1",

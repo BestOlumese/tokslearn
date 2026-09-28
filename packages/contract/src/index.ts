@@ -5,6 +5,21 @@ import {
   instructorProfileContract,
   learnContract,
 } from './catalog'
+import {
+  adminCommissionContract,
+  adminCouponsContract,
+  adminLedgerContract,
+  adminOrdersContract,
+  bundlesContract,
+  cartContract,
+  checkoutContract,
+  couponsContract,
+  enrollmentsContract,
+  ordersContract,
+  referralsContract,
+  studioCouponsContract,
+  wishlistContract,
+} from './commerce'
 import { healthContract } from './health'
 import { meContract, usersContract } from './identity'
 import { instructorsContract, kycContract, payoutAccountsContract } from './instructors'
@@ -20,11 +35,25 @@ export const contract = {
   catalog: { ...catalogContract, ...catalogPublicContract },
   courses: coursesContract,
   learn: learnContract,
-  studio: studioContract,
+  studio: { ...studioContract, coupons: studioCouponsContract },
   instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
   payoutAccounts: payoutAccountsContract,
-  admin: adminContract,
+  admin: {
+    ...adminContract,
+    commission: adminCommissionContract,
+    orders: adminOrdersContract,
+    coupons: adminCouponsContract,
+    ledger: adminLedgerContract,
+  },
+  cart: cartContract,
+  wishlist: wishlistContract,
+  coupons: couponsContract,
+  checkout: checkoutContract,
+  orders: ordersContract,
+  enrollments: enrollmentsContract,
+  bundles: bundlesContract,
+  referrals: referralsContract,
 }
 export type Contract = typeof contract
 
@@ -57,6 +86,26 @@ export {
   PublicInstructorDto,
   PublicSectionDto,
 } from './catalog'
+export {
+  type AdminOrderDto,
+  type AdminOrderRowDto,
+  AttributionSource,
+  CartDto,
+  CartItemDto,
+  type CheckoutResultDto,
+  type CommissionRuleDto,
+  type CompletedOrderDto,
+  CouponCreateInput,
+  CouponDto,
+  ItemRefInput,
+  ItemType,
+  type JournalEntryDto,
+  type MyCourseDto,
+  OrderDetailDto,
+  type OrderSummaryDto,
+  PublicBundleDto,
+  type ReferralLinkDto,
+} from './commerce'
 export {
   type ErrorCode,
   ErrorCodeSchema,

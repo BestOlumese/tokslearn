@@ -35,11 +35,14 @@ export { requireStaff, requireUser } from './guards'
 export { type LogFields, log } from './logger'
 export {
   addMoney,
+  allocate,
+  BPS,
   fromMoneyDto,
   type Money,
   ngn,
   percentOf,
+  splitBps,
   subtractMoney,
   toMoneyDto,
 } from './money'
-export type { Providers, SessionAdmin, Urls } from './ports'
+export type { ClickCounter, Providers, SessionAdmin, Urls } from './ports'

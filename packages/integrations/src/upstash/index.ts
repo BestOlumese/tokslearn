@@ -1,4 +1,10 @@
-export { createRedis, createUpstashRateLimiter, pingRedis, type RedisConfig } from './client'
+export {
+  createClickCounter,
+  createRedis,
+  createUpstashRateLimiter,
+  pingRedis,
+  type RedisConfig,
+} from './client'
 export {
   allowAllRateLimiter,
   createMemoryRateLimiter,

@@ -49,3 +49,28 @@ export function createUpstashRateLimiter(redis: Redis): RateLimiter {
     },
   }
 }
+
+const CLICKS = 'referral:clicks'
+
+/**
+ * Referral click counter in one Redis hash. `drain` reads the counts and subtracts exactly what
+ * it read, so clicks that land in between are kept for the next drain.
+ */
+export function createClickCounter(redis: Redis) {
+  return {
+    async increment(linkId: string): Promise<void> {
+      await redis.hincrby(CLICKS, linkId, 1)
+    },
+    async drain(): Promise<Array<{ linkId: string; clicks: number }>> {
+      const all = (await redis.hgetall<Record<string, number>>(CLICKS)) ?? {}
+      const out: Array<{ linkId: string; clicks: number }> = []
+      for (const [linkId, value] of Object.entries(all)) {
+        const clicks = Number(value)
+        if (!Number.isFinite(clicks) || clicks <= 0) continue
+        await redis.hincrby(CLICKS, linkId, -clicks)
+        out.push({ linkId, clicks })
+      }
+      return out
+    },
+  }
+}

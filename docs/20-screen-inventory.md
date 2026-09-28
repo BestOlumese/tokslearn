@@ -59,10 +59,10 @@ Refund policy, contact), cookie/analytics consent banner (first visit), toast re
 
 | Route | R | Content | States | Data | Ph |
 |-------|---|---------|--------|------|----|
-| `/account` (My learning) | D | Continue learning card (last lesson), streak, tabs: In progress / Completed / Wishlist / Archived. Course cards with progress bar. | No enrollments → browse CTA | `enrollments.listMine`, `engagement.getStreak` | 4–5 |
+| `/account` (My learning) | D | Continue learning card (last lesson), streak, tabs: In progress / Completed / Wishlist / Archived. Course cards with progress bar. | No enrollments → browse CTA | `enrollments.listMine`, `engagement.getStreak` | 4 (continue card and streak 5) |
 | `/account/certificates` | D | List with download, share to LinkedIn, verify link, request name correction. | None yet → explain how to earn | `certificates.listMine` | 7 |
 | `/account/orders` | D | Orders table (date, id, items, total, status). | | `orders.list` | 4 |
-| `/account/orders/[publicId]` | D | Receipt: items, prices, discount, payment method, refund policy per item with deadline, "Request refund" per eligible item (shows eligibility reason). Download PDF receipt. | Pending payment → "Confirming payment…" with auto-refresh | `orders.get`, `refunds.checkEligibility` | 4, 10 |
+| `/account/orders/[publicId]` | D | Receipt: items, prices, discount, payment method, refund policy per item with deadline, "Request refund" per eligible item (shows eligibility reason). Download PDF receipt. | Pending payment → "Confirming payment…" with auto-refresh | `orders.get`, `refunds.checkEligibility` | 4 (refund requests and PDF 10) |
 | `/account/refunds` | D | Refund requests and statuses, appeal button (once). | | `refunds.listMine` | 10 |
 | `/account/notes` | D | All notes grouped by course, search, export Markdown. | | `notes.list` | 5 |
 | `/account/badges` | D | Earned and locked badges with criteria. | | `engagement.listBadges` | 5 |

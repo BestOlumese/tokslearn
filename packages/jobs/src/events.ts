@@ -33,3 +33,8 @@ export const exportRequested = eventType('user.export_requested', {
 export const bunnyVideoChanged = eventType('webhook/bunny.video_changed', {
   schema: z.object({ videoGuid: z.string(), eventId: z.string() }),
 })
+
+/** A verified Paystack `charge.success`; the job re-verifies with Paystack (docs/08 §6). */
+export const paystackChargeSucceeded = eventType('webhook/paystack.charge_success', {
+  schema: z.object({ reference: z.string(), eventId: z.string() }),
+})

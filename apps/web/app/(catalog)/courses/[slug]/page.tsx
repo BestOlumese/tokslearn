@@ -1,5 +1,6 @@
 import type { PublicCourseDto } from '@tokslearn/contract'
 import { Avatar } from '@tokslearn/ui/avatar'
+import { buttonClasses } from '@tokslearn/ui/button'
 import { Skeleton } from '@tokslearn/ui/skeleton'
 import type { Metadata, Route } from 'next'
 import Link from 'next/link'
@@ -140,7 +141,7 @@ async function Course({ params }: { params: Params }) {
 
       <div className="mx-auto grid max-w-catalog gap-10 px-4 pt-8 pb-28 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:pb-16 lg:px-8">
         <div className="flex min-w-0 flex-col gap-12">
-          <div className="lg:hidden">
+          <div id="purchase" className="scroll-mt-24 lg:hidden">
             <PurchasePanel course={c} />
           </div>
 
@@ -219,9 +220,9 @@ async function Course({ params }: { params: Params }) {
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-surface px-4 py-3 lg:hidden">
         <Price priceKobo={c.priceKobo} compareAtKobo={c.compareAtKobo} />
-        <span className="text-body-sm text-ink-2">
-          {c.priceKobo === '0' ? 'Enrolling opens soon' : 'Buying opens soon'}
-        </span>
+        <a href="#purchase" className={buttonClasses({ size: 'md' })}>
+          {c.priceKobo === '0' ? 'Enroll for free' : 'Buy this course'}
+        </a>
       </div>
 
       <JsonLd data={courseJsonLd(c, site)} />

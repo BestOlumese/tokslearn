@@ -30,9 +30,16 @@ export const roleLabel: Readonly<Record<string, string>> = {
 
 const naira = new Intl.NumberFormat('en-NG', { maximumFractionDigits: 0 })
 
-/** Kobo (string or bigint) → "₦15,000". Money stays integer kobo until display (CLAUDE.md §1.4). */
-export const formatNaira = (kobo: string | bigint): string =>
-  `₦${naira.format(Number(BigInt(kobo) / 100n))}`
+/**
+ * Kobo (string or bigint) → "₦15,000", or "₦1,234.50" when there are kobo (discounts, receipts).
+ * Money stays integer kobo until display (CLAUDE.md §1.4).
+ */
+export function formatNaira(kobo: string | bigint): string {
+  const value = BigInt(kobo)
+  const whole = `₦${naira.format(Number(value / 100n))}`
+  const k = value % 100n
+  return k === 0n ? whole : `${whole}.${k.toString().padStart(2, '0')}`
+}
 
 /** 5460 → "1 h 31 min"; 540 → "9 min". */
 export function formatDuration(sec: number): string {

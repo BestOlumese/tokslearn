@@ -6,6 +6,21 @@ import {
   instructorProfileHandlers,
   learnRouter,
 } from './procedures/catalog'
+import {
+  adminCommissionRouter,
+  adminCouponsRouter,
+  adminLedgerRouter,
+  adminOrdersRouter,
+  bundlesRouter,
+  cartRouter,
+  checkoutRouter,
+  couponsRouter,
+  enrollmentsRouter,
+  ordersRouter,
+  referralsRouter,
+  studioCouponsRouter,
+  wishlistRouter,
+} from './procedures/commerce'
 import { healthRouter } from './procedures/health'
 import { instructorsRouter, kycRouter, payoutAccountsRouter } from './procedures/instructors'
 import { meRouter } from './procedures/me'
@@ -21,11 +36,25 @@ export const router = impl.router({
   catalog: { categories: catalogCategoriesHandler, ...catalogPublicRouter },
   courses: coursesRouter,
   learn: learnRouter,
-  studio: studioRouter,
+  studio: { ...studioRouter, coupons: studioCouponsRouter },
   instructors: { ...instructorsRouter, ...instructorProfileHandlers },
   kyc: kycRouter,
   payoutAccounts: payoutAccountsRouter,
-  admin: adminRouter,
+  admin: {
+    ...adminRouter,
+    commission: adminCommissionRouter,
+    orders: adminOrdersRouter,
+    coupons: adminCouponsRouter,
+    ledger: adminLedgerRouter,
+  },
+  cart: cartRouter,
+  wishlist: wishlistRouter,
+  coupons: couponsRouter,
+  checkout: checkoutRouter,
+  orders: ordersRouter,
+  enrollments: enrollmentsRouter,
+  bundles: bundlesRouter,
+  referrals: referralsRouter,
 })
 
 export type Router = typeof router

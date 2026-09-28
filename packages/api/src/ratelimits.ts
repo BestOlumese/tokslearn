@@ -29,6 +29,18 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   courses: { limit: 120, windowSec: 60 },
   'courses.search': { limit: 60, windowSec: 60 },
   'learn.previewPlayback': { limit: 30, windowSec: 60 },
+  cart: { limit: 120, windowSec: 60 },
+  'cart.preview': { limit: 60, windowSec: 60 },
+  // Coupon codes are guessable: slow down trying them.
+  'cart.setCoupon': { limit: 20, windowSec: 60 * 10 },
+  coupons: { limit: 20, windowSec: 60 * 10 },
+  'checkout.confirm': { limit: 30, windowSec: 60 },
+  orders: { limit: 60, windowSec: 60 },
+  enrollments: { limit: 60, windowSec: 60 },
+  'enrollments.enrollFree': { limit: 20, windowSec: 60 },
+  wishlist: { limit: 60, windowSec: 60 },
+  bundles: { limit: 120, windowSec: 60 },
+  referrals: { limit: 30, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {
@@ -47,4 +59,4 @@ export function policyFor(path: ReadonlyArray<string>): {
  * Procedures that create money or irreversible state accept an Idempotency-Key (docs/06 §3.5).
  * Phase 4+ adds `checkout.start`, `refunds.request`, `assignments.submit`, `exams.submit`.
  */
-export const idempotentProcedures: ReadonlySet<string> = new Set<string>([])
+export const idempotentProcedures: ReadonlySet<string> = new Set<string>(['checkout.start'])

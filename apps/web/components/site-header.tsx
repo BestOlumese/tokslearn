@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MenuIcon } from '@/components/icons/menu-icon'
 import { HeaderSearch } from '@/components/site/header-search'
 import { HeaderAccount } from './header-account'
+import { HeaderCart } from './header-cart'
 import { Wordmark } from './wordmark'
 
 const navLink =
@@ -28,6 +29,7 @@ export function SiteHeader() {
               Teach on Tokslearn
             </Link>
           </span>
+          <HeaderCart />
           <HeaderAccount />
           <details className="relative lg:hidden">
             <summary

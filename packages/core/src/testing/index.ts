@@ -3,6 +3,7 @@
 import type { RichTextDoc } from '@tokslearn/contract'
 import { type Db, schema, seedCategories } from '@tokslearn/db'
 import { createFakeBunny } from '@tokslearn/integrations/bunny'
+import { createFakePaystack } from '@tokslearn/integrations/paystack'
 import { createFakeStorage } from '@tokslearn/integrations/r2'
 import { eq } from 'drizzle-orm'
 import { expect, vi } from 'vitest'
@@ -41,6 +42,7 @@ export const doc = (text: string): RichTextDoc => ({
 export function setup(db: Db) {
   const storage = createFakeStorage()
   const bunny = createFakeBunny()
+  const paystack = createFakePaystack()
   const ctx = (actor: Actor, at = new Date('2026-09-26T10:00:00Z')) =>
     createCtx({
       db,
@@ -50,11 +52,12 @@ export function setup(db: Db) {
       providers: {
         storage,
         video: bunny.provider,
+        payments: paystack.provider,
         sessions: { revokeSession: vi.fn(), revokeAllSessions: vi.fn() },
         urls: { app: 'https://tokslearn.test', cdn: 'https://cdn.tokslearn.test' },
       },
     })
-  return { ctx, storage, bunny }
+  return { ctx, storage, bunny, paystack }
 }
 
 export async function codeOf(p: Promise<unknown>): Promise<string> {
@@ -89,11 +92,18 @@ export async function upload(
   return up.fileId
 }
 
+export interface CourseOptions {
+  title?: string
+  tags?: string[]
+  priceKobo?: bigint
+  refundPolicyDays?: 0 | 3 | 7 | 14
+}
+
 /** A course that passes the publish checklist: 2 sections, video + article + resource lessons. */
 export async function buildCourse(
   env: ReturnType<typeof setup>,
   owner: UserActor,
-  opts: { title?: string; tags?: string[] } = {},
+  opts: CourseOptions = {},
 ): Promise<StudioCourse> {
   const title = opts.title ?? 'Excel for Accountants'
   const c = env.ctx(owner)
@@ -184,9 +194,9 @@ export async function buildCourse(
   s = await updatePricing(c, {
     courseId: s.id,
     version: s.version,
-    priceKobo: 1_500_000n,
+    priceKobo: opts.priceKobo ?? 1_500_000n,
     compareAtKobo: null,
-    refundPolicyDays: 7,
+    refundPolicyDays: opts.refundPolicyDays ?? 7,
   })
   return s
 }
@@ -204,7 +214,7 @@ export async function publishCourse(
   env: ReturnType<typeof setup>,
   owner: UserActor,
   reviewer: UserActor,
-  opts: { title?: string; tags?: string[] } = {},
+  opts: CourseOptions = {},
 ) {
   const s = await buildCourse(env, owner, opts)
   await submitForReview(env.ctx(owner), { courseId: s.id, version: s.version })

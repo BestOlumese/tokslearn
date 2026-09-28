@@ -52,6 +52,8 @@ jobs:
         run: pnpm --filter @tokslearn/db db:check
       - name: Integration tests (real Postgres)
         run: pnpm test:int
+      - name: Money code coverage ≥ 95% (docs/08)
+        run: pnpm --filter @tokslearn/core test:money
       - name: Reference data, as on deploy (categories for the static category pages)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/tokslearn_test

@@ -38,6 +38,7 @@ export const errorCatalog = {
   CERTIFICATE_NOT_FOUND: notFound('certificate'),
   THREAD_NOT_FOUND: notFound('discussion'),
   COUPON_NOT_FOUND: notFound('coupon'),
+  COMMISSION_RULE_NOT_FOUND: notFound('commission rule'),
   FILE_NOT_FOUND: notFound('file'),
   SESSION_NOT_FOUND: notFound('session'),
   FEATURE_FLAG_NOT_FOUND: notFound('feature flag'),
@@ -154,6 +155,11 @@ export const errorCatalog = {
   COUPON_NOT_APPLICABLE: {
     status: 'UNPROCESSABLE_CONTENT',
     message: "This coupon doesn't apply to the items in your cart.",
+  },
+  COUPON_CODE_TAKEN: { status: 'CONFLICT', message: 'That code is already in use. Try another.' },
+  CART_FULL: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Your cart holds up to 20 items. Buy these first, then add more.',
   },
   COHORT_FULL: {
     status: 'UNPROCESSABLE_CONTENT',
@@ -305,6 +311,10 @@ export const errorCatalog = {
   PAYOUT_HOLD_ACTIVE: {
     status: 'UNPROCESSABLE_CONTENT',
     message: 'Payouts to a new bank account start 72 hours after the change.',
+  },
+  COMMISSION_DEFAULT_REQUIRED: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Every source needs a default rate. Set a new one instead of ending it.',
   },
   LEDGER_UNBALANCED: {
     status: 'INTERNAL_SERVER_ERROR',

@@ -49,6 +49,35 @@ export interface EmailData {
     /** Approved: the public course page. Changes: the course's publish page in the studio. */
     url: string
   }
+  'order-receipt': {
+    name: string
+    publicId: string
+    /** ISO time the payment was confirmed. */
+    paidAt: string
+    items: Array<{
+      title: string
+      netKobo: string
+      /** e.g. "Refunds until 8 October 2026" or "No refunds for this course". */
+      refundLine: string
+    }>
+    subtotalKobo: string
+    discountKobo: string
+    totalKobo: string
+    /** card, bank transfer, USSD… or null for free orders. */
+    paymentMethod: string | null
+    learnUrl: string
+    receiptUrl: string
+  }
+  'enrollment-free': {
+    name: string
+    courseTitle: string
+    lessonCount: number
+    /** Pre-formatted, e.g. "3 h 20 min". */
+    duration: string | null
+    /** Plain words about the certificate, or null when there is none. */
+    certificate: string | null
+    url: string
+  }
 }
 
 export type EmailId = keyof EmailData
@@ -68,6 +97,8 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'kyc-result': 'transactional',
   'payout-account-changed': 'security',
   'course-review-decision': 'transactional',
+  'order-receipt': 'transactional',
+  'enrollment-free': 'transactional',
 }
 
 export const emailIds = Object.keys(emailCategory) as EmailId[]
@@ -89,4 +120,13 @@ export function formatLagos(iso: string, withTime = true): string {
     year: 'numeric',
     ...(withTime ? { hour: 'numeric', minute: '2-digit' } : {}),
   }).format(new Date(iso))
+}
+
+/** Naira from kobo, as on receipts: ₦15,000 or ₦1,250.50. */
+export function formatNairaKobo(kobo: string): string {
+  const value = BigInt(kobo)
+  const naira = value / 100n
+  const k = value % 100n
+  const whole = naira.toLocaleString('en-NG')
+  return k === 0n ? `₦${whole}` : `₦${whole}.${k.toString().padStart(2, '0')}`
 }
