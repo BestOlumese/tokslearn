@@ -21,7 +21,7 @@
 
 ## Acceptance
 - [x] All tests in `08 §12` pass. (Property tests for allocation; every ledger flow; 3-way `completeOrder` race; webhook replay; amount mismatch stays pending. Money code coverage 96.8% lines, gated in CI.)
-- [ ] Paystack test mode: card success, card failure, bank transfer delayed success (webhook-only), duplicate webhook — correct results every time. (All four pass against the fake Paystack in tests; owner to repeat on the preview with Paystack test keys and test cards.)
+- [x] Paystack test mode: card success, card failure, bank transfer delayed success (webhook-only), duplicate webhook — correct results every time. (Automated against the fake Paystack; owner confirmed on production with Paystack test keys, 2026-09-29: payments, failures, orders and ledger entries correct.)
 - [x] Ledger explorer (admin, read-only) shows balanced entries for each test order.
 - [x] Referral sale shows 3% platform rate snapshot; organic shows 40% (ADR-017 defaults). (`commerce.int.test.ts`)
 - [x] Concurrency test: 3 parallel `completeOrder` calls → one sale entry.
