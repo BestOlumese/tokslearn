@@ -17,7 +17,8 @@
     "./ledger": "./src/ledger/index.ts",
     "./media": "./src/media/index.ts",
     "./notifications": "./src/notifications/index.ts",
-    "./testing": "./src/kernel/testing.ts"
+    "./testing": "./src/kernel/testing.ts",
+    "./testing/fixtures": "./src/testing/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

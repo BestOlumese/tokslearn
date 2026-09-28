@@ -12,6 +12,7 @@ export {
   addToWishlist,
   type CartView,
   cartCount,
+  cartCourseIds,
   getCart,
   listWishlist,
   MAX_CART_ITEMS,
@@ -22,6 +23,7 @@ export {
   removeFromCart,
   removeFromWishlist,
   setCartCoupon,
+  validateCoupon,
   wishlistHas,
 } from './cart'
 export { getPublicBundle, type ItemRef, type ItemView } from './catalog-items'
@@ -66,4 +68,5 @@ export {
   reverifyOrder,
   searchOrders,
 } from './orders'
+export { markPaymentEventProcessed, paystackEventId, recordPaymentEvent } from './payment-events'
 export * from './pricing'

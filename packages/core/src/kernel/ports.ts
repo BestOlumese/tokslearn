@@ -42,7 +42,7 @@ export interface Providers {
    * Referral click counter (Redis in the web app). Optional: without it clicks go straight to
    * the database.
    */
-  clickCounter: ClickCounter
+  clickCounter?: ClickCounter | undefined
   /** Bunny Stream. */
   video: VideoProvider
 }

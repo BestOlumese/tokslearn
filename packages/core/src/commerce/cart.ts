@@ -377,3 +377,53 @@ export async function moveToWishlist(ctx: Ctx, courseId: string): Promise<CartVi
   await addToWishlist(ctx, courseId)
   return removeFromCart(ctx, { itemType: 'course', itemId: courseId })
 }
+
+/** Which of these courses sit in the user's cart (directly, not through a bundle). */
+export async function cartCourseIds(
+  ctx: Ctx,
+  courseIds: ReadonlyArray<string>,
+): Promise<Set<string>> {
+  if (!isUser(ctx.actor) || courseIds.length === 0) return new Set()
+  const [cart] = await ctx.db.select().from(carts).where(eq(carts.userId, ctx.actor.userId))
+  if (!cart) return new Set()
+  const rows = await ctx.db
+    .select({ itemId: cartItems.itemId })
+    .from(cartItems)
+    .where(
+      and(
+        eq(cartItems.cartId, cart.id),
+        eq(cartItems.itemType, 'course'),
+        inArray(cartItems.itemId, [...courseIds]),
+      ),
+    )
+  return new Set(rows.map((r) => r.itemId))
+}
+
+/**
+ * What a code would take off the user's current cart, without saving it (`coupons.validate`).
+ * Errors are the COUPON_* codes and CART_EMPTY.
+ */
+export async function validateCoupon(
+  ctx: Ctx,
+  code: string,
+): Promise<{ code: string; discountKobo: bigint; totalKobo: bigint }> {
+  const actor = requireUser(ctx.actor)
+  const coupon = await findUsableCoupon(ctx, code, actor.userId)
+  const view = await getCart(ctx)
+  if (view.items.length === 0) throw new RuleViolationError('CART_EMPTY')
+  try {
+    const order = priceOrder({
+      lines: view.items.map((i) => i.line),
+      coupon,
+      rules: await loadActiveRules(ctx),
+      attribution: { referralInstructorIds: new Set(), paidCampaign: false },
+      now: ctx.now,
+    })
+    return { code: coupon.code, discountKobo: order.discountKobo, totalKobo: order.totalKobo }
+  } catch (e) {
+    if (e instanceof PricingError && e.problem === 'COUPON_NOT_APPLICABLE') {
+      throw new RuleViolationError('COUPON_NOT_APPLICABLE')
+    }
+    throw e
+  }
+}

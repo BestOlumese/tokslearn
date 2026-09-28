@@ -8,11 +8,16 @@ import {
 import { createDojahKyc, createFakeKyc, type KycProvider } from '@tokslearn/integrations/dojah'
 import {
   createFakePayouts,
+  createFakePaystack,
+  createPaystackPayments,
   createPaystackPayouts,
+  type PaymentProvider,
   type PayoutProvider,
 } from '@tokslearn/integrations/paystack'
 import { createFakeStorage, createR2Storage, type FileStorage } from '@tokslearn/integrations/r2'
+import { createClickCounter } from '@tokslearn/integrations/upstash'
 import { env } from '@/env'
+import { getRedis } from './redis'
 
 /** Real provider when its keys are set; a test double elsewhere, never in production. */
 function realOrFake<T>(name: string, real: (() => T) | null, fake: () => T): T {
@@ -25,6 +30,21 @@ function realOrFake<T>(name: string, real: (() => T) | null, fake: () => T): T {
 let kyc: KycProvider | undefined
 let payouts: PayoutProvider | undefined
 let video: VideoProvider | undefined
+let payments: PaymentProvider | undefined
+
+/**
+ * Paystack transactions. Without keys (local development) a fake that approves every payment,
+ * so checkout can be tried end to end; never outside development and previews without keys.
+ */
+function getPayments(): PaymentProvider {
+  const secretKey = env.PAYSTACK_SECRET_KEY
+  payments ??= realOrFake(
+    'Paystack',
+    secretKey ? () => createPaystackPayments({ secretKey }) : null,
+    () => createFakePaystack().provider,
+  )
+  return payments
+}
 
 function getKyc(): KycProvider {
   const { DOJAH_APP_ID: appId, DOJAH_SECRET_KEY: secretKey, DOJAH_BASE_URL: baseUrl } = env
@@ -103,6 +123,13 @@ export function baseProviders(): Omit<Providers, 'sessions'> {
     },
     get video() {
       return getVideo()
+    },
+    get payments() {
+      return getPayments()
+    },
+    get clickCounter() {
+      const redis = getRedis()
+      return redis ? createClickCounter(redis) : undefined
     },
     urls: { app: env.NEXT_PUBLIC_APP_URL, cdn: env.NEXT_PUBLIC_CDN_URL ?? null },
   }

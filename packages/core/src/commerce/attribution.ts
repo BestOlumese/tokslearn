@@ -165,6 +165,8 @@ export async function attributionFacts(
 export interface ReferralLinkView {
   id: string
   code: string
+  /** Full link to share, e.g. https://tokslearn.com/r/k7m2qx. */
+  url: string
   targetType: 'course' | 'profile'
   targetId: string | null
   targetTitle: string
@@ -224,9 +226,11 @@ export async function listMyReferralLinks(ctx: Ctx): Promise<ReferralLinkView[]>
     .from(referralLinks)
     .where(and(eq(referralLinks.instructorId, actor.userId), eq(referralLinks.active, true)))
     .orderBy(referralLinks.targetType, referralLinks.createdAt)
+  const app = ctx.providers.urls?.app ?? ''
   return rows.map((r) => ({
     id: r.id,
     code: r.code,
+    url: `${app}/r/${r.code}`,
     targetType: r.targetType,
     targetId: r.targetId,
     targetTitle:
