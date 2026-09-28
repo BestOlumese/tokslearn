@@ -12,7 +12,7 @@ import type {
 import * as commerce from '@tokslearn/core/commerce'
 import * as enrollments from '@tokslearn/core/enrollments'
 import { NotFoundError } from '@tokslearn/core/kernel'
-import * as ledger from '@tokslearn/core/ledger'
+import type * as ledger from '@tokslearn/core/ledger'
 import { authed, pub, staff } from '../base'
 
 // Commerce procedures (docs/06 §5): thin, auth → validate → core → DTO. Money leaves as strings.
@@ -79,7 +79,7 @@ const toCoupon = (c: commerce.CouponView): CouponDto => ({
 const toEntry = (e: ledger.JournalEntryView): JournalEntryDto => ({
   ...e,
   postedAt: iso(e.postedAt),
-  lines: e.lines.map((l) => ({ ...l, amountKobo: k(l.amountKobo) })),
+  lines: e.lines.map(({ id: _id, ...l }) => ({ ...l, amountKobo: k(l.amountKobo) })),
 })
 
 const couponInput = (i: {
@@ -360,24 +360,14 @@ export const adminCouponsRouter = {
 
 export const adminLedgerRouter = {
   list: financeStaff.admin.ledger.list.handler(async ({ context, input }) => {
-    const page = await ledger.listEntries(context.ctx, {
+    const { page } = await commerce.ledgerOverview(context.ctx, {
       kind: input.kind as ledger.JournalKind | undefined,
       cursor: input.cursor,
       limit: 25,
     })
     return { items: page.items.map(toEntry), nextCursor: page.nextCursor }
   }),
-  integrity: financeStaff.admin.ledger.integrity.handler(async ({ context }) => {
-    const [books, orders] = await Promise.all([
-      ledger.checkLedgerIntegrity(context.ctx),
-      commerce.checkOrderIntegrity(context.ctx),
-    ])
-    return {
-      ok: books.ok && orders.ok,
-      unbalancedEntries: books.unbalancedEntries,
-      balanceMismatches: books.balanceMismatches,
-      ordersWithoutSaleEntry: orders.ordersWithoutSaleEntry,
-      ordersWithoutEnrollment: orders.ordersWithoutEnrollment,
-    }
-  }),
+  integrity: financeStaff.admin.ledger.integrity.handler(
+    async ({ context }) => (await commerce.ledgerOverview(context.ctx, { limit: 1 })).integrity,
+  ),
 }

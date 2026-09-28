@@ -2,6 +2,7 @@ import type { PublicCourseDto } from '@tokslearn/contract'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { certificateLabel, formatDuration } from '@/lib/format'
+import { BuyButtons } from './buy-buttons'
 import { CourseCover } from './course-cover'
 import { Price } from './price'
 
@@ -12,8 +13,8 @@ export function refundLine(days: number): string {
 }
 
 /**
- * The course page's purchase panel (docs/11 §5): price, refund rule in plain words, what's
- * included, certificate. Buying opens with checkout in Phase 4; until then the panel says so.
+ * The course page's purchase panel (docs/11 §5): price, buying actions, refund rule in plain
+ * words, what's included, certificate.
  */
 export function PurchasePanel({ course }: { course: PublicCourseDto }) {
   const firstPreview = course.sections.flatMap((s) => s.lessons).find((l) => l.isPreview)
@@ -57,16 +58,12 @@ export function PurchasePanel({ course }: { course: PublicCourseDto }) {
       </div>
       <div className="flex flex-col gap-4 p-6">
         <Price priceKobo={course.priceKobo} compareAtKobo={course.compareAtKobo} size="lg" />
-        <button
-          type="button"
-          disabled
-          className="h-12 rounded-control bg-brand text-body font-semibold text-ink-inverse disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {course.priceKobo === '0' ? 'Enrolling opens soon' : 'Buying opens soon'}
-        </button>
-        <p className="text-body-sm text-ink-2">
-          We're finishing checkout. You'll pay in naira by card, bank transfer or USSD.
-        </p>
+        <BuyButtons courseId={course.id} courseSlug={course.slug} free={course.priceKobo === '0'} />
+        {course.priceKobo === '0' ? null : (
+          <p className="text-body-sm text-ink-2">
+            Pay in naira by card, bank transfer or USSD through Paystack.
+          </p>
+        )}
         <p className="text-body-sm text-ink">{refundLine(course.refundPolicyDays)}</p>
         <div>
           <h2 className="text-body-sm font-semibold text-ink">This course includes</h2>

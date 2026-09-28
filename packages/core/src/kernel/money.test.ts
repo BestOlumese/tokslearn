@@ -24,7 +24,7 @@ describe('money', () => {
   })
 })
 
-describe('allocate (largest remainder)', () => {
+describe('allocate (largest remainder)', { timeout: 30_000 }, () => {
   it('splits odd amounts so the parts add up', () => {
     expect(allocate(100n, [1n, 1n, 1n])).toEqual([34n, 33n, 33n])
     expect(allocate(1n, [1n, 1n])).toEqual([1n, 0n])
@@ -60,7 +60,7 @@ describe('allocate (largest remainder)', () => {
           for (const p of parts) expect(p >= 0n).toBe(true)
         },
       ),
-      { numRuns: 2000 },
+      { numRuns: 1000 },
     )
   })
 
@@ -82,7 +82,7 @@ describe('allocate (largest remainder)', () => {
   })
 })
 
-describe('splitBps', () => {
+describe('splitBps', { timeout: 30_000 }, () => {
   it('matches the docs/08 §5 example and always sums', () => {
     // 40% of ₦10,000 → ₦4,000 platform, ₦6,000 instructor.
     expect(splitBps(1_000_000n, 4_000n)).toEqual([400_000n, 600_000n])

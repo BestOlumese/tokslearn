@@ -166,7 +166,7 @@ export async function getPublicBundle(ctx: Ctx, slug: string) {
     .select({ id: bundles.id, description: bundles.description, status: bundles.status })
     .from(bundles)
     .where(eq(bundles.slug, slug))
-  if (!b || b.status !== 'active') return null
+  if (b?.status !== 'active') return null
   const [view] = await loadItems(ctx, [{ itemType: 'bundle', itemId: b.id }])
   if (!view || view.unavailable) return null
   const courseRows = await loadCourses(ctx, view.courseIds)

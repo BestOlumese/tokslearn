@@ -2,6 +2,7 @@ import 'server-only'
 import { toCardDto, toPublicCourseDto } from '@tokslearn/api'
 import type { CategoryDirectoryDto, CourseCardDto, PublicCourseDto } from '@tokslearn/contract'
 import * as catalog from '@tokslearn/core/catalog'
+import * as commerce from '@tokslearn/core/commerce'
 import { anonymousActor, type Ctx, cacheTags, createCtx, DomainError } from '@tokslearn/core/kernel'
 import { publicFileUrl } from '@tokslearn/core/media'
 import { getDb } from '@tokslearn/db'
@@ -220,4 +221,43 @@ export async function sitemapRows(kind: catalog.SitemapKind) {
 export async function topInstructorSlugs(limit = 200): Promise<string[]> {
   const rows = await catalog.sitemapEntries(publicCtx(), 'instructors')
   return rows.slice(0, limit).map((r) => r.slug)
+}
+
+export interface BundlePageData {
+  id: string
+  slug: string
+  title: string
+  description: string | null
+  instructorName: string
+  priceKobo: string
+  valueKobo: string
+  refundPolicyDays: number
+  courses: Array<{
+    id: string
+    slug: string
+    title: string
+    priceKobo: string
+    coverUrl: string | null
+    refundPolicyDays: number
+  }>
+}
+
+/** A live bundle for `/bundles/[slug]` (docs/20), or null. Refreshed with the catalog tag. */
+export async function getBundle(slug: string): Promise<BundlePageData | null> {
+  'use cache'
+  cacheTag(cacheTags.catalog)
+  cacheLife('hours')
+  const b = await commerce.getPublicBundle(publicCtx(), slug)
+  if (!b) return null
+  return {
+    id: b.itemId,
+    slug: b.slug,
+    title: b.title,
+    description: b.description,
+    instructorName: b.instructorName,
+    priceKobo: b.priceKobo.toString(),
+    valueKobo: (b.compareAtKobo ?? b.priceKobo).toString(),
+    refundPolicyDays: b.refundPolicyDays,
+    courses: b.courses.map((c) => ({ ...c, priceKobo: c.priceKobo.toString() })),
+  }
 }

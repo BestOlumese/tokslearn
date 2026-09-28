@@ -36,7 +36,7 @@ export interface JournalEntryView {
   refId: string
   description: string | null
   postedAt: Date
-  lines: Array<{ account: string; direction: 'debit' | 'credit'; amountKobo: bigint }>
+  lines: Array<{ id: string; account: string; direction: 'debit' | 'credit'; amountKobo: bigint }>
 }
 
 async function withLines(
@@ -46,6 +46,7 @@ async function withLines(
   if (entries.length === 0) return []
   const lines = await ctx.db
     .select({
+      id: journalLines.id,
       entryId: journalLines.entryId,
       account: ledgerAccounts.code,
       direction: journalLines.direction,

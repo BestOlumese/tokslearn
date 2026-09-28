@@ -21,9 +21,11 @@ export function createFakePaystack(secretKey = 'sk_test_fake') {
   const fees = new Map<string, bigint>()
   const channels = new Map<string, string>()
   let verifyCalls = 0
+  let initializeDown = false
 
   const provider: PaymentProvider = {
     async initializeTransaction(input) {
+      if (initializeDown) throw new ProviderError('paystack', 503, 'responded 503')
       initialized.set(input.reference, input.amountKobo)
       return {
         authorizationUrl: `https://checkout.paystack.test/${input.reference}`,
@@ -60,6 +62,10 @@ export function createFakePaystack(secretKey = 'sk_test_fake') {
     setFee: (reference: string, kobo: bigint) => fees.set(reference, kobo),
     setChannel: (reference: string, channel: string) => channels.set(reference, channel),
     verifyCalls: () => verifyCalls,
+    /** Simulates Paystack being down when a payment is started. */
+    setInitializeDown: (down: boolean) => {
+      initializeDown = down
+    },
     initialized,
   }
 }

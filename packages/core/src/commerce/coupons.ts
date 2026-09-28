@@ -47,7 +47,7 @@ export async function findUsableCoupon(
   const normalized = normalizeCode(code)
   if (!CODE.test(normalized)) throw new RuleViolationError('COUPON_INVALID')
   const [c] = await ctx.db.select().from(coupons).where(eq(coupons.code, normalized))
-  if (!c || !c.active) throw new RuleViolationError('COUPON_INVALID')
+  if (!c?.active) throw new RuleViolationError('COUPON_INVALID')
   if (c.startsAt && c.startsAt > ctx.now) throw new RuleViolationError('COUPON_INVALID')
   if (c.endsAt && c.endsAt <= ctx.now) throw new RuleViolationError('COUPON_EXPIRED')
   if (c.maxRedemptions !== null && c.redemptionCount >= c.maxRedemptions) {

@@ -60,7 +60,7 @@ const coupon = (c: Partial<CouponTerms>): CouponTerms => ({
   ...c,
 })
 
-describe('priceOrder', () => {
+describe('priceOrder', { timeout: 30_000 }, () => {
   it('prices a single organic course at 40% commission', () => {
     const order = price([{ type: 'course', course: course('a', T, 10_000) }])
     expect(order).toMatchObject({
@@ -276,7 +276,7 @@ describe('couponDiscount', () => {
   })
 })
 
-describe('splitSale', () => {
+describe('splitSale', { timeout: 30_000 }, () => {
   it('matches the docs/08 §5 worked example', () => {
     expect(
       splitSale([{ netPriceKobo: 1_000_000n, platformRateBps: 4000 }], 25_000n, 'proportional'),

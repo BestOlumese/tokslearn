@@ -1,7 +1,7 @@
 import { createRouterClient } from '@orpc/server'
+import { people, publishCourse, setup } from '@tokslearn/core/fixtures'
 import { type Actor, anonymousActor } from '@tokslearn/core/kernel'
 import { insertUser, testUser } from '@tokslearn/core/testing'
-import { people, publishCourse, setup } from '@tokslearn/core/testing/fixtures'
 import { seedCatalog, seedCommission } from '@tokslearn/db/seed'
 import { closeTestDb, withRollback } from '@tokslearn/db/testing'
 import { afterAll, describe, expect, it } from 'vitest'

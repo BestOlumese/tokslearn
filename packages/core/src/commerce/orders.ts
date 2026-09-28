@@ -4,8 +4,14 @@ import { hasRole, type UserActor } from '../kernel/actor'
 import type { Ctx } from '../kernel/ctx'
 import { NotFoundError } from '../kernel/errors'
 import { requireStaff, requireUser } from '../kernel/guards'
-import { entriesFor, type JournalEntryView } from '../ledger'
-import { completeOrder } from './checkout'
+import {
+  checkLedgerIntegrity,
+  entriesFor,
+  type JournalEntryView,
+  type JournalKind,
+  listEntries,
+} from '../ledger'
+import { checkOrderIntegrity, completeOrder } from './checkout'
 
 // Orders for learners (docs/20 `/account/orders`) and staff (`/admin/orders`). Receipts show the
 // snapshots taken at checkout, never live prices.
@@ -298,4 +304,37 @@ export async function reverifyOrder(ctx: Ctx, orderId: string) {
   const [order] = await ctx.db.select().from(orders).where(eq(orders.id, orderId))
   if (!order) throw new NotFoundError('ORDER_NOT_FOUND')
   return completeOrder(ctx, { reference: order.providerReference ?? order.publicId, via: 'admin' })
+}
+
+export const canViewLedger = (actor: UserActor): boolean =>
+  hasRole(actor, 'finance', 'admin', 'super_admin')
+
+/**
+ * The ledger explorer (`/admin/ledger`, finance and admins): a page of entries plus the
+ * integrity check the nightly job runs.
+ */
+export async function ledgerOverview(
+  ctx: Ctx,
+  input: { kind?: JournalKind | undefined; cursor?: string | undefined; limit?: number },
+) {
+  requireStaff(ctx.actor, canViewLedger)
+  const [page, books, orderChecks] = await Promise.all([
+    listEntries(ctx, {
+      kind: input.kind,
+      cursor: input.cursor,
+      limit: Math.min(input.limit ?? 20, 50),
+    }),
+    checkLedgerIntegrity(ctx),
+    checkOrderIntegrity(ctx),
+  ])
+  return {
+    page,
+    integrity: {
+      ok: books.ok && orderChecks.ok,
+      unbalancedEntries: books.unbalancedEntries,
+      balanceMismatches: books.balanceMismatches,
+      ordersWithoutSaleEntry: orderChecks.ordersWithoutSaleEntry,
+      ordersWithoutEnrollment: orderChecks.ordersWithoutEnrollment,
+    },
+  }
 }

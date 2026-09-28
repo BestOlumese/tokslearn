@@ -1,14 +1,19 @@
 import {
   Bell,
   BookOpen,
+  BookText,
   ClipboardCheck,
   FileCheck2,
   Flag,
   FolderTree,
   KeyRound,
   Layers,
+  Link2,
+  Percent,
+  Receipt,
   ScrollText,
   ShieldCheck,
+  TicketPercent,
   UserRound,
   Users,
 } from 'lucide-react'
@@ -60,6 +65,15 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
     ],
   },
   {
+    label: 'Money',
+    items: [
+      { href: '/admin/orders', label: 'Orders', icon: icon(Receipt) },
+      { href: '/admin/ledger', label: 'Ledger', icon: icon(BookText) },
+      { href: '/admin/coupons', label: 'Coupons', icon: icon(TicketPercent) },
+      { href: '/admin/settings/commission', label: 'Commission', icon: icon(Percent) },
+    ],
+  },
+  {
     label: 'Platform',
     items: [
       { href: '/admin/audit', label: 'Audit log', icon: icon(ScrollText) },
@@ -75,6 +89,13 @@ export const studioNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [
       { href: '/teach/courses', label: 'Courses', icon: icon(BookOpen) },
       { href: '/teach/bundles', label: 'Bundles', icon: icon(Layers) },
+    ],
+  },
+  {
+    label: 'Selling',
+    items: [
+      { href: '/teach/coupons', label: 'Coupons', icon: icon(TicketPercent) },
+      { href: '/teach/referrals', label: 'Referral links', icon: icon(Link2) },
     ],
   },
 ]

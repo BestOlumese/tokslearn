@@ -69,6 +69,10 @@ export async function listCommissionRules(ctx: Ctx): Promise<CommissionRuleView[
   }))
 }
 
+/** `at`, or 1 ms after `start` when they coincide (a rule's window can't be empty). */
+const afterStart = (start: Date, at: Date) =>
+  at.getTime() > start.getTime() ? at : new Date(start.getTime() + 1)
+
 function checkRate(bps: number) {
   if (!Number.isInteger(bps) || bps < 0 || bps > 10_000) {
     throw new ValidationError([{ path: 'platformRateBps', message: 'Between 0% and 100%.' }])
@@ -97,10 +101,12 @@ export async function setDefaultRate(
         ),
       )
       .for('update')
+    // A rule can't end the instant it starts: a change in the same millisecond starts 1 ms later.
+    const startsAt = current ? afterStart(current.startsAt, tx.now) : tx.now
     if (current) {
       await tx.db
         .update(commissionRules)
-        .set({ endsAt: tx.now })
+        .set({ endsAt: startsAt })
         .where(eq(commissionRules.id, current.id))
     }
     const [rule] = await tx.db
@@ -109,7 +115,7 @@ export async function setDefaultRate(
         scope: 'default',
         source: input.source,
         platformRateBps: input.platformRateBps,
-        startsAt: tx.now,
+        startsAt,
         note: input.note,
         createdBy: actor.userId,
       })
@@ -152,7 +158,7 @@ export async function addInstructorRule(
 ) {
   const actor = requireStaff(ctx.actor, canManageCommission)
   checkRate(input.platformRateBps)
-  const startsAt = input.startsAt && input.startsAt > ctx.now ? input.startsAt : ctx.now
+  let startsAt = input.startsAt && input.startsAt > ctx.now ? input.startsAt : ctx.now
   if (input.scope === 'promo' && !input.endsAt) {
     throw new ValidationError([{ path: 'endsAt', message: 'A promo needs an end date.' }])
   }
@@ -162,10 +168,10 @@ export async function addInstructorRule(
   await requireInstructor(ctx, input.instructorId)
   return inTransaction(ctx, async (tx) => {
     if (input.scope === 'instructor') {
-      // One open override per instructor and source: end the previous one.
-      await tx.db
-        .update(commissionRules)
-        .set({ endsAt: startsAt })
+      // One open override per instructor and source: end the previous one where this one starts.
+      const open = await tx.db
+        .select()
+        .from(commissionRules)
         .where(
           and(
             eq(commissionRules.scope, 'instructor'),
@@ -175,6 +181,14 @@ export async function addInstructorRule(
             lte(commissionRules.startsAt, startsAt),
           ),
         )
+        .for('update')
+      for (const previous of open) startsAt = afterStart(previous.startsAt, startsAt)
+      for (const previous of open) {
+        await tx.db
+          .update(commissionRules)
+          .set({ endsAt: startsAt })
+          .where(eq(commissionRules.id, previous.id))
+      }
     }
     const [rule] = await tx.db
       .insert(commissionRules)
@@ -236,4 +250,17 @@ export async function endRule(ctx: Ctx, input: { ruleId: string; note: string })
       after: { endsAt: endsAt.toISOString(), note: input.note },
     })
   })
+}
+
+/** Approved instructors for the override form's picker. */
+export async function commissionInstructors(
+  ctx: Ctx,
+): Promise<Array<{ id: string; name: string }>> {
+  requireStaff(ctx.actor, canManageCommission)
+  const rows = await ctx.db
+    .select({ id: instructorProfiles.userId, name: instructorProfiles.displayName })
+    .from(instructorProfiles)
+    .orderBy(instructorProfiles.displayName)
+    .limit(1000)
+  return rows
 }
