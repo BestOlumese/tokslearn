@@ -226,4 +226,24 @@ describe('cart and coupon edges', () => {
       ).toBeNull()
     })
   })
+
+  it('shows clicks still waiting in the counter', async () => {
+    await withRollback(async (db) => {
+      const { env, owner } = await world(db)
+      const [first] = await listMyReferralLinks(env.ctx(owner))
+      const base = env.ctx(owner)
+      const live = {
+        ...base,
+        providers: {
+          ...base.providers,
+          clickCounter: {
+            increment: async () => {},
+            drain: async () => [],
+            peek: async () => new Map([[first?.id ?? '', 4]]),
+          },
+        },
+      }
+      expect((await listMyReferralLinks(live)).find((l) => l.id === first?.id)?.clicks).toBe(4)
+    })
+  })
 })

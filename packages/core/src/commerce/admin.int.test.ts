@@ -626,7 +626,11 @@ function createCountingCtx(
     ...base,
     providers: {
       ...base.providers,
-      clickCounter: { increment: async () => {}, drain: async () => counts },
+      clickCounter: {
+        increment: async () => {},
+        drain: async () => counts,
+        peek: async () => new Map<string, number>(),
+      },
     },
   }
 }

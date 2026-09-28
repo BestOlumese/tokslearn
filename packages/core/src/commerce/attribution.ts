@@ -227,6 +227,12 @@ export async function listMyReferralLinks(ctx: Ctx): Promise<ReferralLinkView[]>
     .where(and(eq(referralLinks.instructorId, actor.userId), eq(referralLinks.active, true)))
     .orderBy(referralLinks.targetType, referralLinks.createdAt)
   const app = ctx.providers.urls?.app ?? ''
+  // Clicks wait in Redis until the hourly job moves them; add them so the page is current.
+  const pending = ctx.providers.clickCounter
+    ? await ctx.providers.clickCounter
+        .peek(rows.map((r) => r.id))
+        .catch(() => new Map<string, number>())
+    : new Map<string, number>()
   return rows.map((r) => ({
     id: r.id,
     code: r.code,
@@ -235,7 +241,7 @@ export async function listMyReferralLinks(ctx: Ctx): Promise<ReferralLinkView[]>
     targetId: r.targetId,
     targetTitle:
       r.targetType === 'profile' ? 'Your instructor profile' : (r.targetTitle ?? 'Course'),
-    clicks: r.clicks,
+    clicks: r.clicks + (pending.get(r.id) ?? 0),
     sales: r.sales,
     earnedKobo: BigInt(r.earned),
   }))

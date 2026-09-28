@@ -105,6 +105,23 @@ export async function rolesOf(db: DbOrTx, userId: string): Promise<Role[]> {
   return rows.map((r) => r.role)
 }
 
+/**
+ * Account flags that decide access, read fresh on every request: the session copy kept in Redis
+ * is a snapshot from sign-in and misses later changes (a verified email, 2FA turned on).
+ */
+export async function accountFlags(
+  db: DbOrTx,
+  userId: string,
+): Promise<{ emailVerified: boolean; twoFactorEnabled: boolean } | undefined> {
+  const [row] = await db
+    .select({ emailVerified: user.emailVerified, twoFactorEnabled: user.twoFactorEnabled })
+    .from(user)
+    .where(eq(user.id, userId))
+  return row
+    ? { emailVerified: row.emailVerified, twoFactorEnabled: Boolean(row.twoFactorEnabled) }
+    : undefined
+}
+
 export async function rolesOfMany(db: DbOrTx, userIds: ReadonlyArray<string>) {
   if (userIds.length === 0) return new Map<string, Role[]>()
   const rows = await db

@@ -22,18 +22,21 @@ export async function loadUserActor(
   db: Db,
   session: { userId: string; sessionId: string; emailVerified: boolean; twoFactorEnabled: boolean },
 ): Promise<UserActor> {
-  const [roles, twoFactorVerifiedAt] = await Promise.all([
+  const [roles, flags, verifiedAt] = await Promise.all([
     repo.rolesOf(db, session.userId),
-    session.twoFactorEnabled ? repo.sessionTwoFactorVerifiedAt(db, session.sessionId) : null,
+    repo.accountFlags(db, session.userId),
+    repo.sessionTwoFactorVerifiedAt(db, session.sessionId),
   ])
+  // The database wins over the session snapshot (e.g. an email verified after sign-in).
+  const twoFactorEnabled = flags?.twoFactorEnabled ?? session.twoFactorEnabled
   return {
     kind: 'user',
     userId: session.userId,
     sessionId: session.sessionId,
     roles: roles.length > 0 ? roles : ['learner'],
-    emailVerified: session.emailVerified,
-    twoFactorEnabled: session.twoFactorEnabled,
-    twoFactorVerifiedAt,
+    emailVerified: flags?.emailVerified ?? session.emailVerified,
+    twoFactorEnabled,
+    twoFactorVerifiedAt: twoFactorEnabled ? verifiedAt : null,
   }
 }
 
