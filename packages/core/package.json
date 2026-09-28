@@ -12,6 +12,7 @@
     "./courses": "./src/courses/index.ts",
     "./identity": "./src/identity/index.ts",
     "./instructors": "./src/instructors/index.ts",
+    "./ledger": "./src/ledger/index.ts",
     "./media": "./src/media/index.ts",
     "./notifications": "./src/notifications/index.ts",
     "./testing": "./src/kernel/testing.ts"
@@ -34,6 +35,8 @@
   "devDependencies": {
     "@tokslearn/config": "workspace:*",
     "@types/node": "24.13.6",
+    "@vitest/coverage-v8": "5.0.1",
+    "fast-check": "4.10.2",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vite": "8.3.1",

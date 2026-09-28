@@ -5,7 +5,26 @@ export const seedSettings: ReadonlyArray<{ key: string; value: unknown }> = [
   { key: 'refund_consumption_threshold_pct', value: 30 },
   { key: 'min_payout_kobo', value: '500000' },
   { key: 'payout_day', value: 5 },
+  // docs/08 §4: Paystack's fee is shared by line and commission rate unless set to 'platform'.
+  { key: 'gateway_fee_bearer', value: 'proportional' },
+  // docs/08 §10, ADR Q6: off until the accountant confirms VAT on commission.
+  { key: 'tax_rules', value: { vatOnCommission: false, vatRateBps: 750 } },
 ]
+
+/**
+ * Default commission per attribution source (docs/08 §3, ADR-017). Fixed ids so every
+ * environment agrees; admins change rates by ending a row and adding a new one.
+ */
+export const seedCommissionDefaults = [
+  {
+    id: '01920000-0000-7000-8003-000000000001',
+    source: 'instructor_referral',
+    platformRateBps: 300,
+  },
+  { id: '01920000-0000-7000-8003-000000000002', source: 'instructor_coupon', platformRateBps: 300 },
+  { id: '01920000-0000-7000-8003-000000000003', source: 'platform_organic', platformRateBps: 4000 },
+  { id: '01920000-0000-7000-8003-000000000004', source: 'platform_paid', platformRateBps: 5000 },
+] as const
 
 export const seedFeatureFlags: ReadonlyArray<{
   key: string
