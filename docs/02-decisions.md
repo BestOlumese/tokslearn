@@ -210,6 +210,18 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Instructors see learners by first name and last initial** ("Amaka O."), with progress and last activity, never emails.
 - **Deferred:** Q&A and announcements tabs (Phase 8), certificates on My learning (Phase 7), notification preferences (Phase 9), start-at-480p on slow connections (Bunny's player picks the rendition; revisit if learners report stalls).
 
+### ADR-035 Assessments (Phase 6)
+- **Quizzes, exams and assignments are lessons.** `lessons.quizId` / `assignmentId` point at their row (unique), created in the same transaction as the lesson (`courses.addLesson` takes an `attach` callback, so the courses module never imports assessments). An exam is a quiz with kind `exam`. Questions, quiz settings and assignment briefs are edited in place in the studio and apply at once; adding or removing the lesson itself goes through review like any lesson.
+- **Questions are archived, never deleted**, so old attempts can always show what was asked. An in-progress attempt is graded against the answer key as it is at submit time: an instructor fixing a wrong key mid-exam helps everyone still sitting it. Submitted attempts are never regraded automatically.
+- **No instructor regex.** Short-text answers are a list of accepted answers compared after normalising (trim, collapse spaces, strip trailing punctuation, case-insensitive unless the question says otherwise). Regex from instructors would be a ReDoS risk on the grading path.
+- **The server owns the clock.** `startAttempt` sets `deadlineAt`; saves and submits after `deadlineAt` + 5 s are refused, and the `exam-autosubmit` job (every minute) submits expired attempts. Attempts return `serverNow`, and the player's timer counts from the server's clock rather than the device's, so a wrong phone clock changes nothing. Answers not yet sent are kept in `localStorage` and retried.
+- **Integrity signals are recorded, never enforced.** Tab switches (count and time away), fullscreen exits, blocked pastes, IP change between start and submit, and a finish that is too fast for the paper. Past the thresholds in `assessments/integrity.ts` an attempt is flagged for the instructor, who can void it with a reason (the learner is emailed; a voided attempt doesn't use up an attempt). Instructors see "IP changed", never the IP hashes.
+- **Starting an exam ends the refund right** (consumption event `exam_started`); the rules screen says so and the confirm checkbox includes it, only when the learner's purchase is still refundable.
+- **Completion:** a practice quiz completes its lesson on submit; a graded quiz or exam on a pass; an assignment when graded at or above the pass mark. There is no "Mark complete" on these lessons.
+- **Grading is open to the course's TAs** as well as the instructor (`studioCourse(…).canGrade`). Editing questions and settings stays with the instructor and co-instructors.
+- **Submission files keep their original name** (`files.originalName`, control characters stripped) so graders download "March rec.xlsx", not a key. Files live in the private bucket with short signed links, for the learner and graders only.
+- **Deferred:** the `grading-backlog` digest email (Phase 9, with notification preferences); plagiarism checks; proctoring with camera (not planned); question import from CSV (Phase 11 if instructors ask).
+
 ---
 
 ## Open questions (resolve before the phase that needs them)
