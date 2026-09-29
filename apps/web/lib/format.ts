@@ -72,3 +72,18 @@ export const certificateLabel: Readonly<Record<string, string>> = {
   exam: 'Certificate after an exam',
   external: 'Prepares you for an outside exam',
 }
+
+/** 2_457_600 → "2.3 MB"; 18_000 → "18 KB". */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
+  const mb = bytes / (1024 * 1024)
+  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`
+}
+
+const dayMonth = new Intl.DateTimeFormat('en-NG', {
+  timeZone: 'Africa/Lagos',
+  day: 'numeric',
+  month: 'long',
+})
+/** "2 October", in Lagos. */
+export const formatDayMonth = (value: Date | string): string => dayMonth.format(new Date(value))

@@ -76,7 +76,7 @@ export function BuyButtons({
   let primary: React.ReactNode
   if (s.enrolled) {
     primary = (
-      <Link href="/account" className={big}>
+      <Link href={`/learn/${courseSlug}` as Route} className={big}>
         Continue learning
       </Link>
     )

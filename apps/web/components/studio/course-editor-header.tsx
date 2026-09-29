@@ -14,6 +14,8 @@ const tabs = [
   ['details', 'Details'],
   ['curriculum', 'Curriculum'],
   ['pricing', 'Pricing'],
+  ['drip', 'Drip schedule'],
+  ['learners', 'Learners'],
   ['staff', 'Teaching assistants'],
   ['publish', 'Publish'],
 ] as const

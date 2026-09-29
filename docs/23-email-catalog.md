@@ -30,7 +30,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `order-receipt` | `order.paid` | Receipt for order {publicId} | Items, prices, discount, total, payment method, refund policy per item with last date, "Start learning" button, PDF receipt link | transactional |
 | `enrollment-free` | free enrollment | You're enrolled in {course} | Start button, what's inside (lessons, duration), certificate info | transactional |
 | `payment-failed` | verify failed after attempt | Your payment for {course} didn't go through | You weren't charged; retry link to cart | transactional |
-| `lesson-unlocked` | drip job | New lesson available in {course} | Lesson title, button | activity |
+| `lesson-unlocked` | drip job (07:00 Lagos, one per learner per course per day) | New lesson available in {course} | Lesson title (plus any others that opened the same day), button to the first | activity |
 | `live-reminder-24h` / `-15m` | live reminders | {session} starts {tomorrow at 7:00 pm / in 15 minutes} | Time in Lagos time, join button, add-to-calendar (.ics) | activity |
 | `assignment-graded` | `assignment.graded` | Your assignment in {course} has been graded | Score, pass/fail, feedback excerpt, view button | activity |
 | `certificate-issued` | `certificate.issued` | Your certificate for {course} | Congratulate plainly, download PDF, verification link, LinkedIn add | transactional |
