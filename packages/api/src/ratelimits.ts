@@ -50,6 +50,15 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   notes: { limit: 60, windowSec: 60 },
   bookmarks: { limit: 60, windowSec: 60 },
   engagement: { limit: 60, windowSec: 60 },
+  // Autosave sends an answer per change; exams must never lose one to a limit.
+  quizzes: { limit: 240, windowSec: 60 },
+  'quizzes.start': { limit: 20, windowSec: 60 },
+  exams: { limit: 240, windowSec: 60 },
+  'exams.start': { limit: 10, windowSec: 60 },
+  'exams.logIntegrityEvent': { limit: 60, windowSec: 60 },
+  assignments: { limit: 120, windowSec: 60 },
+  'assignments.submit': { limit: 20, windowSec: 60 },
+  grading: { limit: 120, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {
@@ -68,4 +77,8 @@ export function policyFor(path: ReadonlyArray<string>): {
  * Procedures that create money or irreversible state accept an Idempotency-Key (docs/06 §3.5).
  * Phase 4+ adds `checkout.start`, `refunds.request`, `assignments.submit`, `exams.submit`.
  */
-export const idempotentProcedures: ReadonlySet<string> = new Set<string>(['checkout.start'])
+export const idempotentProcedures: ReadonlySet<string> = new Set<string>([
+  'checkout.start',
+  'exams.submit',
+  'assignments.submit',
+])

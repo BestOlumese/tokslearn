@@ -1,6 +1,16 @@
 import { impl } from './base'
 import { adminRouter } from './procedures/admin'
 import {
+  assignmentsRouter,
+  examsRouter,
+  gradingRouter,
+  quizzesRouter,
+  studioAssignmentsRouter,
+  studioQuestionBanksRouter,
+  studioQuestionsRouter,
+  studioQuizzesRouter,
+} from './procedures/assessments'
+import {
   catalogPublicRouter,
   coursesRouter,
   instructorProfileHandlers,
@@ -50,6 +60,10 @@ export const router = impl.router({
     coupons: studioCouponsRouter,
     drip: studioDripRouter,
     learners: studioLearnersRouter,
+    questionBanks: studioQuestionBanksRouter,
+    questions: studioQuestionsRouter,
+    quizzes: studioQuizzesRouter,
+    assignments: studioAssignmentsRouter,
   },
   instructors: { ...instructorsRouter, ...instructorProfileHandlers },
   kyc: kycRouter,
@@ -73,6 +87,10 @@ export const router = impl.router({
   notes: notesRouter,
   bookmarks: bookmarksRouter,
   engagement: engagementRouter,
+  quizzes: quizzesRouter,
+  exams: examsRouter,
+  assignments: assignmentsRouter,
+  grading: gradingRouter,
 })
 
 export type Router = typeof router

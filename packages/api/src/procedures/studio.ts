@@ -1,4 +1,6 @@
 import type { BundleDto, ReviewDto, StudioCourseDto, StudioCourseRow } from '@tokslearn/contract'
+import * as assessments from '@tokslearn/core/assessments'
+import * as assignments from '@tokslearn/core/assignments'
 import * as catalog from '@tokslearn/core/catalog'
 import * as courses from '@tokslearn/core/courses'
 import { authed, pub, staff } from '../base'
@@ -117,9 +119,20 @@ export const studioRouter = {
     ),
   },
   lessons: {
-    add: authed.studio.lessons.add.handler(({ context, input }) =>
-      out(courses.addLesson(context.ctx, input)),
-    ),
+    // Quiz, exam and assignment lessons are created with their quiz or assignment.
+    add: authed.studio.lessons.add.handler(({ context, input }) => {
+      const { type, ...rest } = input
+      if (type === 'quiz' || type === 'exam') {
+        return out(
+          assessments.addQuizLesson(context.ctx, {
+            ...rest,
+            kind: type === 'exam' ? 'exam' : 'graded',
+          }),
+        )
+      }
+      if (type === 'assignment') return out(assignments.addAssignmentLesson(context.ctx, rest))
+      return out(courses.addLesson(context.ctx, { ...rest, type }))
+    }),
     update: authed.studio.lessons.update.handler(({ context, input }) =>
       out(courses.updateLesson(context.ctx, input)),
     ),

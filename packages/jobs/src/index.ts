@@ -7,6 +7,7 @@ import {
   paystackChargeSucceeded,
 } from './events'
 import { accountDeletion } from './functions/account-deletion'
+import { examAutosubmit } from './functions/assessments'
 import { commerceHourly } from './functions/commerce-hourly'
 import { dataExport } from './functions/data-export'
 import { emailSend } from './functions/email-send'
@@ -33,6 +34,7 @@ export const functions = [
   badgesEvaluate,
   streakRollover,
   dripUnlocks,
+  examAutosubmit,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

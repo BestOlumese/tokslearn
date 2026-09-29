@@ -227,3 +227,22 @@ export async function publishCourse(
   })
   return getStudioCourse(env.ctx(owner), s.id)
 }
+
+/** Submits a published course's pending changes (e.g. a new lesson) and approves them. */
+export async function approveChanges(
+  env: ReturnType<typeof setup>,
+  owner: UserActor,
+  reviewer: UserActor,
+  courseId: string,
+) {
+  const s = await getStudioCourse(env.ctx(owner), courseId)
+  await submitForReview(env.ctx(owner), { courseId, version: s.version })
+  const [item] = (await listReviewQueue(env.ctx(reviewer))).filter((q) => q.courseId === courseId)
+  await decideReview(env.ctx(reviewer), {
+    revisionId: item?.revisionId ?? '',
+    decision: 'approve',
+    notes: 'Fine.',
+    checklist: allTicked,
+  })
+  return getStudioCourse(env.ctx(owner), courseId)
+}
