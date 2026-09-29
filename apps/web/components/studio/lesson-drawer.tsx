@@ -10,6 +10,8 @@ import { Label } from '@tokslearn/ui/label'
 import { Select } from '@tokslearn/ui/select'
 import { Sheet, SheetContent } from '@tokslearn/ui/sheet'
 import { Switch } from '@tokslearn/ui/switch'
+import type { Route } from 'next'
+import Link from 'next/link'
 import { useState } from 'react'
 import { FormAlert } from '@/components/auth/form-alert'
 import { apiErrorMessage } from '@/lib/api-error'
@@ -111,30 +113,32 @@ function LessonEditor({
             />
           )}
         </Field>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <Label htmlFor="lesson-preview">Free preview</Label>
-            <p className="text-body-sm text-ink-2">
-              Anyone can watch or read it on the course page before buying.
-            </p>
+        {lesson.type === 'quiz' || lesson.type === 'assignment' ? null : (
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <Label htmlFor="lesson-preview">Free preview</Label>
+              <p className="text-body-sm text-ink-2">
+                Anyone can watch or read it on the course page before buying.
+              </p>
+            </div>
+            <Switch
+              id="lesson-preview"
+              checked={lesson.isPreview}
+              onChange={(e) => {
+                // Read now: the write runs later in a queue, after React resets the controlled box.
+                const isPreview = e.target.checked
+                void save((version) =>
+                  api.studio.lessons.update({
+                    courseId: course.id,
+                    version,
+                    lessonId: lesson.id,
+                    isPreview,
+                  }),
+                )
+              }}
+            />
           </div>
-          <Switch
-            id="lesson-preview"
-            checked={lesson.isPreview}
-            onChange={(e) => {
-              // Read now: the write runs later in a queue, after React resets the controlled box.
-              const isPreview = e.target.checked
-              void save((version) =>
-                api.studio.lessons.update({
-                  courseId: course.id,
-                  version,
-                  lessonId: lesson.id,
-                  isPreview,
-                }),
-              )
-            }}
-          />
-        </div>
+        )}
         <Field id="lesson-section" label="Section">
           {(p) => (
             <Select
@@ -163,6 +167,27 @@ function LessonEditor({
           )}
         </Field>
       </fieldset>
+
+      {lesson.quizId || lesson.assignmentId ? (
+        <section aria-labelledby="builder-title" className="flex flex-col gap-3">
+          <h3 id="builder-title" className="text-h4 text-ink">
+            {lesson.quizId ? 'Questions and settings' : 'Brief, rubric and due date'}
+          </h3>
+          <p className="text-body-sm text-ink-2">
+            {lesson.quizId
+              ? 'Pick questions from your question banks, set the time limit, attempts and pass mark.'
+              : 'Write what learners should hand in, how you grade it, and when it’s due.'}
+          </p>
+          <Link
+            href={
+              `/teach/courses/${course.id}/assessments?${lesson.quizId ? `quiz=${lesson.quizId}` : `assignment=${lesson.assignmentId}`}` as Route
+            }
+            className="w-fit text-body-sm font-medium text-brand-ink hover:underline"
+          >
+            {lesson.quizId ? 'Open the quiz builder' : 'Open the assignment builder'}
+          </Link>
+        </section>
+      ) : null}
 
       {lesson.type === 'video' ? (
         <section aria-labelledby="video-title" className="flex flex-col gap-3">

@@ -28,8 +28,11 @@ import { Input } from '@tokslearn/ui/input'
 import {
   ArrowDown,
   ArrowUp,
+  ClipboardList,
   FileText,
+  GraduationCap,
   GripVertical,
+  ListChecks,
   Paperclip,
   Pencil,
   PlayCircle,
@@ -49,15 +52,19 @@ const typeIcon = {
   video: PlayCircle,
   article: FileText,
   resource: Paperclip,
-  quiz: FileText,
-  assignment: FileText,
+  quiz: ListChecks,
+  assignment: ClipboardList,
   live: PlayCircle,
 }
 const newTitle = {
   video: 'New video lesson',
   article: 'New article',
   resource: 'Downloads',
+  quiz: 'Check your understanding',
+  exam: 'Final exam',
+  assignment: 'Practice task',
 } as const
+type NewType = keyof typeof newTitle
 
 type Pending = { kind: 'section' | 'lesson'; id: string; title: string; live: boolean } | null
 
@@ -157,7 +164,7 @@ export function CurriculumEditor() {
     }
   }
 
-  const addLesson = async (section: StudioSectionDto, type: 'video' | 'article' | 'resource') => {
+  const addLesson = async (section: StudioSectionDto, type: NewType) => {
     const next = await act((version) =>
       api.studio.lessons.add({
         courseId: course.id,
@@ -337,7 +344,7 @@ function SectionCard(props: {
   onMove: (toIndex: number) => void
   onRename: (title: string) => Promise<unknown>
   onRemove: () => void
-  onAddLesson: (type: 'video' | 'article' | 'resource') => void
+  onAddLesson: (type: NewType) => void
   onEditLesson: (id: string) => void
   onMoveLesson: (lesson: StudioLessonDto, toIndex: number) => void
   onRemoveLesson: (lesson: StudioLessonDto) => void
@@ -481,6 +488,18 @@ function SectionCard(props: {
           <Button size="sm" variant="tertiary" onClick={() => props.onAddLesson('resource')}>
             <Paperclip aria-hidden className="size-4" />
             Files
+          </Button>
+          <Button size="sm" variant="tertiary" onClick={() => props.onAddLesson('quiz')}>
+            <ListChecks aria-hidden className="size-4" />
+            Quiz
+          </Button>
+          <Button size="sm" variant="tertiary" onClick={() => props.onAddLesson('exam')}>
+            <GraduationCap aria-hidden className="size-4" />
+            Exam
+          </Button>
+          <Button size="sm" variant="tertiary" onClick={() => props.onAddLesson('assignment')}>
+            <ClipboardList aria-hidden className="size-4" />
+            Assignment
           </Button>
         </div>
       ) : null}
