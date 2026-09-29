@@ -6,6 +6,7 @@ import { notFound, redirect } from 'next/navigation'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 import { Track } from '@/components/catalog/track'
+import { EmbedFrame } from '@/components/embed-frame'
 import { RichHtml } from '@/components/rich-html'
 import { getCourse, previewLesson } from '@/lib/catalog-data'
 import { formatDuration } from '@/lib/format'
@@ -80,7 +81,7 @@ async function Preview({ params }: { params: Params }) {
         <div className="min-w-0">
           {preview.embedUrl ? (
             <div className="aspect-video overflow-hidden rounded-card bg-ink">
-              <iframe
+              <EmbedFrame
                 src={preview.embedUrl}
                 title={preview.lesson.title}
                 allow="autoplay; fullscreen; picture-in-picture; encrypted-media"

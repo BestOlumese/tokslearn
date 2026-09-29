@@ -7,7 +7,7 @@ import { cn } from '@tokslearn/ui/cn'
 import { Play } from 'lucide-react'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   type Beat,
   clock,
@@ -61,6 +61,7 @@ export function VideoLesson({
   watermark,
   startAt,
   next,
+  initialStatus,
 }: {
   lessonId: string
   title: string
@@ -71,9 +72,14 @@ export function VideoLesson({
   /** From a note link (`?t=`): start here instead of the saved position. */
   startAt: number | null
   next: { href: string; title: string } | null
+  initialStatus: 'not_started' | 'in_progress' | 'completed'
 }) {
   const router = useRouter()
   const frame = useRef<HTMLIFrameElement>(null)
+  /** The last iframe mounted; kept after React detaches the ref so a hide can stop it. */
+  const lastFrame = useRef<HTMLIFrameElement | null>(null)
+  const shown = useRef(false)
+  const status0 = useRef(initialStatus)
   const [play, setPlay] = useState<Playback | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -89,7 +95,7 @@ export function VideoLesson({
     try {
       const p = await playback(lessonId)
       const at = startAt ?? p.resumeAt
-      track.current.pos = at
+      track.current = { pos: at, last: null, acc: 0, sentAt: 0, started: false }
       setPlay({ ...p, resumeAt: at })
       if (at > 0) setResumeNote(`Resuming at ${clock(at)}`)
     } catch (e) {
@@ -108,6 +114,20 @@ export function VideoLesson({
       sessionStorage.removeItem(AUTOPLAY_KEY)
     } catch {}
     if (wanted && status === 'ready' && !saveData()) void start()
+  }, [])
+
+  // Next keeps a page you leave mounted but hidden (Activity), and a hidden iframe keeps playing.
+  // Stop it on hide; on return, show the play button again (the position was saved on leave).
+  useLayoutEffect(() => {
+    if (shown.current) {
+      setPlay(null)
+      setEnded(false)
+    }
+    shown.current = true
+    return () => {
+      lastFrame.current?.setAttribute('src', 'about:blank')
+      lastFrame.current = null
+    }
   }, [])
 
   useEffect(() => {
@@ -140,7 +160,11 @@ export function VideoLesson({
       t.sentAt = Date.now()
       heartbeat(beat)
         .then((r) => {
-          if (r.completedNow) router.refresh()
+          // Started or finished: redraw the outline ticks and course progress.
+          if (r.recorded && r.status !== status0.current) {
+            status0.current = r.status
+            router.refresh()
+          }
         })
         .catch(() => {
           // Offline or rate-limited: keep the time for the next beat.
@@ -276,7 +300,10 @@ export function VideoLesson({
   return (
     <div className="relative aspect-video overflow-hidden rounded-card bg-ink">
       <iframe
-        ref={frame}
+        ref={(el) => {
+          frame.current = el
+          if (el) lastFrame.current = el
+        }}
         src={src}
         title={title}
         allow="autoplay; fullscreen; picture-in-picture; encrypted-media"

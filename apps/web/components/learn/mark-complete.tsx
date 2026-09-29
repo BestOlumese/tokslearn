@@ -10,10 +10,10 @@ import { LearnError, markComplete } from '@/lib/learn-api'
 export function MarkComplete({ lessonId, done }: { lessonId: string; done: boolean }) {
   const router = useRouter()
   const [pending, setPending] = useState(false)
-  const [complete, setComplete] = useState(done)
+  const [complete, setComplete] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (complete) {
+  if (done || complete) {
     return (
       <p className="inline-flex h-10 items-center gap-2 text-body-sm font-medium text-success">
         <Check aria-hidden className="size-4" />
@@ -29,7 +29,11 @@ export function MarkComplete({ lessonId, done }: { lessonId: string; done: boole
           setPending(true)
           setError(null)
           try {
-            await markComplete(lessonId)
+            const r = await markComplete(lessonId)
+            if (!r.recorded) {
+              setError('Progress is saved only for learners enrolled in this course.')
+              return
+            }
             setComplete(true)
             router.refresh()
           } catch (e) {

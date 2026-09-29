@@ -267,6 +267,7 @@ function LessonBody({
           watermark={lesson.watermark}
           startAt={startAt}
           next={next}
+          initialStatus={lesson.progress.status}
         />
         {heading}
       </>

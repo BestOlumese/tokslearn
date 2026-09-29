@@ -68,7 +68,8 @@ describe('learning procedures', () => {
 
       const note = await buyer.notes.create({
         lessonId,
-        positionSec: 40,
+        // The player reports fractions of a second (the M key); stored as whole seconds.
+        positionSec: 40.75,
         body: 'Check the SUMIF range',
       })
       expect((await buyer.notes.list({ courseId: course.id })).items[0]).toMatchObject({
@@ -76,7 +77,7 @@ describe('learning procedures', () => {
         positionSec: 40,
       })
       expect((await buyer.notes.export({})).markdown).toContain('[0:40] Check the SUMIF range')
-      expect(await buyer.bookmarks.toggle({ lessonId, positionSec: 40 })).toEqual({
+      expect(await buyer.bookmarks.toggle({ lessonId, positionSec: 40.2 })).toEqual({
         bookmarked: true,
       })
       expect((await buyer.bookmarks.list({ courseId: course.id })).items).toHaveLength(1)

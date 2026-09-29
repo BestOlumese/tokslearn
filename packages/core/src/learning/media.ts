@@ -8,6 +8,7 @@ import type { Ctx } from '../kernel/ctx'
 import { ForbiddenError, NotFoundError, RuleViolationError } from '../kernel/errors'
 import { getFiles, getVideoAssets, privateFileUrl, videoPlayback } from '../media'
 import { downloadName, lessonLocked } from './outline'
+import { markLessonComplete } from './progress'
 
 // Signed media for the player (docs/09 §3, docs/08 §7). Nothing is handed out without
 // enrollments.lessonAccess saying yes; links expire (video 2 h, files 5 min).
@@ -105,6 +106,8 @@ export async function downloadResource(
       })
     }
     void track(ctx, 'resource_downloaded', { is_important: resource.isImportant })
+    // A file lesson is done once the learner has taken one of its files (ADR-034).
+    if (lesson.type === 'resource') await markLessonComplete(ctx, lesson.id)
   }
   const filename = downloadName(resource.title, file.key)
   return { url: await privateFileUrl(ctx, file, filename), filename }

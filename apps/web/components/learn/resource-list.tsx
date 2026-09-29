@@ -6,6 +6,7 @@
 import { Button } from '@tokslearn/ui/button'
 import { Dialog, DialogContent, DialogFooter } from '@tokslearn/ui/dialog'
 import { Download } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { formatBytes } from '@/lib/format'
 import { downloadFile, LearnError } from '@/lib/learn-api'
@@ -30,6 +31,7 @@ export function ResourceList({
   resources: ResourceView[]
   refundable: boolean
 }) {
+  const router = useRouter()
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [asking, setAsking] = useState<ResourceView | null>(null)
@@ -41,6 +43,8 @@ export function ResourceList({
       const file = await downloadFile(lessonId, r.id, confirmed)
       setAsking(null)
       window.location.assign(file.url)
+      // The download completes a file lesson and may end the refund window: redraw both.
+      router.refresh()
     } catch (e) {
       if (e instanceof LearnError && e.code === 'DOWNLOAD_CONFIRM_REQUIRED') setAsking(r)
       else setError(e instanceof LearnError ? e.message : 'The download didn’t start. Try again.')
