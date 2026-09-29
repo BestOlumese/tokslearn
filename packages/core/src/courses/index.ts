@@ -15,6 +15,15 @@ export {
   updateBundle,
 } from './bundles'
 export {
+  type DripLesson,
+  type DripSettings,
+  type EditableDripMode,
+  getDripSettings,
+  lagosMidnight,
+  MAX_DRIP_OFFSET_DAYS,
+  updateDripSettings,
+} from './drip'
+export {
   decideReview,
   diffSnapshots,
   type FieldChange,

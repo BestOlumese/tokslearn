@@ -13,7 +13,7 @@ const handle = createDb(url, { max: 1, tcp: true })
 try {
   await seed(handle.db)
   console.info(
-    'Reference data (settings, feature flags, categories, commission defaults) is up to date.',
+    'Reference data (settings, feature flags, categories, commission defaults, badges) is up to date.',
   )
 } finally {
   await handle.close()

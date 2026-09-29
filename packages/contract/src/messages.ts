@@ -39,6 +39,8 @@ export const errorCatalog = {
   THREAD_NOT_FOUND: notFound('discussion'),
   COUPON_NOT_FOUND: notFound('coupon'),
   COMMISSION_RULE_NOT_FOUND: notFound('commission rule'),
+  NOTE_NOT_FOUND: notFound('note'),
+  RESOURCE_NOT_FOUND: notFound('file'),
   FILE_NOT_FOUND: notFound('file'),
   SESSION_NOT_FOUND: notFound('session'),
   FEATURE_FLAG_NOT_FOUND: notFound('feature flag'),
@@ -190,6 +192,11 @@ export const errorCatalog = {
   PREREQUISITE_INCOMPLETE: {
     status: 'UNPROCESSABLE_CONTENT',
     message: 'Complete {lesson} first.',
+  },
+  DOWNLOAD_CONFIRM_REQUIRED: {
+    status: 'PRECONDITION_FAILED',
+    message:
+      'Downloading this file ends your right to a refund for this course. Confirm to continue.',
   },
   PLAYBACK_TOKEN_EXPIRED: {
     status: 'UNAUTHORIZED',

@@ -9,6 +9,7 @@ import * as deletionRequested from './templates/deletion-requested'
 import * as emailChangedOld from './templates/email-changed-old'
 import * as enrollmentFree from './templates/enrollment-free'
 import * as kycResult from './templates/kyc-result'
+import * as lessonUnlocked from './templates/lesson-unlocked'
 import * as newSignIn from './templates/new-sign-in'
 import * as orderReceipt from './templates/order-receipt'
 import * as passwordChanged from './templates/password-changed'
@@ -78,6 +79,10 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'enrollment-free': {
     subject: enrollmentFree.subject,
     element: (d) => <enrollmentFree.EnrollmentFree {...d} />,
+  },
+  'lesson-unlocked': {
+    subject: lessonUnlocked.subject,
+    element: (d) => <lessonUnlocked.LessonUnlocked {...d} />,
   },
 }
 

@@ -23,6 +23,15 @@ import {
 } from './procedures/commerce'
 import { healthRouter } from './procedures/health'
 import { instructorsRouter, kycRouter, payoutAccountsRouter } from './procedures/instructors'
+import {
+  bookmarksRouter,
+  engagementRouter,
+  learnPlayerRouter,
+  notesRouter,
+  progressRouter,
+  studioDripRouter,
+  studioLearnersRouter,
+} from './procedures/learning'
 import { meRouter } from './procedures/me'
 import { mediaRouter } from './procedures/media'
 import { catalogCategoriesHandler, studioRouter } from './procedures/studio'
@@ -35,8 +44,13 @@ export const router = impl.router({
   media: mediaRouter,
   catalog: { categories: catalogCategoriesHandler, ...catalogPublicRouter },
   courses: coursesRouter,
-  learn: learnRouter,
-  studio: { ...studioRouter, coupons: studioCouponsRouter },
+  learn: { ...learnRouter, ...learnPlayerRouter },
+  studio: {
+    ...studioRouter,
+    coupons: studioCouponsRouter,
+    drip: studioDripRouter,
+    learners: studioLearnersRouter,
+  },
   instructors: { ...instructorsRouter, ...instructorProfileHandlers },
   kyc: kycRouter,
   payoutAccounts: payoutAccountsRouter,
@@ -55,6 +69,10 @@ export const router = impl.router({
   enrollments: enrollmentsRouter,
   bundles: bundlesRouter,
   referrals: referralsRouter,
+  progress: progressRouter,
+  notes: notesRouter,
+  bookmarks: bookmarksRouter,
+  engagement: engagementRouter,
 })
 
 export type Router = typeof router

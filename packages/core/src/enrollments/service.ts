@@ -12,7 +12,7 @@ import { sendEmail } from '../notifications'
 // Enrollments (docs/05 enrollments, docs/08 §6). The only answer to "may this person open this
 // paid lesson?" is `canAccessCourse` / `canAccessLesson`; every learning surface calls them.
 // Foreign reads (docs/03 §3): courses, course_revisions, course_staff, lessons, user,
-// instructor_profiles, files.
+// instructor_profiles, files, lesson_progress.
 
 const {
   enrollments,
@@ -22,6 +22,7 @@ const {
   user,
   instructorProfiles,
   files,
+  lessonProgress,
 } = schema
 
 export type EnrollmentSource =
@@ -159,22 +160,124 @@ export async function canAccessCourse(ctx: Ctx, courseId: string): Promise<boole
   return row.instructorId === actor.userId || row.staff || row.enrolled
 }
 
-/** A lesson opens for free previews (live, in a live course) or with course access. */
-export async function canAccessLesson(ctx: Ctx, lessonId: string): Promise<boolean> {
-  const [lesson] = await ctx.db
+export type LessonAccessReason =
+  | 'preview'
+  | 'enrolled'
+  | 'teaching'
+  | 'staff'
+  | 'not_enrolled'
+  | 'revoked'
+  | 'locked'
+  | 'missing'
+
+export interface LessonAccess {
+  allowed: boolean
+  reason: LessonAccessReason
+  /** When a drip-locked lesson opens. */
+  unlocksAt: Date | null
+  courseId: string | null
+}
+
+const DAY_MS = 86_400_000
+
+/**
+ * When a lesson opens for one enrollment under the course's drip mode (docs/10 §2). Cohort-
+ * relative drip arrives with cohorts (Phase 8); until then those lessons are open.
+ */
+export function dripUnlocksAt(
+  dripMode: 'none' | 'fixed_dates' | 'after_enrollment' | 'cohort_relative',
+  lesson: { dripOffsetDays: number | null; dripDate: Date | null },
+  enrolledAt: Date,
+): Date | null {
+  if (dripMode === 'after_enrollment' && lesson.dripOffsetDays) {
+    return new Date(enrolledAt.getTime() + lesson.dripOffsetDays * DAY_MS)
+  }
+  if (dripMode === 'fixed_dates' && lesson.dripDate) return lesson.dripDate
+  return null
+}
+
+/**
+ * docs/10 §2 `canAccessLesson`: previews are open to everyone; otherwise an active enrollment,
+ * and drip decides when. The course's instructor, its staff, reviewers and admins always get in.
+ */
+export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAccess> {
+  const [row] = await ctx.db
     .select({
       courseId: lessons.courseId,
       isPreview: lessons.isPreview,
+      dripOffsetDays: lessons.dripOffsetDays,
+      dripDate: lessons.dripDate,
       live: sql<boolean>`${lessons.liveSince} is not null and ${lessons.deletedAt} is null`,
       courseStatus: courses.status,
+      dripMode: courses.dripMode,
+      instructorId: courses.instructorId,
     })
     .from(lessons)
     .innerJoin(courses, eq(courses.id, lessons.courseId))
     .where(eq(lessons.id, lessonId))
-  if (!lesson) return false
-  const courseLive = lesson.courseStatus === 'published' || lesson.courseStatus === 'unlisted'
-  if (lesson.isPreview && lesson.live && courseLive) return true
-  return canAccessCourse(ctx, lesson.courseId)
+  const deny = (reason: LessonAccessReason, courseId: string | null = null): LessonAccess => ({
+    allowed: false,
+    reason,
+    unlocksAt: null,
+    courseId,
+  })
+  if (!row) return deny('missing')
+  const ok = (reason: LessonAccessReason): LessonAccess => ({
+    allowed: true,
+    reason,
+    unlocksAt: null,
+    courseId: row.courseId,
+  })
+  const actor = isUser(ctx.actor) ? ctx.actor : null
+  if (actor && canSeeEveryCourse(actor)) return ok('staff')
+  if (actor && row.instructorId === actor.userId) return ok('teaching')
+  if (!row.live) return deny('missing', row.courseId)
+  const courseLive = row.courseStatus === 'published' || row.courseStatus === 'unlisted'
+  const preview = row.isPreview && courseLive
+  if (!actor) return preview ? ok('preview') : deny('not_enrolled', row.courseId)
+
+  // Enrolled learners come first, so their progress on preview lessons counts too.
+  const [facts] = await ctx.db
+    .select({
+      staff: sql<boolean>`exists (select 1 from course_staff cs where cs.course_id = ${row.courseId} and cs.user_id = ${actor.userId})`,
+      status: enrollments.status,
+      enrolledAt: enrollments.createdAt,
+      accessExpiresAt: enrollments.accessExpiresAt,
+    })
+    .from(courses)
+    .leftJoin(
+      enrollments,
+      and(eq(enrollments.courseId, courses.id), eq(enrollments.userId, actor.userId)),
+    )
+    .where(eq(courses.id, row.courseId))
+  if (facts?.staff) return ok('teaching')
+  const expired =
+    facts?.accessExpiresAt !== null &&
+    facts?.accessExpiresAt !== undefined &&
+    facts.accessExpiresAt <= ctx.now
+  const active = facts?.status === 'active' || facts?.status === 'completed'
+  if (facts?.enrolledAt && active && !expired) {
+    if (preview) return ok('enrolled')
+    const unlocksAt = dripUnlocksAt(row.dripMode, row, facts.enrolledAt)
+    if (unlocksAt && unlocksAt > ctx.now) {
+      // Drip moved later after the learner started: what they opened stays open (ADR-034).
+      const [started] = await ctx.db
+        .select({ one: sql<number>`1` })
+        .from(lessonProgress)
+        .where(and(eq(lessonProgress.userId, actor.userId), eq(lessonProgress.lessonId, lessonId)))
+      if (started) return ok('enrolled')
+      return { allowed: false, reason: 'locked', unlocksAt, courseId: row.courseId }
+    }
+    return ok('enrolled')
+  }
+  if (preview) return ok('preview')
+  if (facts?.status) return deny('revoked', row.courseId)
+  return deny('not_enrolled', row.courseId)
+}
+
+/** A lesson opens for free previews (live, in a live course) or with course access. */
+export async function canAccessLesson(ctx: Ctx, lessonId: string): Promise<boolean> {
+  return (await lessonAccess(ctx, lessonId)).allowed
 }
 
 /**
@@ -228,7 +331,7 @@ export async function enrollFree(ctx: Ctx, courseId: string) {
             lessonCount: course.lessonCount,
             duration: course.totalDurationSec > 0 ? durationText(course.totalDurationSec) : null,
             certificate: certificateWords[course.certificateMode] ?? null,
-            url: `${provider(tx, 'urls').app}/account`,
+            url: `${provider(tx, 'urls').app}/learn/${course.slug}`,
           },
         })
       }

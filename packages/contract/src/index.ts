@@ -23,6 +23,15 @@ import {
 import { healthContract } from './health'
 import { meContract, usersContract } from './identity'
 import { instructorsContract, kycContract, payoutAccountsContract } from './instructors'
+import {
+  bookmarksContract,
+  engagementContract,
+  learnPlayerContract,
+  notesContract,
+  progressContract,
+  studioDripContract,
+  studioLearnersContract,
+} from './learning'
 import { mediaContract } from './media'
 import { catalogContract, studioContract } from './studio'
 
@@ -34,8 +43,13 @@ export const contract = {
   media: mediaContract,
   catalog: { ...catalogContract, ...catalogPublicContract },
   courses: coursesContract,
-  learn: learnContract,
-  studio: { ...studioContract, coupons: studioCouponsContract },
+  learn: { ...learnContract, ...learnPlayerContract },
+  studio: {
+    ...studioContract,
+    coupons: studioCouponsContract,
+    drip: studioDripContract,
+    learners: studioLearnersContract,
+  },
   instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
   payoutAccounts: payoutAccountsContract,
@@ -54,6 +68,10 @@ export const contract = {
   enrollments: enrollmentsContract,
   bundles: bundlesContract,
   referrals: referralsContract,
+  progress: progressContract,
+  notes: notesContract,
+  bookmarks: bookmarksContract,
+  engagement: engagementContract,
 }
 export type Contract = typeof contract
 
@@ -142,6 +160,17 @@ export {
   PayoutAccountDto,
   PayoutAccountStatus,
 } from './instructors'
+export {
+  ContinueDto,
+  CourseLearnerDto,
+  DripMode,
+  DripSettingsDto,
+  HeartbeatInput,
+  LearnLessonDto,
+  LearnOutlineDto,
+  NoteDto,
+  ProgressStatus,
+} from './learning'
 export { UploadPurpose } from './media'
 export { RichMark, RichNode, RichTextDoc, richMarkTypes, richNodeTypes } from './rich-text'
 export { CLIENT_HEADER, Cursor, IDEMPOTENCY_HEADER, IsoDateTime, MoneyDto, Page } from './shared'

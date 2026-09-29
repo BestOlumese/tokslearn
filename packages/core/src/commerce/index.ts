@@ -33,7 +33,9 @@ export {
   type CompletedOrder,
   checkOrderIntegrity,
   completeOrder,
+  markPurchaseConsumed,
   reconcilePendingOrders,
+  refundablePurchase,
   startCheckout,
 } from './checkout'
 export {

@@ -20,5 +20,6 @@ export {
   getVideoAssets,
   refreshVideoAsset,
   type VideoAsset,
+  videoPlayback,
   videoPreviewUrl,
 } from './video'

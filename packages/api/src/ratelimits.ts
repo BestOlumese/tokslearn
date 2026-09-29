@@ -41,6 +41,15 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   wishlist: { limit: 60, windowSec: 60 },
   bundles: { limit: 120, windowSec: 60 },
   referrals: { limit: 30, windowSec: 60 },
+  learn: { limit: 120, windowSec: 60 },
+  // Each call signs a fresh video link or file link.
+  'learn.playback': { limit: 30, windowSec: 60 },
+  'learn.resourceDownload': { limit: 20, windowSec: 60 },
+  progress: { limit: 60, windowSec: 60 },
+  'progress.syncBatch': { limit: 10, windowSec: 60 },
+  notes: { limit: 60, windowSec: 60 },
+  bookmarks: { limit: 60, windowSec: 60 },
+  engagement: { limit: 60, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {

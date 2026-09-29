@@ -78,6 +78,14 @@ export interface EmailData {
     certificate: string | null
     url: string
   }
+  'lesson-unlocked': {
+    name: string
+    courseTitle: string
+    /** Titles of the lessons that opened, in course order (at least one). */
+    lessons: string[]
+    /** The first of them in the player. */
+    url: string
+  }
 }
 
 export type EmailId = keyof EmailData
@@ -99,6 +107,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'course-review-decision': 'transactional',
   'order-receipt': 'transactional',
   'enrollment-free': 'transactional',
+  'lesson-unlocked': 'activity',
 }
 
 export const emailIds = Object.keys(emailCategory) as EmailId[]

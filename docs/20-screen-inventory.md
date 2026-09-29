@@ -59,12 +59,12 @@ Refund policy, contact), cookie/analytics consent banner (first visit), toast re
 
 | Route | R | Content | States | Data | Ph |
 |-------|---|---------|--------|------|----|
-| `/account` (My learning) | D | Continue learning card (last lesson), streak, tabs: In progress / Completed / Wishlist / Archived. Course cards with progress bar. | No enrollments → browse CTA | `enrollments.listMine`, `engagement.getStreak` | 4 (continue card and streak 5) |
+| `/account` (My learning) | D | Continue learning card (last lesson), streak, tabs: In progress / Completed / Wishlist / Archived. Course cards with progress bar. | No enrollments → browse CTA | `enrollments.listMine`, `learn.continue`, `engagement.getStreak` | 4 (continue card and streak 5) |
 | `/account/certificates` | D | List with download, share to LinkedIn, verify link, request name correction. | None yet → explain how to earn | `certificates.listMine` | 7 |
 | `/account/orders` | D | Orders table (date, id, items, total, status). | | `orders.list` | 4 |
 | `/account/orders/[publicId]` | D | Receipt: items, prices, discount, payment method, refund policy per item with deadline, "Request refund" per eligible item (shows eligibility reason). Download PDF receipt. | Pending payment → "Confirming payment…" with auto-refresh | `orders.get`, `refunds.checkEligibility` | 4 (refund requests and PDF 10) |
 | `/account/refunds` | D | Refund requests and statuses, appeal button (once). | | `refunds.listMine` | 10 |
-| `/account/notes` | D | All notes grouped by course, search, export Markdown. | | `notes.list` | 5 |
+| `/account/notes` | D | All notes grouped by course, search, export Markdown. | No notes; no search matches | `notes.list`, `notes.export` | 5 |
 | `/account/badges` | D | Earned and locked badges with criteria. | | `engagement.listBadges` | 5 |
 | `/account/notifications` | D | Full notification list, mark all read. | | `notifications.list` | 9 |
 | `/account/settings/profile` | D | Name, username, headline, bio, avatar, links, public badges toggle. | Username taken | `me.update` | 1 |
@@ -107,7 +107,7 @@ Left nav: Dashboard, Courses, Bundles, Coupons, Referral links, Learners, Gradin
 | `/teach/courses/[id]/curriculum` | D/C | Sections/lessons tree, add lesson by type, drag-and-drop + keyboard move, preview toggle, per-lesson editor drawer, upload queue panel. | Video processing/failed per lesson | `studio.sections/lessons.*`, `media.*` | 2 |
 | `/teach/courses/[id]/pricing` | D | Free/paid, price, compare-at, refund policy (none/3/7/14 with explanation of consumption rules), subscription opt-in (hidden until Phase 12). | Price increase > 50% → "requires review" note | | 2 |
 | `/teach/courses/[id]/certificate` | D | Mode (none/completion/exam/external), exam picker, external provider name + URL, completion requirements, preview certificate PDF. | | | 7 |
-| `/teach/courses/[id]/drip` | D | Drip mode, per-lesson offsets/dates table. | | | 5 |
+| `/teach/courses/[id]/drip` | D | Drip mode, per-lesson offsets/dates table. | Applies live without review; TAs see it read-only | `studio.drip.*` | 5 |
 | `/teach/courses/[id]/cohorts` | D | Cohort runs list, create/edit (dates, capacity, windows, schedule). | | `studio.cohorts.*` | 8 |
 | `/teach/courses/[id]/assessments` | D | Question banks, quizzes/exams list, builder. | | `studio.questionBanks/quizzes.*` | 6 |
 | `/teach/courses/[id]/staff` | D | TAs list, invite, remove. | | | 2 |

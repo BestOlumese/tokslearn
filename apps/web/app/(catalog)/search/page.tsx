@@ -35,15 +35,19 @@ export default function SearchPage({ searchParams }: { searchParams: Promise<Raw
           </Suspense>
         </div>
       </div>
-      <Suspense
-        fallback={
-          <CatalogLayout filters={null}>
-            <GridSkeleton />
-          </CatalogLayout>
-        }
-      >
-        <Results searchParams={searchParams} />
-      </Suspense>
+      {/* At least a screen tall, so the footer never sits in the first screen while results
+          stream in and then jumps (CLS budget, docs/12 §1). */}
+      <div className="min-h-dvh">
+        <Suspense
+          fallback={
+            <CatalogLayout filters={null}>
+              <GridSkeleton />
+            </CatalogLayout>
+          }
+        >
+          <Results searchParams={searchParams} />
+        </Suspense>
+      </div>
     </>
   )
 }

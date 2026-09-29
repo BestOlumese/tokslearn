@@ -28,7 +28,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `KYC_REQUIRED` — FORBIDDEN — "Complete identity verification to continue."
 - `STAFF_ONLY` — FORBIDDEN — "This area is for Tokslearn staff."
 - `SELF_REVIEW_NOT_ALLOWED` — FORBIDDEN — staff deciding their own application or course — "You can't decide your own application or course. Ask another reviewer."
-- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND` — "We couldn't find that {thing}."
+- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND` — "We couldn't find that {thing}."
 
 ## Instructor onboarding
 - `APPLICATION_EXISTS` — CONFLICT — "You already have an application in progress."
@@ -79,6 +79,7 @@ Format: `CODE` — oRPC status — when — user message.
 ## Learning
 - `LESSON_LOCKED` — UNPROCESSABLE_CONTENT — drip (data: `unlocksAt`) — "This lesson opens on {date}."
 - `PREREQUISITE_INCOMPLETE` — UNPROCESSABLE_CONTENT — "Complete {lesson} first."
+- `DOWNLOAD_CONFIRM_REQUIRED` — PRECONDITION_FAILED — important file on a refundable purchase, not yet confirmed — "Downloading this file ends your right to a refund for this course. Confirm to continue."
 - `PLAYBACK_TOKEN_EXPIRED` — UNAUTHORIZED — client refreshes silently; user sees nothing unless refresh fails — "Reload the lesson to continue watching."
 - `CONFIRMATION_REQUIRED` — UNPROCESSABLE_CONTENT — important download/exam start without confirm flag — (client shows confirm dialog)
 

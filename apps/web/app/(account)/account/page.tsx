@@ -1,12 +1,16 @@
 import * as commerce from '@tokslearn/core/commerce'
+import * as engagement from '@tokslearn/core/engagement'
 import * as enrollments from '@tokslearn/core/enrollments'
+import * as learning from '@tokslearn/core/learning'
 import { buttonClasses } from '@tokslearn/ui/button'
+import { Flame } from 'lucide-react'
 import type { Metadata, Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { CourseCover } from '@/components/catalog/course-cover'
 import { PageHeader } from '@/components/site/page-header'
 import { formatNaira } from '@/lib/format'
+import { clock } from '@/lib/learn-api'
 import { requireSignedInCtx } from '@/lib/require-user'
 
 export const metadata: Metadata = { title: 'My learning', robots: { index: false } }
@@ -18,8 +22,7 @@ const tabs: ReadonlyArray<[Tab, string]> = [
   ['wishlist', 'Wishlist'],
 ]
 
-// docs/20 §3 `/account` (My learning). Continue card, streaks and lesson progress arrive with the
-// learning experience (Phase 5); the lists and progress bars are live now.
+// docs/20 §3 `/account` (My learning): the lesson to continue, the streak, then the course lists.
 export default function MyLearningPage({
   searchParams,
 }: {
@@ -33,11 +36,89 @@ export default function MyLearningPage({
         </Suspense>
       </PageHeader>
       <div className="mx-auto max-w-catalog px-4 pt-10 pb-16 sm:px-6 lg:px-8">
+        <Suspense
+          fallback={<div className="mb-10 h-36 animate-pulse rounded-card bg-surface-sunken" />}
+        >
+          <ContinueAndStreak />
+        </Suspense>
         <Suspense fallback={<div className="h-64 animate-pulse rounded-card bg-surface-sunken" />}>
           <Courses searchParams={searchParams} />
         </Suspense>
       </div>
     </>
+  )
+}
+
+async function ContinueAndStreak() {
+  const ctx = await requireSignedInCtx('/account')
+  const [card, streak] = await Promise.all([
+    learning.continueLearning(ctx),
+    engagement.getStreak(ctx),
+  ])
+  if (!card && streak.current === 0) return null
+  const minutesLeft = Math.max(0, Math.ceil((600 - streak.learnedTodaySec) / 60))
+  return (
+    <div className="mb-10 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+      {card ? (
+        <section
+          aria-labelledby="continue-title"
+          className="flex flex-col gap-4 rounded-card border border-border bg-surface p-4 sm:flex-row sm:items-center sm:p-5"
+        >
+          <div className="w-full shrink-0 sm:w-56">
+            <CourseCover src={card.coverUrl} alt="" sizes="(min-width: 640px) 224px, 92vw" />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <p id="continue-title" className="text-caption font-semibold text-ink-3 uppercase">
+              Continue learning
+            </p>
+            <p className="line-clamp-2 text-h4 text-ink">{card.lessonTitle}</p>
+            <p className="truncate text-body-sm text-ink-2">
+              {card.courseTitle} · {card.progressPct}% done
+            </p>
+            <div>
+              <Link
+                href={`/learn/${card.courseSlug}/${card.lessonId}` as Route}
+                className={buttonClasses({ className: 'mt-1' })}
+              >
+                {card.positionSec > 0 && card.lessonType === 'video'
+                  ? `Resume at ${clock(card.positionSec)}`
+                  : 'Start lesson'}
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
+      <section
+        aria-labelledby="streak-title"
+        className="flex flex-col justify-center gap-1 rounded-card border border-border bg-surface p-5"
+      >
+        <p id="streak-title" className="flex items-center gap-2 text-h4 text-ink">
+          <Flame
+            aria-hidden
+            className={streak.current > 0 ? 'size-5 text-accent' : 'size-5 text-ink-3'}
+          />
+          {streak.current === 1 ? '1-day streak' : `${streak.current}-day streak`}
+        </p>
+        <p className="text-body-sm text-ink-2">
+          {streak.todayCounted
+            ? 'Today counts. Come back tomorrow to keep it going.'
+            : `Finish a lesson or learn for ${minutesLeft} more ${minutesLeft === 1 ? 'minute' : 'minutes'} today to keep it.`}
+        </p>
+        {streak.freezeTokens > 0 ? (
+          <p className="text-caption text-ink-3">
+            {streak.freezeTokens === 1
+              ? '1 streak freeze saved: it covers a day you miss.'
+              : `${streak.freezeTokens} streak freezes saved: each covers a day you miss.`}
+          </p>
+        ) : null}
+        <Link
+          href="/account/badges"
+          className="mt-1 text-body-sm font-medium text-brand-ink hover:underline"
+        >
+          Your badges
+        </Link>
+      </section>
+    </div>
   )
 }
 
@@ -64,6 +145,9 @@ async function TabNav({ searchParams }: { searchParams: Promise<{ tab?: string }
       ))}
       <Link href="/account/orders" className="shrink-0 pb-3 text-body-sm text-ink-2 hover:text-ink">
         Orders
+      </Link>
+      <Link href="/account/notes" className="shrink-0 pb-3 text-body-sm text-ink-2 hover:text-ink">
+        Notes
       </Link>
     </nav>
   )
@@ -135,7 +219,7 @@ async function Courses({ searchParams }: { searchParams: Promise<{ tab?: string 
             sizes="(min-width: 1280px) 290px, (min-width: 640px) 45vw, 92vw"
           />
           <Link
-            href={`/courses/${c.slug}` as Route}
+            href={`/learn/${c.slug}` as Route}
             className="line-clamp-2 text-body font-semibold text-ink hover:text-brand-ink hover:underline"
           >
             {c.title}

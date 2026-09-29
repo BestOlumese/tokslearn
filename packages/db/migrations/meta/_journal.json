@@ -36,6 +36,13 @@
       "when": 1790620827763,
       "tag": "0004_phase4_commerce",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790674987463,
+      "tag": "0005_phase5_learning",
+      "breakpoints": true
     }
   ]
 }

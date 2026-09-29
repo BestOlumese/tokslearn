@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { createDb, type Db } from '../client'
 import {
+  badges,
   categories,
   commissionRules,
   featureFlags,
@@ -13,6 +14,7 @@ import {
   userRoles,
 } from '../schema'
 import {
+  seedBadges,
   seedCategories,
   seedCommissionDefaults,
   seedFeatureFlags,
@@ -191,6 +193,24 @@ export async function seed(db: Db): Promise<void> {
 
   await seedCatalog(db)
   await seedCommission(db)
+  await seedBadgeDefinitions(db)
+}
+
+/** Badge definitions; names and descriptions follow the code, earned badges are untouched. */
+export async function seedBadgeDefinitions(db: Db): Promise<void> {
+  await db
+    .insert(badges)
+    .values(seedBadges.map((b) => ({ ...b, criteria: { ...b.criteria } })))
+    .onConflictDoUpdate({
+      target: badges.code,
+      set: {
+        name: sql`excluded.name`,
+        description: sql`excluded.description`,
+        criteria: sql`excluded.criteria`,
+        iconKey: sql`excluded.icon_key`,
+        position: sql`excluded.position`,
+      },
+    })
 }
 
 /**

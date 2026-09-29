@@ -100,4 +100,10 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     certificate: 'Finish every lesson to get a certificate employers can check.',
     url: 'https://tokslearn.com/account',
   },
+  'lesson-unlocked': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    lessons: ['Reconciling your bank statement', 'Month-end checklist'],
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000001',
+  },
 }

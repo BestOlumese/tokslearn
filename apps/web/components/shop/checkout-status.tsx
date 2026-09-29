@@ -85,7 +85,7 @@ export function CheckoutStatus({ reference }: { reference: string }) {
           {result.courses.map((c) => (
             <li key={c.id} className="flex items-center justify-between gap-4 px-5 py-4">
               <span className="text-body font-medium text-ink">{c.title}</span>
-              <Link href="/account" className={buttonClasses({ size: 'sm' })}>
+              <Link href={`/learn/${c.slug}` as Route} className={buttonClasses({ size: 'sm' })}>
                 Start learning
               </Link>
             </li>
