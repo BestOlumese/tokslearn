@@ -23,6 +23,8 @@ import {
 const BEAT_EVERY_MS = 20_000
 /** Beats closer than this wait for the next one (the server allows 6 a minute). */
 const MIN_GAP_MS = 10_000
+/** A pause is worth saving sooner: short videos can be paused within 10 s of starting. */
+const PAUSE_GAP_MS = 3_000
 const AUTOPLAY_KEY = 'tl:autoplay'
 const PLAYERJS = 'player.js'
 
@@ -153,8 +155,8 @@ export function VideoLesson({
       t.started = true
       return { lessonId, positionSec: Math.floor(t.pos), watchedDeltaSec: watched }
     }
-    const send = (force = false) => {
-      if (!force && Date.now() - t.sentAt < MIN_GAP_MS) return
+    const send = (force = false, gap = MIN_GAP_MS) => {
+      if (!force && Date.now() - t.sentAt < gap) return
       const beat = take()
       if (!beat) return
       t.sentAt = Date.now()
@@ -205,7 +207,7 @@ export function VideoLesson({
       } else if (m.event === 'pause') {
         if (timer) clearInterval(timer)
         timer = null
-        send()
+        send(false, PAUSE_GAP_MS)
       } else if (m.event === 'ended') {
         if (timer) clearInterval(timer)
         timer = null

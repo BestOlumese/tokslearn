@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { lagosDay } from '../engagement'
 import { dripUnlocksAt } from '../enrollments'
+import { resumeTail } from './media'
 import { downloadName } from './outline'
 import { clampWatched, isComplete } from './progress'
 
@@ -81,5 +82,14 @@ describe('lagosDay and downloadName', () => {
     )
     expect(downloadName('a/b: c', 'resource/u/abc')).toBe('a b c')
     expect(downloadName('  ', 'x.pdf')).toBe('download.pdf')
+  })
+})
+
+describe('resumeTail', () => {
+  it('starts from the top only in the last 15 s, or the last 10% of a short video', () => {
+    expect(resumeTail(1900)).toBe(15)
+    expect(resumeTail(60)).toBe(6)
+    expect(resumeTail(10)).toBe(1)
+    expect(resumeTail(3)).toBe(1)
   })
 })

@@ -34,6 +34,7 @@ export {
   checkOrderIntegrity,
   completeOrder,
   markPurchaseConsumed,
+  purchaseRefundState,
   reconcilePendingOrders,
   refundablePurchase,
   startCheckout,

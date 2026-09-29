@@ -15,6 +15,11 @@ module.exports = {
       numberOfRuns: 3,
       settings: {
         skipAudits: ['is-crawlable'],
+        // Vercel injects its preview toolbar (vercel.live) into every preview, never production.
+        // When it starts loading before the first paint, the slow-4G simulation counts a whole
+        // extra connection against LCP (+~1.4 s on /categories, 2026-09-30). Measure what
+        // visitors get: production has no toolbar.
+        blockedUrlPatterns: ['*vercel.live*'],
         ...(bypass
           ? {
               extraHeaders: JSON.stringify({

@@ -1,6 +1,6 @@
 import { schema } from '@tokslearn/db'
 import { and, asc, eq, isNotNull, isNull, sql } from 'drizzle-orm'
-import { refundablePurchase } from '../commerce'
+import { purchaseRefundState } from '../commerce'
 import { dripUnlocksAt, lessonAccess } from '../enrollments'
 import { hasRole, isUser, type UserActor } from '../kernel/actor'
 import type { Ctx } from '../kernel/ctx'
@@ -87,12 +87,17 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
     .select()
     .from(enrollments)
     .where(and(eq(enrollments.userId, actor.userId), eq(enrollments.courseId, course.id)))
+  const expired =
+    enrollment?.accessExpiresAt !== null &&
+    enrollment?.accessExpiresAt !== undefined &&
+    enrollment.accessExpiresAt <= ctx.now
+  const learning =
+    enrollment && (enrollment.status === 'active' || enrollment.status === 'completed') && !expired
+      ? enrollment
+      : null
   if (!teaching) {
     if (!enrollment) throw new ForbiddenError('NOT_ENROLLED')
-    const expired = enrollment.accessExpiresAt !== null && enrollment.accessExpiresAt <= ctx.now
-    if (enrollment.status === 'revoked' || enrollment.status === 'expired' || expired) {
-      throw new ForbiddenError('ENROLLMENT_REVOKED')
-    }
+    if (!learning) throw new ForbiddenError('ENROLLMENT_REVOKED')
   }
 
   const [sectionRows, lessonRows, progressRows] = await Promise.all([
@@ -128,8 +133,10 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
   ])
   const statusOf = new Map(progressRows.map((p) => [p.lessonId, p.status]))
   const lock = (l: (typeof lessonRows)[number]) => {
-    if (teaching || !enrollment || statusOf.has(l.id)) return null
-    const at = dripUnlocksAt(course.dripMode, l, enrollment.createdAt)
+    // Drip follows the enrollment, the same rule as lessonAccess: staff who bought the course are
+    // learners here; staff who didn't see every lesson.
+    if (!learning || l.isPreview || statusOf.has(l.id)) return null
+    const at = dripUnlocksAt(course.dripMode, l, learning.createdAt)
     return at && at > ctx.now ? at : null
   }
   const shaped = sectionRows
@@ -169,7 +176,7 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
       coverUrl: cover?.bucket === 'public' ? publicFileUrl(ctx, cover.key) : null,
       completionThresholdPct: course.completionThresholdPct,
     },
-    role: teaching && !enrollment ? 'teaching' : 'learner',
+    role: teaching && !learning ? 'teaching' : 'learner',
     progressPct: enrollment?.progressPct ?? 0,
     sections: shaped,
     nextLessonId: next?.id ?? null,
@@ -202,6 +209,8 @@ export interface LearnLesson {
   nextLessonId: string | null
   /** The learner's purchase can still be refunded: warn before important downloads. */
   refundable: boolean
+  /** Refund right on the learner's purchase, shown above the files; null without a paid purchase. */
+  refund: { state: 'open'; until: Date } | { state: 'ended' } | null
   /** Light overlay on videos for leak tracing (docs/09 §1): name and a masked email. */
   watermark: string | null
 }
@@ -281,7 +290,7 @@ export async function getLesson(ctx: Ctx, lessonId: string): Promise<LearnLesson
           .where(eq(user.id, actor.userId))
       : Promise.resolve([]),
     actor && access.reason === 'enrolled'
-      ? refundablePurchase(ctx, { userId: actor.userId, courseId: lesson.courseId })
+      ? purchaseRefundState(ctx, { userId: actor.userId, courseId: lesson.courseId })
       : Promise.resolve(null),
   ])
   const files = await getFiles(
@@ -326,7 +335,8 @@ export async function getLesson(ctx: Ctx, lessonId: string): Promise<LearnLesson
     progress: { status: p?.status ?? 'not_started', positionSec: p?.positionSec ?? 0 },
     previousLessonId: index > 0 ? (order[index - 1]?.id ?? null) : null,
     nextLessonId: index >= 0 ? (order[index + 1]?.id ?? null) : null,
-    refundable: purchase !== null,
+    refundable: purchase?.state === 'open',
+    refund: purchase,
     watermark: person ? `${person.name} · ${maskEmail(person.email)}` : null,
   }
 }

@@ -25,9 +25,15 @@ export const learnPlayerRouter = {
   getCourseOutline: authed.learn.getCourseOutline.handler(async ({ context, input }) =>
     toOutline(await learning.getCourseOutline(context.ctx, input.courseSlug)),
   ),
-  getLesson: authed.learn.getLesson.handler(({ context, input }) =>
-    learning.getLesson(context.ctx, input.lessonId),
-  ),
+  getLesson: authed.learn.getLesson.handler(async ({ context, input }) => {
+    const l = await learning.getLesson(context.ctx, input.lessonId)
+    return {
+      ...l,
+      refund: l.refund
+        ? { state: l.refund.state, until: l.refund.state === 'open' ? iso(l.refund.until) : null }
+        : null,
+    }
+  }),
   playback: authed.learn.playback.handler(async ({ context, input }) => {
     const p = await learning.getPlayback(context.ctx, input.lessonId)
     return { ...p, expiresAt: iso(p.expiresAt) }

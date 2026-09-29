@@ -1,6 +1,7 @@
 'use client'
-// Client component: the tabs under a lesson (docs/20 player): Overview, Notes, Resources. Q&A and
-// announcements join in Phase 8. The notes panel's code loads only when its tab opens.
+// Client component: the tabs under a lesson (docs/20 player): Overview and Notes. Files sit under
+// the lesson itself, where learners look for them. Q&A and announcements join in Phase 8. The
+// notes panel's code loads only when its tab opens.
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@tokslearn/ui/tabs'
 import dynamic from 'next/dynamic'
@@ -15,13 +16,10 @@ export function LessonTabs({
   lessonId,
   courseId,
   overview,
-  resources,
 }: {
   lessonId: string
   courseId: string
   overview: ReactNode
-  /** Files attached to a video or article lesson; null when there are none. */
-  resources: ReactNode | null
 }) {
   const [tab, setTab] = useState('overview')
   const [noteAt, setNoteAt] = useState<number | null>(null)
@@ -40,13 +38,11 @@ export function LessonTabs({
       <TabsList aria-label="About this lesson">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="notes">Notes</TabsTrigger>
-        {resources ? <TabsTrigger value="resources">Resources</TabsTrigger> : null}
       </TabsList>
       <TabsContent value="overview">{overview}</TabsContent>
       <TabsContent value="notes">
         <NotesPanel lessonId={lessonId} courseId={courseId} initialTime={noteAt} />
       </TabsContent>
-      {resources ? <TabsContent value="resources">{resources}</TabsContent> : null}
     </Tabs>
   )
 }

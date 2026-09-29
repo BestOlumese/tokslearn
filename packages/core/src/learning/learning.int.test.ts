@@ -269,7 +269,7 @@ describe('progress', () => {
 describe('staff who are also learners', () => {
   it('records progress for an admin who bought the course, and still skips staff who did not', async () => {
     await withRollback(async (db) => {
-      const { env, course, video, article } = await world(db)
+      const { env, course, video, article, resourceLesson } = await world(db)
       const adminId = await insertUser(db, { roles: ['learner', 'admin'] })
       const admin = testUser(['learner', 'admin'], { userId: adminId })
       // Not enrolled: admins can open everything, but it isn't their learning.
@@ -286,6 +286,27 @@ describe('staff who are also learners', () => {
       const outline = await getCourseOutline(env.ctx(admin), course.slug)
       expect(outline.role).toBe('learner')
       expect(outline.sections[0]?.lessons.find((l) => l.id === article)?.status).toBe('completed')
+
+      // Drip applies to them like any learner; a colleague who didn't enroll sees everything.
+      await db
+        .update(schema.courses)
+        .set({ dripMode: 'after_enrollment' })
+        .where(eq(schema.courses.id, course.id))
+      await db
+        .update(schema.lessons)
+        .set({ dripOffsetDays: 30 })
+        .where(eq(schema.lessons.id, resourceLesson))
+      expect(await codeOf(getLesson(env.ctx(admin, new Date()), resourceLesson))).toBe(
+        'LESSON_LOCKED',
+      )
+      const locked = (await getCourseOutline(env.ctx(admin, new Date()), course.slug)).sections
+        .flatMap((s) => s.lessons)
+        .find((l) => l.id === resourceLesson)
+      expect(locked?.locked).toBe(true)
+      const otherAdmin = testUser(['learner', 'admin'], {
+        userId: await insertUser(db, { roles: ['learner', 'admin'] }),
+      })
+      expect((await getLesson(env.ctx(otherAdmin), resourceLesson)).id).toBe(resourceLesson)
     })
   })
 })
@@ -298,7 +319,9 @@ describe('refund consumption', () => {
       expect(
         await codeOf(downloadResource(c, { lessonId: resourceLesson, resourceId: resource })),
       ).toBe('DOWNLOAD_CONFIRM_REQUIRED')
-      expect((await getLesson(c, resourceLesson)).refundable).toBe(true)
+      const before = await getLesson(c, resourceLesson)
+      expect(before.refundable).toBe(true)
+      expect(before.refund).toMatchObject({ state: 'open', until: expect.any(Date) })
       const file = await downloadResource(c, {
         lessonId: resourceLesson,
         resourceId: resource,
@@ -326,8 +349,10 @@ describe('refund consumption', () => {
       expect(
         (await entriesFor(c, { type: 'order', id: order.orderId })).map((e) => e.kind),
       ).toEqual(['sale', 'release'])
-      // Nothing left to protect: no more confirmation.
-      expect((await getLesson(c, resourceLesson)).refundable).toBe(false)
+      // Nothing left to protect: no more confirmation, and the page says the window has ended.
+      const after = await getLesson(c, resourceLesson)
+      expect(after.refundable).toBe(false)
+      expect(after.refund).toEqual({ state: 'ended' })
       await downloadResource(c, { lessonId: resourceLesson, resourceId: resource })
       const logged = await db
         .select()

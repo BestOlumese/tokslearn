@@ -252,15 +252,15 @@ export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAc
       and(eq(enrollments.courseId, courses.id), eq(enrollments.userId, actor.userId)),
     )
     .where(eq(courses.id, row.courseId))
-  const privileged =
-    canSeeEveryCourse(actor) || row.instructorId === actor.userId || Boolean(facts?.staff)
   const expired =
     facts?.accessExpiresAt !== null &&
     facts?.accessExpiresAt !== undefined &&
     facts.accessExpiresAt <= ctx.now
   const active = facts?.status === 'active' || facts?.status === 'completed'
   if (facts?.enrolledAt && active && !expired && row.live) {
-    if (preview || privileged) return ok('enrolled')
+    // Enrolled means learner, drip included, even for staff: an admin testing a course they
+    // bought sees what learners see. Staff who aren't enrolled see everything (below).
+    if (preview) return ok('enrolled')
     const unlocksAt = dripUnlocksAt(row.dripMode, row, facts.enrolledAt)
     if (unlocksAt && unlocksAt > ctx.now) {
       // Drip moved later after the learner started: what they opened stays open (ADR-034).
