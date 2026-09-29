@@ -16,8 +16,12 @@ import { markLessonComplete } from './progress'
 
 const { lessons, lessonResources, lessonProgress, consumptionEvents } = schema
 
-/** Seconds before the end where we start from the top instead of resuming. */
-const RESUME_TAIL_SEC = 15
+/**
+ * Stopped this close to the end, start from the top instead of resuming: the last 15 s, or the
+ * last 10% for short videos (a 10 s clip resumes unless stopped in its final second).
+ */
+export const resumeTail = (durationSec: number) =>
+  Math.min(15, Math.max(1, Math.floor(durationSec * 0.1)))
 
 async function allowedLesson(ctx: Ctx, lessonId: string) {
   const access = await lessonAccess(ctx, lessonId)
@@ -55,7 +59,8 @@ export async function getPlayback(ctx: Ctx, lessonId: string): Promise<Playback>
         and(eq(lessonProgress.userId, ctx.actor.userId), eq(lessonProgress.lessonId, lesson.id)),
       )
     const nearEnd =
-      lesson.durationSec > 0 && (p?.position ?? 0) >= lesson.durationSec - RESUME_TAIL_SEC
+      lesson.durationSec > 0 &&
+      (p?.position ?? 0) >= lesson.durationSec - resumeTail(lesson.durationSec)
     resumeAt = p && p.status !== 'completed' && !nearEnd ? p.position : 0
   }
   return { ...urls, resumeAt }

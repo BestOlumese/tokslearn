@@ -76,6 +76,7 @@ const LearnLessonShape = z.object({
   previousLessonId: z.uuid().nullable(),
   nextLessonId: z.uuid().nullable(),
   refundable: z.boolean(),
+  refund: z.object({ state: z.enum(['open', 'ended']), until: IsoDateTime.nullable() }).nullable(),
   watermark: z.string().nullable(),
 })
 export type LearnLessonDto = z.infer<typeof LearnLessonShape>

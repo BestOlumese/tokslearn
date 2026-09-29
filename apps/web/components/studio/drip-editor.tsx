@@ -140,7 +140,7 @@ function DripForm({ initial }: { initial: DripSettingsDto }) {
             title={mode === 'after_enrollment' ? 'Days after enrolling' : 'Opening dates'}
             description={
               mode === 'after_enrollment'
-                ? 'Leave a lesson empty or at 0 to open it straight away.'
+                ? 'Counted from each learner’s own enrollment date, so someone who joined 10 days ago already has a “7 days” lesson. Leave a lesson empty or at 0 to open it straight away.'
                 : 'Dates are in Lagos time; a lesson opens at midnight. Leave empty to open it straight away.'
             }
           >

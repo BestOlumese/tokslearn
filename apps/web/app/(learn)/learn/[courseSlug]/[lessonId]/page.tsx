@@ -210,15 +210,6 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
                   progressPct={outline.role === 'learner' ? outline.progressPct : null}
                 />
               }
-              resources={
-                lesson.type !== 'resource' && lesson.resources.length > 0 ? (
-                  <ResourceList
-                    lessonId={lesson.id}
-                    resources={lesson.resources}
-                    refundable={lesson.refundable}
-                  />
-                ) : null
-              }
             />
           ) : null}
         </div>
@@ -255,6 +246,19 @@ function LessonBody({
       <p className="mt-1 text-body-sm text-ink-2">{lessonMeta(lesson)}</p>
     </div>
   )
+  const list = (
+    <ResourceList lessonId={lesson.id} resources={lesson.resources} refund={lesson.refund} />
+  )
+  // Files an instructor attached to a video or article sit right under it (docs/20 player).
+  const files =
+    lesson.resources.length > 0 ? (
+      <section aria-labelledby="lesson-files" className="flex flex-col gap-3">
+        <h2 id="lesson-files" className="text-h4 text-ink">
+          Files for this lesson
+        </h2>
+        {list}
+      </section>
+    ) : null
   if (lesson.type === 'video') {
     return (
       <>
@@ -270,6 +274,7 @@ function LessonBody({
           initialStatus={lesson.progress.status}
         />
         {heading}
+        {files}
       </>
     )
   }
@@ -284,6 +289,7 @@ function LessonBody({
             <p className="text-body text-ink-2">This article is empty.</p>
           )}
         </article>
+        {files}
       </>
     )
   }
@@ -292,11 +298,7 @@ function LessonBody({
       <>
         {heading}
         {lesson.resources.length > 0 ? (
-          <ResourceList
-            lessonId={lesson.id}
-            resources={lesson.resources}
-            refundable={lesson.refundable}
-          />
+          list
         ) : (
           <p className="text-body text-ink-2">No files in this lesson yet.</p>
         )}
@@ -309,6 +311,7 @@ function LessonBody({
       <p className="rounded-card border border-border bg-surface p-6 text-body text-ink-2">
         This kind of lesson can’t be opened on Tokslearn yet. Mark it complete to carry on.
       </p>
+      {files}
     </>
   )
 }

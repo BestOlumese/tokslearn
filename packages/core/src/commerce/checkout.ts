@@ -1,6 +1,6 @@
 import { publicId, schema } from '@tokslearn/db'
 import { ProviderError } from '@tokslearn/integrations/paystack'
-import { and, eq, gt, isNotNull, lt, or, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, inArray, isNotNull, lt, or, sql } from 'drizzle-orm'
 import { getSetting } from '../admin'
 import { track } from '../analytics'
 import { grantEnrollment } from '../enrollments'
@@ -667,6 +667,37 @@ export async function markPurchaseConsumed(
     }
     return { released: pending && share > 0n }
   })
+}
+
+/**
+ * Where the user's refund right for a course stands, for the player's files list: `open` until a
+ * date, `ended` (window passed, content consumed, or a no-refund course), or null when there was
+ * no paid purchase (free course, bundle gift, staff).
+ */
+export async function purchaseRefundState(
+  ctx: Ctx,
+  input: { userId: string; courseId: string },
+): Promise<{ state: 'open'; until: Date } | { state: 'ended' } | null> {
+  const [row] = await ctx.db
+    .select({ status: orderItems.status, refundableUntil: orderItems.refundableUntil })
+    .from(orderItems)
+    .innerJoin(orders, eq(orders.id, orderItems.orderId))
+    .where(
+      and(
+        eq(orders.userId, input.userId),
+        eq(orderItems.courseId, input.courseId),
+        eq(orders.status, 'paid'),
+        inArray(orderItems.status, ['active', 'non_refundable']),
+        gt(orderItems.netPriceKobo, 0n),
+      ),
+    )
+    .orderBy(desc(orders.paidAt))
+    .limit(1)
+  if (!row) return null
+  if (row.status === 'active' && row.refundableUntil && row.refundableUntil > ctx.now) {
+    return { state: 'open', until: row.refundableUntil }
+  }
+  return { state: 'ended' }
 }
 
 /**
