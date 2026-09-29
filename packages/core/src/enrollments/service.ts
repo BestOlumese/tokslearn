@@ -198,7 +198,8 @@ export function dripUnlocksAt(
 
 /**
  * docs/10 §2 `canAccessLesson`: previews are open to everyone; otherwise an active enrollment,
- * and drip decides when. The course's instructor, its staff, reviewers and admins always get in.
+ * and drip decides when. The course's instructor, its staff, reviewers and admins always get in;
+ * only an enrollment makes it `enrolled` (progress, streaks, refund evidence).
  */
 export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAccess> {
   const [row] = await ctx.db
@@ -229,14 +230,15 @@ export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAc
     courseId: row.courseId,
   })
   const actor = isUser(ctx.actor) ? ctx.actor : null
-  if (actor && canSeeEveryCourse(actor)) return ok('staff')
-  if (actor && row.instructorId === actor.userId) return ok('teaching')
-  if (!row.live) return deny('missing', row.courseId)
   const courseLive = row.courseStatus === 'published' || row.courseStatus === 'unlisted'
-  const preview = row.isPreview && courseLive
-  if (!actor) return preview ? ok('preview') : deny('not_enrolled', row.courseId)
+  const preview = row.live && row.isPreview && courseLive
+  if (!actor) {
+    if (preview) return ok('preview')
+    return deny(row.live ? 'not_enrolled' : 'missing', row.courseId)
+  }
 
-  // Enrolled learners come first, so their progress on preview lessons counts too.
+  // The enrollment comes first: a learner who is also staff (an admin who bought the course)
+  // still builds progress. Staff roles, the instructor and TAs get in without one.
   const [facts] = await ctx.db
     .select({
       staff: sql<boolean>`exists (select 1 from course_staff cs where cs.course_id = ${row.courseId} and cs.user_id = ${actor.userId})`,
@@ -250,14 +252,15 @@ export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAc
       and(eq(enrollments.courseId, courses.id), eq(enrollments.userId, actor.userId)),
     )
     .where(eq(courses.id, row.courseId))
-  if (facts?.staff) return ok('teaching')
+  const privileged =
+    canSeeEveryCourse(actor) || row.instructorId === actor.userId || Boolean(facts?.staff)
   const expired =
     facts?.accessExpiresAt !== null &&
     facts?.accessExpiresAt !== undefined &&
     facts.accessExpiresAt <= ctx.now
   const active = facts?.status === 'active' || facts?.status === 'completed'
-  if (facts?.enrolledAt && active && !expired) {
-    if (preview) return ok('enrolled')
+  if (facts?.enrolledAt && active && !expired && row.live) {
+    if (preview || privileged) return ok('enrolled')
     const unlocksAt = dripUnlocksAt(row.dripMode, row, facts.enrolledAt)
     if (unlocksAt && unlocksAt > ctx.now) {
       // Drip moved later after the learner started: what they opened stays open (ADR-034).
@@ -270,6 +273,10 @@ export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAc
     }
     return ok('enrolled')
   }
+  if (canSeeEveryCourse(actor)) return ok('staff')
+  if (row.instructorId === actor.userId) return ok('teaching')
+  if (!row.live) return deny('missing', row.courseId)
+  if (facts?.staff) return ok('teaching')
   if (preview) return ok('preview')
   if (facts?.status) return deny('revoked', row.courseId)
   return deny('not_enrolled', row.courseId)

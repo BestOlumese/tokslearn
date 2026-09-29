@@ -16,6 +16,8 @@ const post = (path: `/${string}`, tag: string, summary: string, description: str
 
 export const ProgressStatus = z.enum(['not_started', 'in_progress', 'completed'])
 const Seconds = z.number().int().min(0).max(86_400)
+/** A moment in a video, as the player reports it (fractions allowed; stored as whole seconds). */
+const Moment = z.number().min(0).max(86_400)
 
 const OutlineLessonShape = z.object({
   id: z.uuid(),
@@ -251,7 +253,7 @@ export const notesContract = {
     .input(
       z.strictObject({
         lessonId: z.uuid(),
-        positionSec: Seconds.nullable().optional(),
+        positionSec: Moment.nullable().optional(),
         body: NoteBody,
       }),
     )
@@ -294,7 +296,7 @@ export const bookmarksContract = {
     'Bookmark or un-bookmark',
     'A lesson, or a moment in a video. Calling it again removes the bookmark.',
   )
-    .input(z.strictObject({ lessonId: z.uuid(), positionSec: Seconds.nullable().optional() }))
+    .input(z.strictObject({ lessonId: z.uuid(), positionSec: Moment.nullable().optional() }))
     .output(z.object({ bookmarked: z.boolean() })),
 }
 

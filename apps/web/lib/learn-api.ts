@@ -120,7 +120,8 @@ export const BOOKMARKS_EVENT = 'tl:bookmarks'
 let currentTime: number | null = null
 
 /** Seconds into the video now playing on this page, or null (no video, or not started). */
-export const videoTime = (): number | null => currentTime
+export const videoTime = (): number | null =>
+  currentTime === null ? null : Math.floor(currentTime)
 
 export function publishTime(sec: number | null): void {
   currentTime = sec

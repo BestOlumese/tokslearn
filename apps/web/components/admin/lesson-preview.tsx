@@ -6,6 +6,7 @@ import { Button } from '@tokslearn/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@tokslearn/ui/dialog'
 import { Skeleton } from '@tokslearn/ui/skeleton'
 import { useState } from 'react'
+import { EmbedFrame } from '@/components/embed-frame'
 import { RichHtml } from '@/components/rich-html'
 import { apiErrorMessage } from '@/lib/api-error'
 import { orpc } from '@/lib/orpc'
@@ -43,7 +44,7 @@ export function LessonPreview({
             {d.type === 'video' ? (
               d.embedUrl ? (
                 <div className="aspect-video w-full overflow-hidden rounded-card bg-ink">
-                  <iframe
+                  <EmbedFrame
                     src={d.embedUrl}
                     title={d.title}
                     loading="lazy"

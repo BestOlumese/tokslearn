@@ -18,8 +18,14 @@ import {
   toggleBookmark,
   updateNote,
 } from '../engagement'
-import { learnerDisplayName, listCourseLearners, revokeEnrollment } from '../enrollments'
+import {
+  grantEnrollment,
+  learnerDisplayName,
+  listCourseLearners,
+  revokeEnrollment,
+} from '../enrollments'
 import type { UserActor } from '../kernel/actor'
+import { inTransaction } from '../kernel/ctx'
 import { insertUser, testUser } from '../kernel/testing'
 import { balances, entriesFor, instructorAccount } from '../ledger'
 import { codeOf, people, publishCourse, setup } from '../testing'
@@ -260,6 +266,30 @@ describe('progress', () => {
   })
 })
 
+describe('staff who are also learners', () => {
+  it('records progress for an admin who bought the course, and still skips staff who did not', async () => {
+    await withRollback(async (db) => {
+      const { env, course, video, article } = await world(db)
+      const adminId = await insertUser(db, { roles: ['learner', 'admin'] })
+      const admin = testUser(['learner', 'admin'], { userId: adminId })
+      // Not enrolled: admins can open everything, but it isn't their learning.
+      expect((await markLessonComplete(env.ctx(admin), article)).recorded).toBe(false)
+      await inTransaction(env.ctx({ kind: 'system', reason: 'test' }), (tx) =>
+        grantEnrollment(tx, { userId: adminId, courseId: course.id, source: 'free' }),
+      )
+      expect(await markLessonComplete(env.ctx(admin), article)).toMatchObject({
+        recorded: true,
+        completedNow: true,
+        courseProgressPct: 33,
+      })
+      expect((await beat(env, admin, video, 0, 60, 20)).recorded).toBe(true)
+      const outline = await getCourseOutline(env.ctx(admin), course.slug)
+      expect(outline.role).toBe('learner')
+      expect(outline.sections[0]?.lessons.find((l) => l.id === article)?.status).toBe('completed')
+    })
+  })
+})
+
 describe('refund consumption', () => {
   it('asks before an important download, then ends the refund right and releases the earning', async () => {
     await withRollback(async (db) => {
@@ -275,6 +305,12 @@ describe('refund consumption', () => {
         confirmed: true,
       })
       expect(file.filename).toMatch(/^Month-end template/)
+      // Taking a file completes a file lesson.
+      const [done] = await db
+        .select({ status: schema.lessonProgress.status })
+        .from(schema.lessonProgress)
+        .where(eq(schema.lessonProgress.lessonId, resourceLesson))
+      expect(done?.status).toBe('completed')
       expect(file.url).toBeTruthy()
 
       const [item] = await db
