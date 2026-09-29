@@ -18,7 +18,7 @@
 
 ## Acceptance
 - [x] Non-enrolled users cannot obtain playback or resource URLs (tests). (`learning.int.test.ts` in core and api: strangers, visitors and revoked learners.)
-- [ ] Refresh mid-video resumes within 20 s of last position. (Core test, and in a browser against a player.js stand-in: refreshed at ~0:24, resumed at 0:23. Needs the owner's check on the preview with real Bunny video.)
+- [x] Refresh mid-video resumes within 20 s of last position. (Core test; browser test against a player.js stand-in: refreshed at ~0:24, resumed at 0:23; owner confirmed on production with real Bunny video, 2026-09-30.)
 - [x] Fake watch-time (heartbeats claiming 10 min in 1 min) is clamped (test). (Three beats claiming 600 s, 20 s apart, credit 45 s each.)
 - [x] Downloading an important resource marks item non-refundable and releases earning (integration test). (Also: 30% of the video watched does the same.)
 - [x] Player shell INP < 200 ms on mid-range Android profile. (Moto G4 emulation, 4× CPU, slow 4G: worst interaction 80 ms, opening the outline sheet.)
