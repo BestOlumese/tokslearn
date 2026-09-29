@@ -15,6 +15,8 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 import { baseColumns, currency, kobo, timestamps, tstz } from '../columns'
+import { quizzes } from './assessments'
+import { assignments } from './assignments'
 import { categories, tags } from './catalog'
 import { user } from './identity'
 import { files, videoAssets } from './media'
@@ -215,9 +217,9 @@ export const lessons = pgTable(
     videoAssetId: uuid().references(() => videoAssets.id, { onDelete: 'restrict' }),
     articleDoc: jsonb().$type<Record<string, unknown>>(),
     articleHtml: text(),
-    /** FKs to quizzes, assignments and live sessions arrive with Phases 6 and 8. */
-    quizId: uuid(),
-    assignmentId: uuid(),
+    /** Quiz and exam lessons (Phase 6). The live-session FK arrives with Phase 8. */
+    quizId: uuid().references((): AnyPgColumn => quizzes.id, { onDelete: 'restrict' }),
+    assignmentId: uuid().references((): AnyPgColumn => assignments.id, { onDelete: 'restrict' }),
     liveSessionId: uuid(),
     dripOffsetDays: smallint(),
     dripDate: tstz(),
@@ -229,6 +231,8 @@ export const lessons = pgTable(
     index().on(t.courseId, t.sectionId, t.position),
     index().on(t.sectionId),
     index().on(t.videoAssetId),
+    uniqueIndex().on(t.quizId),
+    uniqueIndex().on(t.assignmentId),
   ],
 )
 

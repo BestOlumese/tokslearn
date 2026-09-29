@@ -1,4 +1,6 @@
 export * from './admin'
+export * from './assessments'
+export * from './assignments'
 export * from './catalog'
 export * from './commerce'
 export * from './courses'

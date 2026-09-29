@@ -92,6 +92,21 @@ export {
   serverEvents,
 } from './analytics'
 export {
+  AcceptedText,
+  AnswerKey,
+  type AnswerKeyOf,
+  AnyLearnerAnswer,
+  defaultQuizSettings,
+  LearnerAnswer,
+  type LearnerAnswerOf,
+  QuestionOptions,
+  type QuestionOptionsOf,
+  QuestionType,
+  QuizKind,
+  QuizSettings,
+  ShowAnswers,
+} from './assessments'
+export {
   AdminCourseRow,
   CategoryDirectoryDto,
   CategoryRow,
