@@ -37,6 +37,7 @@ CREATE TABLE "questions" (
 	"prompt_html" text NOT NULL,
 	"options" jsonb NOT NULL,
 	"answer" jsonb NOT NULL,
+	"explanation_doc" jsonb,
 	"explanation_html" text,
 	"points" smallint DEFAULT 1 NOT NULL,
 	"difficulty" "question_difficulty",

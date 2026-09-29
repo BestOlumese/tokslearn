@@ -39,6 +39,7 @@ export {
   type ChecklistKey,
   canEditCourse,
   canReviewCourses,
+  canViewCourseInStudio,
   checklistKeys,
   MAX_PRICE_KOBO,
   MIN_PAID_PRICE_KOBO,

@@ -625,7 +625,11 @@ export async function checkOrderIntegrity(ctx: Ctx) {
  */
 export async function markPurchaseConsumed(
   ctx: Ctx,
-  input: { userId: string; courseId: string; reason: 'important_download' | 'content_consumed' },
+  input: {
+    userId: string
+    courseId: string
+    reason: 'important_download' | 'content_consumed' | 'exam_started'
+  },
 ): Promise<{ released: boolean }> {
   return inTransaction(ctx, async (tx) => {
     const [item] = await tx.db

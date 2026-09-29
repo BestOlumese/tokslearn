@@ -1,5 +1,5 @@
 {
-  "id": "99583ca2-a8f1-4543-8c51-ee266058f301",
+  "id": "2411bbea-a752-47d4-8729-7539a1f9c81d",
   "prevId": "0744589e-96ad-4dc9-bb95-4bf3ce0d5e5b",
   "version": "7",
   "dialect": "postgresql",
@@ -856,6 +856,12 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
+        },
+        "explanation_doc": {
+          "name": "explanation_doc",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         },
         "explanation_html": {
           "name": "explanation_html",

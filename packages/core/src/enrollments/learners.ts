@@ -54,7 +54,7 @@ export async function listCourseLearners(
     .select({
       id: courses.id,
       instructorId: courses.instructorId,
-      staff: sql<boolean>`exists (select 1 from course_staff cs where cs.course_id = ${courses.id} and cs.user_id = ${actor.userId})`,
+      staff: sql<boolean>`exists (select 1 from course_staff cs where cs.course_id = "courses"."id" and cs.user_id = ${actor.userId})`,
     })
     .from(courses)
     .where(and(eq(courses.id, input.courseId), isNull(courses.deletedAt)))

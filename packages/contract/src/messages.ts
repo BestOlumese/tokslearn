@@ -40,6 +40,12 @@ export const errorCatalog = {
   COUPON_NOT_FOUND: notFound('coupon'),
   COMMISSION_RULE_NOT_FOUND: notFound('commission rule'),
   NOTE_NOT_FOUND: notFound('note'),
+  QUESTION_BANK_NOT_FOUND: notFound('question bank'),
+  QUESTION_NOT_FOUND: notFound('question'),
+  QUIZ_NOT_FOUND: notFound('quiz'),
+  ATTEMPT_NOT_FOUND: notFound('attempt'),
+  ASSIGNMENT_NOT_FOUND: notFound('assignment'),
+  SUBMISSION_NOT_FOUND: notFound('submission'),
   RESOURCE_NOT_FOUND: notFound('file'),
   FILE_NOT_FOUND: notFound('file'),
   SESSION_NOT_FOUND: notFound('session'),
@@ -239,6 +245,14 @@ export const errorCatalog = {
   RESUBMISSION_NOT_ALLOWED: {
     status: 'UNPROCESSABLE_CONTENT',
     message: "This assignment doesn't allow resubmissions.",
+  },
+  QUIZ_EMPTY: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'This quiz has no questions yet. Check back later.',
+  },
+  SUBMISSION_ALREADY_GRADED: {
+    status: 'CONFLICT',
+    message: 'This submission has already been graded.',
   },
 
   // Certificates

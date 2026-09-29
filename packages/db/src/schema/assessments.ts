@@ -73,6 +73,8 @@ export const questions = pgTable(
     options: jsonb().$type<unknown>().notNull(),
     /** Never sent to clients. */
     answer: jsonb().$type<unknown>().notNull(),
+    /** Shown after answering, per the quiz's `show_answers` setting. */
+    explanationDoc: jsonb().$type<Record<string, unknown>>(),
     explanationHtml: text(),
     points: smallint().notNull().default(1),
     difficulty: difficultyEnum(),

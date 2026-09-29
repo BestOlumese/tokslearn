@@ -8,6 +8,7 @@
     "./kernel": "./src/kernel/index.ts",
     "./admin": "./src/admin/index.ts",
     "./analytics": "./src/analytics/index.ts",
+    "./assessments": "./src/assessments/index.ts",
     "./catalog": "./src/catalog/index.ts",
     "./commerce": "./src/commerce/index.ts",
     "./courses": "./src/courses/index.ts",

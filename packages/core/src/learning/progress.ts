@@ -333,11 +333,24 @@ export async function markLessonComplete(ctx: Ctx, lessonId: string): Promise<He
       streakExtendedTo: null,
     }
   }
+  return completeLessonFor(ctx, { userId: actor.userId, lesson })
+}
+
+/**
+ * Completes a lesson for a learner (idempotent). For modules that decide completion themselves,
+ * e.g. assessments when a quiz is passed, including the auto-submit job, which has no signed-in
+ * user. The caller has already checked the learner is enrolled.
+ */
+export async function completeLessonFor(
+  ctx: Ctx,
+  input: { userId: string; lesson: { id: string; courseId: string; type: string } },
+): Promise<HeartbeatResult> {
+  const { userId, lesson } = input
   const result = await inTransaction(ctx, async (tx) => {
     const [existing] = await tx.db
       .select()
       .from(lessonProgress)
-      .where(and(eq(lessonProgress.userId, actor.userId), eq(lessonProgress.lessonId, lesson.id)))
+      .where(and(eq(lessonProgress.userId, userId), eq(lessonProgress.lessonId, lesson.id)))
       .for('update')
     if (existing?.status === 'completed') {
       return { completedNow: false, pct: null, streak: null, position: existing.positionSec }
@@ -345,7 +358,7 @@ export async function markLessonComplete(ctx: Ctx, lessonId: string): Promise<He
     await tx.db
       .insert(lessonProgress)
       .values({
-        userId: actor.userId,
+        userId,
         lessonId: lesson.id,
         courseId: lesson.courseId,
         status: 'completed',
@@ -355,12 +368,8 @@ export async function markLessonComplete(ctx: Ctx, lessonId: string): Promise<He
         target: [lessonProgress.userId, lessonProgress.lessonId],
         set: { status: 'completed', completedAt: tx.now },
       })
-    const pct = await afterLessonCompleted(tx, actor.userId, lesson.courseId, lesson.id)
-    const streak = await recordLearning(tx, {
-      userId: actor.userId,
-      learnedSec: 0,
-      lessonsCompleted: 1,
-    })
+    const pct = await afterLessonCompleted(tx, userId, lesson.courseId, lesson.id)
+    const streak = await recordLearning(tx, { userId, learnedSec: 0, lessonsCompleted: 1 })
     return {
       completedNow: true,
       pct,
@@ -373,9 +382,9 @@ export async function markLessonComplete(ctx: Ctx, lessonId: string): Promise<He
       ctx,
       'lesson_completed',
       { course_id: lesson.courseId, lesson_id: lesson.id, lesson_type: lesson.type },
-      { distinctId: actor.userId },
+      { distinctId: userId },
     )
-    await ctx.cache.invalidate([cacheTags.userEnrollments(actor.userId)])
+    await ctx.cache.invalidate([cacheTags.userEnrollments(userId)])
   }
   return {
     recorded: true,

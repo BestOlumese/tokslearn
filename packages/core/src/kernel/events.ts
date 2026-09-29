@@ -32,6 +32,31 @@ export interface DomainEvents {
   'lesson.completed': { userId: string; courseId: string; lessonId: string }
   'course.completed': { userId: string; courseId: string }
   'streak.extended': { userId: string; length: number }
+  'quiz.submitted': {
+    userId: string
+    courseId: string
+    quizId: string
+    attemptId: string
+    kind: 'practice' | 'graded' | 'exam'
+    passed: boolean
+  }
+  /** Certificates (Phase 7) listen for this. */
+  'exam.passed': { userId: string; courseId: string; quizId: string; attemptId: string }
+  'attempt.voided': { userId: string; courseId: string; quizId: string; attemptId: string }
+  'assignment.submitted': {
+    userId: string
+    courseId: string
+    assignmentId: string
+    submissionId: string
+  }
+  'assignment.graded': {
+    userId: string
+    courseId: string
+    assignmentId: string
+    submissionId: string
+    decision: 'graded' | 'returned'
+    passed: boolean | null
+  }
   'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }
   'order.failed': { orderId: string; reason: string }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */
