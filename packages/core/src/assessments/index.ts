@@ -56,3 +56,10 @@ export {
   type Integrity,
   type IntegrityKind,
 } from './integrity'
+export {
+  type AttemptReview,
+  type FlaggedAttempt,
+  getAttemptForReview,
+  listFlaggedAttempts,
+  voidAttempt,
+} from './review'

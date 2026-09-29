@@ -9,6 +9,7 @@
     "./admin": "./src/admin/index.ts",
     "./analytics": "./src/analytics/index.ts",
     "./assessments": "./src/assessments/index.ts",
+    "./assignments": "./src/assignments/index.ts",
     "./catalog": "./src/catalog/index.ts",
     "./commerce": "./src/commerce/index.ts",
     "./courses": "./src/courses/index.ts",

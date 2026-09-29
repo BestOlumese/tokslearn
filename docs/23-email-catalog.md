@@ -32,7 +32,8 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `payment-failed` | verify failed after attempt | Your payment for {course} didn't go through | You weren't charged; retry link to cart | transactional |
 | `lesson-unlocked` | drip job (07:00 Lagos, one per learner per course per day) | New lesson available in {course} | Lesson title (plus any others that opened the same day), button to the first | activity |
 | `live-reminder-24h` / `-15m` | live reminders | {session} starts {tomorrow at 7:00 pm / in 15 minutes} | Time in Lagos time, join button, add-to-calendar (.ics) | activity |
-| `assignment-graded` | `assignment.graded` | Your assignment in {course} has been graded | Score, pass/fail, feedback excerpt, view button | activity |
+| `assignment-graded` | `assignment.graded` | Your assignment in {course} has been graded | Score, pass/fail (or "sent back for changes"), feedback excerpt, view button | activity |
+| `attempt-voided` | `attempt.voided` | Your exam attempt in {course} was cancelled | The instructor's reason, that the attempt no longer counts and can be taken again, button to the exam | transactional |
 | `certificate-issued` | `certificate.issued` | Your certificate for {course} | Congratulate plainly, download PDF, verification link, LinkedIn add | transactional |
 | `qa-answered` | answer to my question | {instructor} answered your question | Question title, answer excerpt, view | activity |
 | `thread-reply` / `mention` | replies/mentions (digest if > 5/h) | New replies in {course} discussions | List of threads with counts | activity |

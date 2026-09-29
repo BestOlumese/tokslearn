@@ -1,13 +1,13 @@
 import { schema } from '@tokslearn/db'
 import { and, eq, isNull, sql } from 'drizzle-orm'
-import { canEditCourse, canViewCourseInStudio } from '../courses'
 import type { UserActor } from '../kernel/actor'
 import type { Ctx } from '../kernel/ctx'
 import { ForbiddenError, NotFoundError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
+import { canEditCourse, canViewCourseInStudio } from './rules'
 
-// Who may author assessments: the course's instructor (and admins) edit; its TAs can look.
-// Foreign reads (docs/03 §3): courses, course_staff.
+// Studio access for modules that hang work off a course (assessments, assignments, grading):
+// the instructor and admins edit; the course's TAs can look, and grade.
 
 const { courses } = schema
 
@@ -15,6 +15,8 @@ export interface StudioCourseRef {
   id: string
   instructorId: string
   canEdit: boolean
+  /** Instructor, the course's TAs and admins grade (docs/07 permission matrix). */
+  canGrade: boolean
   user: UserActor
 }
 
@@ -38,5 +40,11 @@ export async function studioCourse(
   }
   const canEdit = canEditCourse(user, course)
   if (need === 'edit' && !canEdit) throw new ForbiddenError('NOT_COURSE_OWNER')
-  return { id: course.id, instructorId: course.instructorId, canEdit, user }
+  return {
+    id: course.id,
+    instructorId: course.instructorId,
+    canEdit,
+    canGrade: canEdit || course.staff,
+    user,
+  }
 }

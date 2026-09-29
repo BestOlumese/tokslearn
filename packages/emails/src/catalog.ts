@@ -78,6 +78,26 @@ export interface EmailData {
     certificate: string | null
     url: string
   }
+  'assignment-graded': {
+    name: string
+    courseTitle: string
+    assignmentTitle: string
+    /** "graded", or "returned" for resubmission. */
+    decision: 'graded' | 'returned'
+    /** e.g. "18 / 20", or null when returned without a score. */
+    score: string | null
+    passed: boolean | null
+    /** First words of the feedback, plain text. */
+    feedbackExcerpt: string | null
+    url: string
+  }
+  'attempt-voided': {
+    name: string
+    courseTitle: string
+    examTitle: string
+    reason: string
+    url: string
+  }
   'lesson-unlocked': {
     name: string
     courseTitle: string
@@ -108,6 +128,8 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'order-receipt': 'transactional',
   'enrollment-free': 'transactional',
   'lesson-unlocked': 'activity',
+  'assignment-graded': 'activity',
+  'attempt-voided': 'transactional',
 }
 
 export const emailIds = Object.keys(emailCategory) as EmailId[]

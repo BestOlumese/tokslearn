@@ -44,6 +44,8 @@ export const files = pgTable(
     key: text().notNull().unique(),
     mime: text().notNull(),
     sizeBytes: bigint({ mode: 'number' }).notNull(),
+    /** The name it had on the uploader's device, cleaned (shown to graders, never used as a key). */
+    originalName: text(),
     sha256: text(),
     purpose: filePurposeEnum().notNull(),
     status: fileStatusEnum().notNull().default('pending_upload'),

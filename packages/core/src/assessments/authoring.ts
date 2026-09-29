@@ -7,11 +7,17 @@ import {
 } from '@tokslearn/contract'
 import { schema } from '@tokslearn/db'
 import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm'
-import { addLesson, renderRichText, richTextToPlain, type StudioCourse } from '../courses'
+import {
+  addLesson,
+  renderRichText,
+  richTextToPlain,
+  type StudioCourse,
+  type StudioCourseRef,
+  studioCourse,
+} from '../courses'
 import type { Ctx } from '../kernel/ctx'
 import { inTransaction } from '../kernel/ctx'
 import { NotFoundError, RuleViolationError, ValidationError } from '../kernel/errors'
-import { type StudioCourseRef, studioCourse } from './access'
 import { validateQuestion } from './grading'
 
 // Authoring (docs/20 `/teach/courses/[id]/assessments`): question banks, questions, and quiz

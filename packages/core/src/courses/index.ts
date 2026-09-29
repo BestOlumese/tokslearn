@@ -77,3 +77,4 @@ export {
   updateResource,
 } from './service'
 export { addStaff, listStaff, removeStaff } from './staff'
+export { type StudioCourseRef, studioCourse } from './studio-access'

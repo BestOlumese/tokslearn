@@ -1,5 +1,5 @@
 {
-  "id": "2411bbea-a752-47d4-8729-7539a1f9c81d",
+  "id": "a62e3608-84ee-428d-a820-e3a4a5f993c8",
   "prevId": "0744589e-96ad-4dc9-bb95-4bf3ce0d5e5b",
   "version": "7",
   "dialect": "postgresql",
@@ -8109,6 +8109,12 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": true
+        },
+        "original_name": {
+          "name": "original_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "sha256": {
           "name": "sha256",

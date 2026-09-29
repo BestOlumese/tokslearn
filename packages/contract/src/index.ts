@@ -107,6 +107,15 @@ export {
   ShowAnswers,
 } from './assessments'
 export {
+  AssignmentSettings,
+  LatePolicy,
+  Rubric,
+  RubricCriterion,
+  RubricLevel,
+  rubricMax,
+  SubmissionType,
+} from './assignments'
+export {
   AdminCourseRow,
   CategoryDirectoryDto,
   CategoryRow,

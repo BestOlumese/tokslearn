@@ -100,6 +100,24 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     certificate: 'Finish every lesson to get a certificate employers can check.',
     url: 'https://tokslearn.com/account',
   },
+  'assignment-graded': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    assignmentTitle: 'Reconcile March',
+    decision: 'graded',
+    score: '18 / 20',
+    passed: true,
+    feedbackExcerpt:
+      'Clean reconciliation. Label the bank charges next time so the reviewer can follow…',
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000002',
+  },
+  'attempt-voided': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    examTitle: 'Final exam',
+    reason: 'The exam was left for over 20 minutes, twice, in the middle of the attempt.',
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000003',
+  },
   'lesson-unlocked': {
     name: 'Amaka',
     courseTitle: 'Bookkeeping for Small Businesses',

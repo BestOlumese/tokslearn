@@ -18,7 +18,9 @@ import {
   createBank,
   createQuestion,
   getAttempt,
+  getAttemptForReview,
   getStudioQuiz,
+  listFlaggedAttempts,
   listQuestions,
   logIntegrityEvent,
   quizIntro,
@@ -28,6 +30,7 @@ import {
   startAttempt,
   submitAttempt,
   updateQuiz,
+  voidAttempt,
 } from '.'
 
 afterAll(closeTestDb)
@@ -450,7 +453,7 @@ describe('exams', () => {
 
   it('requires every other lesson first when set, and flags attempts over the integrity thresholds', async () => {
     await withRollback(async (db) => {
-      const { env, buyer, lesson, rightAnswers } = await world(db, {
+      const { env, owner, buyer, lesson, rightAnswers } = await world(db, {
         kind: 'exam',
         settings: { requireAllLessons: true, timeLimitSec: 600 },
       })
@@ -510,6 +513,40 @@ describe('exams', () => {
         otherIpHashes: ['phone-data'],
         flagReasons: ['focus_loss', 'network_change'],
       })
+
+      // The instructor reviews it: signals summarised, networks counted, never the IP hashes.
+      const teach = env.ctx(owner, at(100))
+      const flagged = await listFlaggedAttempts(teach)
+      expect(flagged).toEqual([
+        expect.objectContaining({
+          attemptId: a.id,
+          learnerName: 'Ada E.',
+          reasons: ['focus_loss', 'network_change'],
+        }),
+      ])
+      const review = await getAttemptForReview(teach, a.id)
+      expect(review.integrity).toMatchObject({ focusLosses: 5, networksSeen: 2 })
+      expect(JSON.stringify(review)).not.toContain('phone-data')
+      expect(await codeOf(voidAttempt(teach, { attemptId: a.id, reason: 'short' }))).toBe(
+        'VALIDATION_FAILED',
+      )
+      const stranger = env.ctx(
+        testUser(['learner', 'instructor'], { userId: await insertUser(db) }),
+        at(100),
+      )
+      expect(
+        await codeOf(voidAttempt(stranger, { attemptId: a.id, reason: 'Not my course at all.' })),
+      ).toBe('ATTEMPT_NOT_FOUND')
+      const voided = await voidAttempt(teach, {
+        attemptId: a.id,
+        reason: 'Left the exam five times for long stretches.',
+      })
+      expect(voided.status).toBe('void')
+      expect(await listFlaggedAttempts(teach)).toEqual([])
+      const outbox = await db.select({ payload: schema.outbox.payload }).from(schema.outbox)
+      expect(outbox.map((o) => (o.payload as { id?: string }).id)).toContain('attempt-voided')
+      // A voided attempt doesn't count toward the limit.
+      expect((await quizIntro(env.ctx(buyer, at(120)), lesson.id)).attemptsUsed).toBe(0)
     })
   })
 })

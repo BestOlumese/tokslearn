@@ -1,6 +1,6 @@
 import type { Bucket } from '@tokslearn/integrations/r2'
 
-export type UploadPurpose = 'avatar' | 'cover' | 'resource'
+export type UploadPurpose = 'avatar' | 'cover' | 'resource' | 'assignment_submission'
 
 interface PurposeRule {
   bucket: Bucket
@@ -33,6 +33,23 @@ export const uploadRules: Readonly<Record<UploadPurpose, PurposeRule>> = {
       'image/jpeg': 'jpg',
       'image/png': 'png',
       'audio/mpeg': 'mp3',
+    },
+  },
+  // Learners' work. Each assignment sets its own lower limit, checked at submit.
+  assignment_submission: {
+    bucket: 'private',
+    maxBytes: 100 * MB,
+    mimes: {
+      'application/pdf': 'pdf',
+      'application/zip': 'zip',
+      'application/x-zip-compressed': 'zip',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+      'text/csv': 'csv',
+      'text/plain': 'txt',
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
     },
   },
 }
