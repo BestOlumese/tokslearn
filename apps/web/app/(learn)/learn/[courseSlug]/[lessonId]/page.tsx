@@ -8,12 +8,14 @@ import type { Metadata, Route } from 'next'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import { AssignmentLesson } from '@/components/learn/assignment-lesson'
 import { CourseOutline } from '@/components/learn/course-outline'
 import { LessonTabs } from '@/components/learn/lesson-tabs'
 import { MarkComplete } from '@/components/learn/mark-complete'
 import { OutlineSheet } from '@/components/learn/outline-sheet'
 import { PlayerKeys } from '@/components/learn/player-keys'
 import { PlayerSkeleton } from '@/components/learn/player-skeleton'
+import { QuizLesson } from '@/components/learn/quiz-lesson'
 import { ResourceList } from '@/components/learn/resource-list'
 import { VideoLesson } from '@/components/learn/video-lesson'
 import { RichHtml } from '@/components/rich-html'
@@ -180,7 +182,7 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
             ) : null}
             <OutlineSheet label="Outline">{outlineNode}</OutlineSheet>
             <div className="ml-auto flex items-center gap-3">
-              {lesson && lesson.type !== 'video' && outline.role === 'learner' ? (
+              {lesson && selfCompleted(lesson.type) && outline.role === 'learner' ? (
                 <MarkComplete lessonId={lesson.id} done={lesson.progress.status === 'completed'} />
               ) : null}
               {nextHref ? (
@@ -240,10 +242,11 @@ function LessonBody({
   startAt: number | null
   next: { href: string; title: string } | null
 }) {
+  const meta = lessonMeta(lesson)
   const heading = (
     <div>
       <h1 className="text-h2 text-ink">{lesson.title}</h1>
-      <p className="mt-1 text-body-sm text-ink-2">{lessonMeta(lesson)}</p>
+      {meta ? <p className="mt-1 text-body-sm text-ink-2">{meta}</p> : null}
     </div>
   )
   const list = (
@@ -293,6 +296,25 @@ function LessonBody({
       </>
     )
   }
+  // Quizzes, exams and assignments complete themselves on a pass or a grade (docs/10 §5, §7).
+  if (lesson.type === 'quiz') {
+    return (
+      <>
+        {heading}
+        <QuizLesson lessonId={lesson.id} />
+        {files}
+      </>
+    )
+  }
+  if (lesson.type === 'assignment') {
+    return (
+      <>
+        {heading}
+        <AssignmentLesson lessonId={lesson.id} />
+        {files}
+      </>
+    )
+  }
   if (lesson.type === 'resource') {
     return (
       <>
@@ -316,7 +338,12 @@ function LessonBody({
   )
 }
 
-function lessonMeta(lesson: learning.LearnLesson): string {
+/** Lessons the learner marks complete by hand; the rest complete from what the learner does. */
+const selfCompleted = (type: learning.LearnLesson['type']) =>
+  type === 'article' || type === 'resource' || type === 'live'
+
+/** The line under the title. Quizzes and assignments describe themselves in their own card. */
+function lessonMeta(lesson: learning.LearnLesson): string | null {
   if (lesson.type === 'video')
     return lesson.durationSec ? formatDuration(lesson.durationSec) : 'Video'
   if (lesson.type === 'article') {
@@ -330,6 +357,7 @@ function lessonMeta(lesson: learning.LearnLesson): string {
     const n = lesson.resources.length
     return `${n} ${n === 1 ? 'file' : 'files'}`
   }
+  if (lesson.type === 'quiz' || lesson.type === 'assignment') return null
   return 'Lesson'
 }
 
