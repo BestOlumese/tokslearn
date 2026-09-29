@@ -122,3 +122,15 @@ export function videoPreviewUrl(
     expiresAt: new Date(ctx.now.getTime() + ttlSec * 1000),
   }).embedUrl
 }
+
+/** Signed embed and HLS URLs for a learner (docs/09 §3): token-bound to the video, 2 h by default. */
+export function videoPlayback(
+  ctx: Ctx,
+  asset: VideoAsset,
+  ttlSec: number = PLAYBACK_TTL_SEC,
+): { embedUrl: string; hlsUrl: string; expiresAt: Date } | null {
+  if (asset.status !== 'ready') return null
+  const expiresAt = new Date(ctx.now.getTime() + ttlSec * 1000)
+  const urls = provider(ctx, 'video').playbackUrls({ videoId: asset.providerVideoId, expiresAt })
+  return { embedUrl: urls.embedUrl, hlsUrl: urls.hlsUrl, expiresAt }
+}

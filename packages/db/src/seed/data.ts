@@ -270,3 +270,82 @@ export const seedInstructors = {
     username: 'grace',
   },
 } as const
+
+/**
+ * v1 badges (docs/10 §4). Criteria are data; the engagement module evaluates the kinds it knows.
+ * Certificate, quiz and Q&A badges start earning in Phases 6–8. Fixed ids for every environment.
+ */
+export const seedBadges = [
+  {
+    id: '01920000-0000-7000-8004-000000000001',
+    code: 'first_lesson',
+    name: 'First lesson',
+    description: 'Finish your first lesson.',
+    criteria: { kind: 'lessons_completed', count: 1 },
+    iconKey: 'play',
+    position: 1,
+  },
+  {
+    id: '01920000-0000-7000-8004-000000000002',
+    code: 'first_course',
+    name: 'First course',
+    description: 'Finish a whole course.',
+    criteria: { kind: 'courses_completed', count: 1 },
+    iconKey: 'flag',
+    position: 2,
+  },
+  {
+    id: '01920000-0000-7000-8004-000000000003',
+    code: 'streak_7',
+    name: 'Seven days',
+    description: 'Learn seven days in a row.',
+    criteria: { kind: 'streak', days: 7 },
+    iconKey: 'flame',
+    position: 3,
+  },
+  {
+    id: '01920000-0000-7000-8004-000000000004',
+    code: 'streak_30',
+    name: 'Thirty days',
+    description: 'Learn thirty days in a row.',
+    criteria: { kind: 'streak', days: 30 },
+    iconKey: 'flame',
+    position: 4,
+  },
+  {
+    id: '01920000-0000-7000-8004-000000000005',
+    code: 'five_courses',
+    name: 'Five courses',
+    description: 'Finish five courses.',
+    criteria: { kind: 'courses_completed', count: 5 },
+    iconKey: 'layers',
+    position: 5,
+  },
+  {
+    id: '01920000-0000-7000-8004-000000000006',
+    code: 'first_certificate',
+    name: 'First certificate',
+    description: 'Earn your first certificate.',
+    criteria: { kind: 'certificates', count: 1 },
+    iconKey: 'award',
+    position: 6,
+  },
+  {
+    id: '01920000-0000-7000-8004-000000000007',
+    code: 'quiz_ace',
+    name: 'Full marks',
+    description: 'Score 100% on a graded quiz.',
+    criteria: { kind: 'quiz_score', pct: 100 },
+    iconKey: 'check',
+    position: 7,
+  },
+  {
+    id: '01920000-0000-7000-8004-000000000008',
+    code: 'helpful',
+    name: 'Helpful',
+    description: 'Have one of your answers accepted in Q&A.',
+    criteria: { kind: 'answer_accepted', count: 1 },
+    iconKey: 'message',
+    position: 8,
+  },
+] as const

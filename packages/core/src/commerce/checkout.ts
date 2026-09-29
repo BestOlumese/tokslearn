@@ -617,3 +617,79 @@ export async function checkOrderIntegrity(ctx: Ctx) {
     ordersWithoutEnrollment: [...new Set(enrollment)],
   }
 }
+
+/**
+ * docs/08 §7: the first consumption that crosses a refund rule (an important download, 30% of
+ * the course watched) makes the purchase non-refundable and releases the instructor's earning at
+ * once. Idempotent; courses the user didn't buy (free, gifted) have nothing to release.
+ */
+export async function markPurchaseConsumed(
+  ctx: Ctx,
+  input: { userId: string; courseId: string; reason: 'important_download' | 'content_consumed' },
+): Promise<{ released: boolean }> {
+  return inTransaction(ctx, async (tx) => {
+    const [item] = await tx.db
+      .select({ item: orderItems, orderStatus: orders.status, publicId: orders.publicId })
+      .from(orderItems)
+      .innerJoin(orders, eq(orders.id, orderItems.orderId))
+      .where(
+        and(
+          eq(orders.userId, input.userId),
+          eq(orderItems.courseId, input.courseId),
+          eq(orders.status, 'paid'),
+          eq(orderItems.status, 'active'),
+        ),
+      )
+      .orderBy(orderItems.createdAt)
+      .limit(1)
+      .for('update', { of: orderItems })
+    if (!item) return { released: false }
+    const share = item.item.instructorShareKobo ?? 0n
+    const pending = item.item.earningStatus === 'pending'
+    await tx.db
+      .update(orderItems)
+      .set({
+        status: 'non_refundable',
+        ...(pending ? { earningStatus: 'available' as const } : {}),
+      })
+      .where(eq(orderItems.id, item.item.id))
+    if (pending && share > 0n) {
+      await post(tx, {
+        kind: 'release',
+        ref: { type: 'order', id: item.item.orderId },
+        idempotencyKey: `release:item:${item.item.id}`,
+        description: `Order ${item.publicId}: ${input.reason === 'important_download' ? 'important file downloaded' : 'course watched past the refund limit'}`,
+        lines: [
+          { account: instructorAccount(item.item.instructorId, 'pending'), debit: share },
+          { account: instructorAccount(item.item.instructorId, 'available'), credit: share },
+        ],
+      })
+    }
+    return { released: pending && share > 0n }
+  })
+}
+
+/**
+ * The user's paid purchase of a course that can still be refunded (status active, window open),
+ * or null. The player uses it to warn before an important download (docs/08 §7).
+ */
+export async function refundablePurchase(
+  ctx: Ctx,
+  input: { userId: string; courseId: string },
+): Promise<{ orderItemId: string; refundableUntil: Date | null } | null> {
+  const [row] = await ctx.db
+    .select({ id: orderItems.id, refundableUntil: orderItems.refundableUntil })
+    .from(orderItems)
+    .innerJoin(orders, eq(orders.id, orderItems.orderId))
+    .where(
+      and(
+        eq(orders.userId, input.userId),
+        eq(orderItems.courseId, input.courseId),
+        eq(orders.status, 'paid'),
+        eq(orderItems.status, 'active'),
+        gt(orderItems.refundableUntil, ctx.now),
+      ),
+    )
+    .limit(1)
+  return row ? { orderItemId: row.id, refundableUntil: row.refundableUntil } : null
+}

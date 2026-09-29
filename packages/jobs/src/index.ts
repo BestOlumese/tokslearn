@@ -10,6 +10,7 @@ import { accountDeletion } from './functions/account-deletion'
 import { commerceHourly } from './functions/commerce-hourly'
 import { dataExport } from './functions/data-export'
 import { emailSend } from './functions/email-send'
+import { badgesEvaluate, dripUnlocks, streakRollover } from './functions/learning'
 import { ledgerIntegrity } from './functions/ledger-integrity'
 import { outboxDispatch } from './functions/outbox-dispatch'
 import { paystackCharge } from './functions/paystack-charge'
@@ -29,6 +30,9 @@ export const functions = [
   paystackCharge,
   commerceHourly,
   ledgerIntegrity,
+  badgesEvaluate,
+  streakRollover,
+  dripUnlocks,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

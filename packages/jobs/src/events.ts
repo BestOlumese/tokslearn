@@ -38,3 +38,14 @@ export const bunnyVideoChanged = eventType('webhook/bunny.video_changed', {
 export const paystackChargeSucceeded = eventType('webhook/paystack.charge_success', {
   schema: z.object({ reference: z.string(), eventId: z.string() }),
 })
+
+/** Learning events from the outbox; badges are evaluated on each (docs/10 §4). */
+export const lessonCompleted = eventType('lesson.completed', {
+  schema: z.object({ userId: z.string(), courseId: z.string(), lessonId: z.string() }),
+})
+export const courseCompleted = eventType('course.completed', {
+  schema: z.object({ userId: z.string(), courseId: z.string() }),
+})
+export const streakExtended = eventType('streak.extended', {
+  schema: z.object({ userId: z.string(), length: z.number() }),
+})
