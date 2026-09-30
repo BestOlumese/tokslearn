@@ -8,6 +8,7 @@
 - [ ] Performance pass on every public route (Lighthouse CI budgets green), bundle review, image variants in use everywhere, third-party scripts audit.
 - [ ] Security pass: CSP enforced (not report-only), headers, IDOR test sweep across all modules, dependency audit, secret rotation, rate limits verified, webhook signature tests, admin 2FA enforced.
 - [ ] Load tests per `15 §5` on staging with seeded volume; fix bottlenecks via the runbook order in `16 §6`.
+- [ ] Phase 6 exam spike (moved here): `load/exam-spike.js`, 500 learners, p95 < 500 ms on start, save and submit.
 - [ ] Neon: move to paid plan with minimum compute (no cold starts), verify PITR retention, run a restore drill.
 - [ ] Backups job to R2; runbooks written for payments, webhooks, payouts, video, DB overload.
 - [ ] Legal: privacy policy, terms, instructor agreement, refund policy page, cookie notice (analytics consent), NDPA items from `14 §3`.

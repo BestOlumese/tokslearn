@@ -220,6 +220,7 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Completion:** a practice quiz completes its lesson on submit; a graded quiz or exam on a pass; an assignment when graded at or above the pass mark. There is no "Mark complete" on these lessons.
 - **Grading is open to the course's TAs** as well as the instructor (`studioCourse(…).canGrade`). Editing questions and settings stays with the instructor and co-instructors.
 - **Submission files keep their original name** (`files.originalName`, control characters stripped) so graders download "March rec.xlsx", not a key. Files live in the private bucket with short signed links, for the learner and graders only.
+- **Load test moved to Phase 11** (owner, 2026-09-30): the 500-learner exam spike runs at launch on the paid plans, not on the Hobby plans, where it would mostly measure their limits. `load/exam-spike.js` is ready; learners come from `seed:load-exam`.
 - **Deferred:** the `grading-backlog` digest email (Phase 9, with notification preferences); plagiarism checks; proctoring with camera (not planned); question import from CSV (Phase 11 if instructors ask).
 
 ---
