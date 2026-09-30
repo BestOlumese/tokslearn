@@ -61,5 +61,6 @@ export {
   type FlaggedAttempt,
   getAttemptForReview,
   listFlaggedAttempts,
+  passedAttempt,
   voidAttempt,
 } from './review'

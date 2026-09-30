@@ -59,6 +59,14 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   assignments: { limit: 120, windowSec: 60 },
   'assignments.submit': { limit: 20, windowSec: 60 },
   grading: { limit: 120, windowSec: 60 },
+  certificates: { limit: 60, windowSec: 60 },
+  // Public lookups are by IP; a person checks a handful of codes, a scraper many.
+  'certificates.verify': { limit: 30, windowSec: 60 },
+  // Signs a file link, or renders the PDF if the job hasn't.
+  'certificates.download': { limit: 20, windowSec: 60 },
+  'certificates.requestNameCorrection': { limit: 5, windowSec: 60 },
+  // Each preview renders a PDF.
+  'studio.certificates.preview': { limit: 10, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {

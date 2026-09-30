@@ -130,6 +130,8 @@ export interface RevisionFacts {
   language: string
   priceKobo: bigint
   certificateMode: string
+  /** Readable exam/provider rules (review.ts `certificateRules`); '' for none or completion. */
+  certificateRules: string
   coverFileId: string | null
 }
 
@@ -167,7 +169,12 @@ export function reviewReasons(input: {
   }
   if (live.categoryId !== draft.categoryId) reasons.push('category_changed')
   if (live.language !== draft.language) reasons.push('language_changed')
-  if (live.certificateMode !== draft.certificateMode) reasons.push('certificate_changed')
+  if (
+    live.certificateMode !== draft.certificateMode ||
+    live.certificateRules !== draft.certificateRules
+  ) {
+    reasons.push('certificate_changed')
+  }
   if (live.coverFileId !== draft.coverFileId) reasons.push('cover_changed')
   if (input.newSections > 0) reasons.push('new_sections')
   if (input.newLessons > 0 && !input.trustedInstructor) reasons.push('new_lessons')

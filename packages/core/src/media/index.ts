@@ -13,6 +13,8 @@ export {
   getOwnedUploadedFile,
   privateFileUrl,
   publicFileUrl,
+  removeGeneratedFile,
+  storeGeneratedFile,
 } from './service'
 export {
   createVideoAsset,

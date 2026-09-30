@@ -39,6 +39,8 @@ export interface Snapshot {
     compareAtKobo: string | null
     refundPolicyDays: number
     certificateMode: string
+    /** Which exam or provider counts, in words; '' when the mode has no extra rules. */
+    certificateRules?: string
     coverFileId: string | null
   }
   outline: Array<{
@@ -56,6 +58,27 @@ export interface Snapshot {
   }>
 }
 
+/** The certificate rules beyond the mode, in words a reviewer can check. */
+function certificateRules(
+  revision: repo.RevisionRow,
+  sections: ReadonlyArray<StudioSection>,
+): string {
+  const settings = revision.certificateSettings as {
+    examQuizId?: string | null
+    requireCompletion?: boolean
+    providerName?: string | null
+    providerUrl?: string | null
+  }
+  if (revision.certificateMode === 'exam') {
+    const exam = sections.flatMap((s) => s.lessons).find((l) => l.quizId === settings.examQuizId)
+    return `Exam: “${exam?.title ?? 'not chosen'}”${settings.requireCompletion ? ' and every lesson' : ''}`
+  }
+  if (revision.certificateMode === 'external') {
+    return `Provider: ${settings.providerName ?? 'not named'}${settings.providerUrl ? ` (${settings.providerUrl})` : ''}`
+  }
+  return ''
+}
+
 function snapshotOf(revision: repo.RevisionRow, sections: ReadonlyArray<StudioSection>): Snapshot {
   return {
     settings: {
@@ -71,6 +94,7 @@ function snapshotOf(revision: repo.RevisionRow, sections: ReadonlyArray<StudioSe
       compareAtKobo: revision.compareAtKobo?.toString() ?? null,
       refundPolicyDays: revision.refundPolicyDays,
       certificateMode: revision.certificateMode,
+      certificateRules: certificateRules(revision, sections),
       coverFileId: revision.coverFileId,
     },
     outline: activeOutline(sections).map((s) => ({
@@ -99,6 +123,7 @@ const factsOf = (s: Snapshot['settings']): RevisionFacts => ({
   language: s.language,
   priceKobo: BigInt(s.priceKobo),
   certificateMode: s.certificateMode,
+  certificateRules: s.certificateRules ?? '',
   coverFileId: s.coverFileId,
 })
 
@@ -142,6 +167,7 @@ async function applyRevision(
     compareAtKobo: revision.compareAtKobo,
     refundPolicyDays: revision.refundPolicyDays,
     certificateMode: revision.certificateMode,
+    certificateSettings: revision.certificateSettings,
     version: course.version + 1,
   })
   await repo.recomputeTotals(tx.db, course.id)
@@ -262,8 +288,9 @@ export function diffSnapshots(live: Snapshot | null, next: Snapshot) {
   const outline: OutlineChange[] = []
   if (!live) return { fields, outline, firstVersion: true }
   for (const key of Object.keys(next.settings) as Array<keyof Snapshot['settings']>) {
-    const before = live.settings[key]
-    const after = next.settings[key]
+    // Snapshots from before Phase 7 have no certificate rules: the same as none.
+    const before = live.settings[key] ?? (key === 'certificateRules' ? '' : undefined)
+    const after = next.settings[key] ?? (key === 'certificateRules' ? '' : undefined)
     if (JSON.stringify(before) !== JSON.stringify(after)) fields.push({ field: key, before, after })
   }
   const liveSections = new Map(live.outline.map((s) => [s.id, s]))

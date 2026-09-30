@@ -91,6 +91,7 @@ export interface StudioCourse {
     compareAtKobo: bigint | null
     refundPolicyDays: number
     certificateMode: repo.RevisionRow['certificateMode']
+    certificateSettings: Record<string, unknown>
     coverFileId: string | null
     coverUrl: string | null
     promo: {
@@ -239,6 +240,7 @@ export async function getStudioCourse(ctx: Ctx, courseId: string): Promise<Studi
       compareAtKobo: revision.compareAtKobo,
       refundPolicyDays: revision.refundPolicyDays,
       certificateMode: revision.certificateMode,
+      certificateSettings: revision.certificateSettings,
       coverFileId: revision.coverFileId,
       coverUrl: cover ? publicFileUrl(ctx, cover.key) : null,
       promo: promo
@@ -435,6 +437,27 @@ export async function updatePricing(
       priceKobo: input.priceKobo,
       compareAtKobo: input.priceKobo === 0n ? null : input.compareAtKobo,
       refundPolicyDays: input.refundPolicyDays,
+    })
+  })
+}
+
+/**
+ * Certificate mode and rules on the draft (docs/10 §8). The certificates module checks the rules
+ * (the exam belongs to this course, a provider is named) before calling this.
+ */
+export async function updateCertificateSettings(
+  ctx: Ctx,
+  input: {
+    courseId: string
+    version: number
+    mode: repo.RevisionRow['certificateMode']
+    settings: Record<string, unknown>
+  },
+) {
+  return edit(ctx, input.courseId, input.version, async (tx, { revision }) => {
+    await repo.updateRevision(tx.db, revision.id, {
+      certificateMode: input.mode,
+      certificateSettings: input.settings,
     })
   })
 }

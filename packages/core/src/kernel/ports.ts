@@ -1,6 +1,7 @@
 import type { VideoProvider } from '@tokslearn/integrations/bunny'
 import type { KycProvider } from '@tokslearn/integrations/dojah'
 import type { PaymentProvider, PayoutProvider } from '@tokslearn/integrations/paystack'
+import type { CertificateRenderer } from '@tokslearn/integrations/pdf'
 import type { FileStorage } from '@tokslearn/integrations/r2'
 
 /**
@@ -47,4 +48,6 @@ export interface Providers {
   clickCounter?: ClickCounter | undefined
   /** Bunny Stream. */
   video: VideoProvider
+  /** Certificate PDFs (@react-pdf in the app, a fake in tests). */
+  certificatePdf: CertificateRenderer
 }

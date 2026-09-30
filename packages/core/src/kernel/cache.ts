@@ -20,4 +20,6 @@ export const cacheTags = {
   instructor: (id: string) => `instructor:${id}`,
   /** A learner's enrollments ("My learning", Continue buttons). */
   userEnrollments: (userId: string) => `user-enrollments:${userId}`,
+  /** A certificate's public verify page, keyed by its code (revocation must show within seconds). */
+  certificate: (code: string) => `certificate:${code}`,
 } as const

@@ -71,6 +71,7 @@ export {
   type StudioSection,
   startLessonVideoUpload,
   startPromoVideoUpload,
+  updateCertificateSettings,
   updateDetails,
   updateLesson,
   updatePricing,

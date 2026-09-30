@@ -57,6 +57,18 @@ export interface DomainEvents {
     decision: 'graded' | 'returned'
     passed: boolean | null
   }
+  /** A pass or fail recorded for an exam taken elsewhere (external certificates). */
+  'external_result.recorded': {
+    resultId: string
+    userId: string
+    courseId: string
+    result: 'pass' | 'fail'
+  }
+  /** Makes the purchase non-refundable; the render job makes the PDF and emails the learner. */
+  'certificate.issued': { certificateId: string; userId: string; courseId: string }
+  /** The learner corrected the name once: the render job makes a new PDF (same code). */
+  'certificate.name_corrected': { certificateId: string; userId: string; courseId: string }
+  'certificate.revoked': { certificateId: string; userId: string; courseId: string }
   'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }
   'order.failed': { orderId: string; reason: string }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */

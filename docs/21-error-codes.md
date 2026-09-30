@@ -28,7 +28,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `KYC_REQUIRED` — FORBIDDEN — "Complete identity verification to continue."
 - `STAFF_ONLY` — FORBIDDEN — "This area is for Tokslearn staff."
 - `SELF_REVIEW_NOT_ALLOWED` — FORBIDDEN — staff deciding their own application or course — "You can't decide your own application or course. Ask another reviewer."
-- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND`, `QUESTION_BANK_NOT_FOUND`, `QUESTION_NOT_FOUND`, `QUIZ_NOT_FOUND`, `ATTEMPT_NOT_FOUND`, `ASSIGNMENT_NOT_FOUND`, `SUBMISSION_NOT_FOUND` — "We couldn't find that {thing}."
+- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND`, `QUESTION_BANK_NOT_FOUND`, `QUESTION_NOT_FOUND`, `QUIZ_NOT_FOUND`, `ATTEMPT_NOT_FOUND`, `ASSIGNMENT_NOT_FOUND`, `SUBMISSION_NOT_FOUND`, `EXTERNAL_RESULT_NOT_FOUND`, `ENROLLMENT_NOT_FOUND` ("learner") — "We couldn't find that {thing}."
 
 ## Instructor onboarding
 - `APPLICATION_EXISTS` — CONFLICT — "You already have an application in progress."
@@ -99,6 +99,9 @@ Format: `CODE` — oRPC status — when — user message.
 - `CERTIFICATE_CRITERIA_NOT_MET` — UNPROCESSABLE_CONTENT — "You haven't met the requirements for this certificate yet."
 - `CERTIFICATE_REVOKED` — CONFLICT — "This certificate has been revoked."
 - `NAME_CORRECTION_USED` — UNPROCESSABLE_CONTENT — "You've already corrected the name on this certificate. Contact support for further changes."
+- `CERTIFICATE_NOT_REVOKED` — CONFLICT — restoring a certificate that is valid — "This certificate is already valid."
+- `CERTIFICATE_EXAM_REQUIRED` — UNPROCESSABLE_CONTENT — exam mode without an exam of this course — "Pick the exam that earns the certificate. Add an exam lesson first if there isn't one."
+- `CERTIFICATE_PROVIDER_REQUIRED` — UNPROCESSABLE_CONTENT — external mode without a provider name — "Add the name of the organisation that runs the exam."
 
 ## Community, reviews
 - `THREAD_LOCKED` — UNPROCESSABLE_CONTENT — "This discussion is closed."

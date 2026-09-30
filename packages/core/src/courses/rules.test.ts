@@ -47,6 +47,7 @@ const facts: RevisionFacts = {
   language: 'en',
   priceKobo: 1_000_000n,
   certificateMode: 'none',
+  certificateRules: '',
   coverFileId: 'cover-1',
 }
 
@@ -158,6 +159,18 @@ describe('review rules for published courses', () => {
       'new_lessons',
       'removals',
     ])
+  })
+
+  it('sends a change of certificate exam or provider to a reviewer', () => {
+    const exam = { ...facts, certificateMode: 'exam', certificateRules: 'Exam: “Final exam”' }
+    expect(
+      reviewReasons({
+        ...base,
+        live: exam,
+        draft: { ...exam, certificateRules: 'Exam: “Final exam” and every lesson' },
+      }),
+    ).toEqual(['certificate_changed'])
+    expect(reviewReasons({ ...base, live: exam, draft: exam })).toEqual([])
   })
 
   it('allows price rises up to 50% and new lessons from trusted instructors', () => {

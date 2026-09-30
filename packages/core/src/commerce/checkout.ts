@@ -623,12 +623,19 @@ export async function checkOrderIntegrity(ctx: Ctx) {
  * the course watched) makes the purchase non-refundable and releases the instructor's earning at
  * once. Idempotent; courses the user didn't buy (free, gifted) have nothing to release.
  */
+const consumedWhy = {
+  important_download: 'important file downloaded',
+  content_consumed: 'course watched past the refund limit',
+  exam_started: 'certification exam started',
+  certificate_issued: 'certificate issued',
+} as const
+
 export async function markPurchaseConsumed(
   ctx: Ctx,
   input: {
     userId: string
     courseId: string
-    reason: 'important_download' | 'content_consumed' | 'exam_started'
+    reason: 'important_download' | 'content_consumed' | 'exam_started' | 'certificate_issued'
   },
 ): Promise<{ released: boolean }> {
   return inTransaction(ctx, async (tx) => {
@@ -662,7 +669,7 @@ export async function markPurchaseConsumed(
         kind: 'release',
         ref: { type: 'order', id: item.item.orderId },
         idempotencyKey: `release:item:${item.item.id}`,
-        description: `Order ${item.publicId}: ${input.reason === 'important_download' ? 'important file downloaded' : 'course watched past the refund limit'}`,
+        description: `Order ${item.publicId}: ${consumedWhy[input.reason]}`,
         lines: [
           { account: instructorAccount(item.item.instructorId, 'pending'), debit: share },
           { account: instructorAccount(item.item.instructorId, 'available'), credit: share },
