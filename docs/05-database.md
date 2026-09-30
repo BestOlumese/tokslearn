@@ -127,10 +127,11 @@ Rate-limit heartbeats per user (1 per 10 s per lesson).
 - Learners belong to a run through `enrollments.cohort_id`; `cart_items.cohort_id` and `order_items.cohort_id` carry the pick. `courses.cohort_based`; `course_search.cohort_based`, `next_cohort_starts_at`. `cohort_members` is not created (ADR-037).
 
 ### community
-- `threads`: `scope_type` enum(course, cohort, lesson), `scope_id`, `kind` enum(discussion, question, announcement), `author_id`, `title`, `body_html`, `is_pinned`, `is_locked`, `accepted_post_id`, `reply_count`, `last_activity_at`, `deleted_at`.
-- `posts`: `thread_id`, `author_id`, `parent_id`, `body_html`, `is_instructor_answer`, `deleted_at`.
-- `reactions`: pk(post_id, user_id, kind).
-- `reports`: `target_type`, `target_id`, `reporter_id`, `reason`, `status`, `handled_by`.
+- `threads`: `course_id` (every scope belongs to one course), `scope_type` enum(course, cohort, lesson), `scope_id`, `kind` enum(discussion, question, announcement), `author_id`, `title`, `body_doc`, `body_html` (rendered server-side), `is_pinned`, `is_locked`, `accepted_post_id`, `answered_at` (questions: first teacher answer or accepted answer), `reply_count`, `last_activity_at`, `hidden_at`, `hidden_by`, `deleted_at`.
+- `posts`: `thread_id`, `author_id`, `parent_id`, `body_doc`, `body_html`, `is_instructor_answer`, `edited_at`, `hidden_at`, `hidden_by`, `deleted_at`.
+- `reactions`: pk(post_id, user_id, kind), kind enum(like).
+- `reports`: `target_type` enum(thread, post), `target_id`, `course_id`, `reporter_id`, `reason`, `status` enum(open, resolved, dismissed), `handled_by`, `handled_at`; unique(target_type, target_id, reporter_id).
+- `thread_reads`: pk(user_id, thread_id), `last_read_at` (unread dots).
 
 Index: `threads(scope_type, scope_id, last_activity_at desc)`, `posts(thread_id, created_at)`.
 

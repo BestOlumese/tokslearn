@@ -16,8 +16,11 @@ const post = (path: `/${string}`, tag: string, summary: string, description: str
   base.route({ method: 'POST', path, tags: [tag], summary, description })
 
 export const ScopeType = z.enum(['course', 'cohort', 'lesson'])
+export type ScopeType = z.infer<typeof ScopeType>
 export const ThreadKind = z.enum(['discussion', 'question', 'announcement'])
+export type ThreadKind = z.infer<typeof ThreadKind>
 export const ThreadFilter = z.enum(['all', 'questions', 'unanswered', 'announcements'])
+export type ThreadFilter = z.infer<typeof ThreadFilter>
 const Target = z.enum(['thread', 'post'])
 const Author = z.object({ name: z.string(), isTeacher: z.boolean() })
 const ok = z.object({ ok: z.literal(true) })

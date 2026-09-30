@@ -56,6 +56,14 @@ export async function cohortsOn(): Promise<boolean> {
   return isFeatureEnabled(publicCtx(), 'cohorts')
 }
 
+/** The `community` flag, for navigation that links to community pages. */
+export async function communityOn(): Promise<boolean> {
+  'use cache'
+  cacheTag(cacheTags.featureFlags)
+  cacheLife('hours')
+  return isFeatureEnabled(publicCtx(), 'community')
+}
+
 export async function getDirectory(): Promise<CategoryDirectoryDto> {
   'use cache'
   cacheTag(cacheTags.catalog)

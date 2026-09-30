@@ -30,6 +30,7 @@ export function RichTextEditor({
   placeholder,
   describedBy,
   minHeight = 'min-h-40',
+  basic = false,
 }: {
   id: string
   value: RichTextDoc | null
@@ -38,6 +39,8 @@ export function RichTextEditor({
   placeholder?: string
   describedBy?: string | undefined
   minHeight?: string
+  /** Community posts (docs/10 §10): no headings; bold, italic, code, links and lists. */
+  basic?: boolean
 }) {
   const [linkOpen, setLinkOpen] = useState(false)
   const editor = useEditor({
@@ -45,7 +48,7 @@ export function RichTextEditor({
     editable: !disabled,
     extensions: [
       StarterKit.configure({
-        heading: { levels: [2, 3] },
+        heading: basic ? false : { levels: [2, 3] },
         link: { openOnClick: false, autolink: true, protocols: ['https', 'http', 'mailto'] },
         dropcursor: false,
         trailingNode: false,
@@ -127,10 +130,16 @@ export function RichTextEditor({
         aria-controls={id}
         className="flex flex-wrap gap-0.5 border-b border-border p-1"
       >
-        {tool('Heading', i(Heading2), state?.h2, () => chain()?.toggleHeading({ level: 2 }).run())}
-        {tool('Subheading', i(Heading3), state?.h3, () =>
-          chain()?.toggleHeading({ level: 3 }).run(),
-        )}
+        {basic
+          ? null
+          : tool('Heading', i(Heading2), state?.h2, () =>
+              chain()?.toggleHeading({ level: 2 }).run(),
+            )}
+        {basic
+          ? null
+          : tool('Subheading', i(Heading3), state?.h3, () =>
+              chain()?.toggleHeading({ level: 3 }).run(),
+            )}
         {tool('Bold', i(Bold), state?.bold, () => chain()?.toggleBold().run())}
         {tool('Italic', i(Italic), state?.italic, () => chain()?.toggleItalic().run())}
         {tool('Underline', i(Underline), state?.underline, () => chain()?.toggleUnderline().run())}

@@ -3,6 +3,7 @@ import { type ReactNode, Suspense } from 'react'
 import { QueryProvider } from '@/components/query-provider'
 import { SideNavLinks } from '@/components/side-nav-links'
 import { StudioNav } from '@/components/studio/studio-nav'
+import { communityOn } from '@/lib/catalog-data'
 import { studioNavGroups } from '@/lib/nav'
 
 export const metadata: Metadata = { robots: { index: false } }
@@ -15,10 +16,15 @@ export default function StudioLayout({ children }: { children: ReactNode }) {
         <Suspense
           fallback={<SideNavLinks label="Studio" groups={studioNavGroups} activeHref={null} />}
         >
-          <StudioNav />
+          <Nav />
         </Suspense>
         <div className="min-w-0">{children}</div>
       </div>
     </QueryProvider>
   )
+}
+
+/** The studio nav, without the pages whose feature is switched off. */
+async function Nav() {
+  return <StudioNav hide={(await communityOn()) ? [] : ['/teach/qa']} />
 }

@@ -28,6 +28,7 @@
 | `certificate-issue` | `course.completed`, `exam.passed`, `external_result.recorded` (pass) | Check the live criteria, issue once per learner and course (a passing grade or quiz completes its lesson, so it arrives as `course.completed`) |
 | `certificate-render` | `certificate.issued`, `certificate.name_corrected` | Make the PDF, store it in R2; email `certificate-issued` on first issue only |
 | `certificate-backfill` | `course.published`, `course.updated` | Issue certificates to learners who already meet newly live rules, 200 at a time |
+| `announcement-send` | `announcement.posted` | Email an announcement to the course's (or cohort's) learners, 500 per step |
 | `exam-autosubmit` | cron every minute | Submit attempts past deadline |
 | `badges-evaluate` | learning events | Award badges |
 | `streaks-rollover` | cron daily 00:10 WAT | Apply freezes, reset broken streaks |

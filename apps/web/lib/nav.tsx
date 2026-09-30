@@ -10,9 +10,11 @@ import {
   KeyRound,
   Layers,
   Link2,
+  MessageCircleQuestion,
   Percent,
   Receipt,
   ScrollText,
+  ShieldAlert,
   ShieldCheck,
   TicketPercent,
   UserRound,
@@ -78,6 +80,7 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
   {
     label: 'Platform',
     items: [
+      { href: '/admin/moderation', label: 'Moderation', icon: icon(ShieldAlert) },
       { href: '/admin/audit', label: 'Audit log', icon: icon(ScrollText) },
       { href: '/admin/settings/flags', label: 'Feature flags', icon: icon(Flag) },
     ],
@@ -92,6 +95,7 @@ export const studioNavGroups: ReadonlyArray<SideNavGroup> = [
       { href: '/teach/courses', label: 'Courses', icon: icon(BookOpen) },
       { href: '/teach/bundles', label: 'Bundles', icon: icon(Layers) },
       { href: '/teach/grading', label: 'Grading', icon: icon(ClipboardCheck) },
+      { href: '/teach/qa', label: 'Q&A', icon: icon(MessageCircleQuestion) },
     ],
   },
   {
