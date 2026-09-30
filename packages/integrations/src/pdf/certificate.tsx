@@ -1,3 +1,6 @@
+/** @jsxRuntime automatic */
+/** @jsxImportSource react */
+// Pragmas: compile the same way whichever package or tool builds this file.
 import {
   Document,
   Font,

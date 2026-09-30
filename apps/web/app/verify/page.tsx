@@ -1,15 +1,16 @@
-import type { Metadata } from 'next'
+import type { Metadata, Route } from 'next'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { PageHeader } from '@/components/site/page-header'
 import { VerifyForm } from '@/components/site/verify-form'
+import { normaliseCertificateCode } from '@/lib/certificate-data'
 
 export const metadata: Metadata = {
   title: 'Verify a certificate',
   description: 'Check that a Tokslearn certificate is genuine by entering the code printed on it.',
 }
 
-// docs/20 §1 `/verify` (lookups arrive with certificates in Phase 7).
+// docs/20 §1 `/verify`: a plain GET form; /verify?code=… goes to /verify/{code}.
 export default function VerifyPage({ searchParams }: { searchParams: Promise<{ code?: string }> }) {
   return (
     <>
@@ -29,8 +30,8 @@ export default function VerifyPage({ searchParams }: { searchParams: Promise<{ c
           <div>
             <h2 className="text-h4 text-ink">Where to find the code</h2>
             <p className="mt-1 text-body text-ink-2">
-              At the bottom of the certificate, starting with TL. Links shared from Tokslearn open
-              this check directly.
+              At the bottom of the certificate, starting with TL-C. The QR code on the certificate
+              and links shared from Tokslearn open this check directly.
             </p>
           </div>
           <div>
@@ -46,12 +47,18 @@ export default function VerifyPage({ searchParams }: { searchParams: Promise<{ c
   )
 }
 
+/** A well-formed code goes to its page; anything else gets an inline message (docs/20). */
 async function GoToCode({ searchParams }: { searchParams: Promise<{ code?: string }> }) {
-  const code = (await searchParams).code
-    ?.trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9-]/g, '')
-    .slice(0, 20)
-  if (code) redirect(`/verify/${code}`)
-  return null
+  const typed = (await searchParams).code?.trim().slice(0, 40)
+  if (!typed) return null
+  const code = normaliseCertificateCode(typed)
+  if (code) redirect(`/verify/${code}` as Route)
+  return (
+    <div className="mx-auto max-w-page px-4 pt-6 sm:px-6 lg:px-8">
+      <p role="alert" className="max-w-[560px] text-body text-danger">
+        “{typed}” isn’t a certificate code. Codes look like TL-C-8Q2M-4K7P: TL-C, then two groups of
+        four letters and numbers.
+      </p>
+    </div>
+  )
 }

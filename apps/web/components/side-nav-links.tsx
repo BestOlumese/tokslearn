@@ -28,7 +28,9 @@ export function SideNavLinks({
   const isActive = (href: string) =>
     activeHref !== null && (match === 'exact' ? activeHref === href : activeHref.startsWith(href))
   return (
-    <nav aria-label={label}>
+    // min-w-0: as a grid item on phones the nav would otherwise widen the page to fit its row
+    // instead of scrolling it.
+    <nav aria-label={label} className="min-w-0">
       <div className="-mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:flex-col md:gap-6 md:px-0">
         {groups.map((group) => (
           <div key={group.label} className="contents md:block">

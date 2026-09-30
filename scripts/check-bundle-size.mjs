@@ -21,6 +21,7 @@ const routes = {
   '/courses/[slug]/preview/[lessonId]': 'courses/[slug]/preview/[lessonId]',
   '/instructors/[slug]': 'instructors/[slug]',
   '/verify': 'verify',
+  '/verify/[code]': 'verify/[code]',
   '/teach': 'teach',
   '/content-policy': 'content-policy',
   '/sign-in': 'sign-in',

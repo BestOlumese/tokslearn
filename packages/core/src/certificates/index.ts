@@ -27,6 +27,7 @@ export {
   type MyCertificate,
   type PublicCertificate,
   previewCertificate,
+  recordCertificateView,
   recordExternalResult,
   requestNameCorrection,
   restoreCertificate,

@@ -1,6 +1,7 @@
 import { schema } from '@tokslearn/db'
 import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm'
 import { writeAudit } from '../admin'
+import { track } from '../analytics'
 import { listCourseQuizzes } from '../assessments'
 import { getStudioCourse, studioCourse, updateCertificateSettings } from '../courses'
 import { learnerDisplayName } from '../enrollments'
@@ -639,4 +640,24 @@ export async function restoreCertificate(
   const [view] = await adminViews(ctx, [input.certificateId])
   if (!view) throw new NotFoundError('CERTIFICATE_NOT_FOUND')
   return view
+}
+
+/**
+ * `certificate_verified` (docs/24): one per verify-page view. No visitor data: the page is
+ * public and most viewers never signed in or agreed to analytics.
+ */
+export async function recordCertificateView(ctx: Ctx, input: string): Promise<void> {
+  const code = normaliseCode(input)
+  if (!code) return
+  const [row] = await ctx.db
+    .select({ id: certificates.id })
+    .from(certificates)
+    .where(eq(certificates.publicCode, code))
+  if (row)
+    await track(
+      ctx,
+      'certificate_verified',
+      { certificate_id: row.id },
+      { distinctId: 'verify-page' },
+    )
 }
