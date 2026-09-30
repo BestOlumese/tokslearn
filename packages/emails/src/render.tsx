@@ -3,6 +3,8 @@ import type { ReactElement } from 'react'
 import type { EmailData, EmailId } from './catalog'
 import * as applicationDecision from './templates/application-decision'
 import * as applicationReceived from './templates/application-received'
+import * as assignmentGraded from './templates/assignment-graded'
+import * as attemptVoided from './templates/attempt-voided'
 import * as courseReviewDecision from './templates/course-review-decision'
 import * as dataExportReady from './templates/data-export-ready'
 import * as deletionRequested from './templates/deletion-requested'
@@ -79,6 +81,14 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'enrollment-free': {
     subject: enrollmentFree.subject,
     element: (d) => <enrollmentFree.EnrollmentFree {...d} />,
+  },
+  'assignment-graded': {
+    subject: assignmentGraded.subject,
+    element: (d) => <assignmentGraded.AssignmentGraded {...d} />,
+  },
+  'attempt-voided': {
+    subject: attemptVoided.subject,
+    element: (d) => <attemptVoided.AttemptVoided {...d} />,
   },
   'lesson-unlocked': {
     subject: lessonUnlocked.subject,

@@ -28,7 +28,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `KYC_REQUIRED` — FORBIDDEN — "Complete identity verification to continue."
 - `STAFF_ONLY` — FORBIDDEN — "This area is for Tokslearn staff."
 - `SELF_REVIEW_NOT_ALLOWED` — FORBIDDEN — staff deciding their own application or course — "You can't decide your own application or course. Ask another reviewer."
-- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND` — "We couldn't find that {thing}."
+- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND`, `QUESTION_BANK_NOT_FOUND`, `QUESTION_NOT_FOUND`, `QUIZ_NOT_FOUND`, `ATTEMPT_NOT_FOUND`, `ASSIGNMENT_NOT_FOUND`, `SUBMISSION_NOT_FOUND` — "We couldn't find that {thing}."
 
 ## Instructor onboarding
 - `APPLICATION_EXISTS` — CONFLICT — "You already have an application in progress."
@@ -92,6 +92,8 @@ Format: `CODE` — oRPC status — when — user message.
 - `ATTEMPT_ALREADY_SUBMITTED` — CONFLICT — "This attempt has already been submitted."
 - `SUBMISSION_PAST_DUE` — UNPROCESSABLE_CONTENT — "The deadline for this assignment has passed."
 - `RESUBMISSION_NOT_ALLOWED` — UNPROCESSABLE_CONTENT — "This assignment doesn't allow resubmissions."
+- `QUIZ_EMPTY` — UNPROCESSABLE_CONTENT — quiz has no questions to draw — "This quiz has no questions yet. Check back later."
+- `SUBMISSION_ALREADY_GRADED` — CONFLICT — grading a submission someone already graded — "This submission has already been graded."
 
 ## Certificates
 - `CERTIFICATE_CRITERIA_NOT_MET` — UNPROCESSABLE_CONTENT — "You haven't met the requirements for this certificate yet."

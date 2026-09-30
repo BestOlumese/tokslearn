@@ -50,3 +50,5 @@ Scenarios (run against staging with production-like data volume — seed 50k use
 - Exam spike: 3,000 VUs starting an exam within 60 s, autosaving answers, submitting within 5 min.
 - Checkout: 200 concurrent checkouts with fake Paystack.
 Targets: error rate < 0.1%, p95 < 500 ms for API, DB CPU < 70%, no connection exhaustion.
+
+Scripts live in `load/`. `load/exam-spike.js` is the Phase 6 exam spike (500 learners by default): `seed:load-exam` in `packages/core` creates the learners and gives them sessions, which k6 sends as bearer tokens, since 500 sign-ins from one machine would hit the sign-in limit. Run it against a preview deployment and its database, never production.

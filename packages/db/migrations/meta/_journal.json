@@ -43,6 +43,13 @@
       "when": 1790674987463,
       "tag": "0005_phase5_learning",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790710856383,
+      "tag": "0006_phase6_assessments",
+      "breakpoints": true
     }
   ]
 }

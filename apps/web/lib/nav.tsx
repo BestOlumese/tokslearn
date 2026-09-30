@@ -89,6 +89,7 @@ export const studioNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [
       { href: '/teach/courses', label: 'Courses', icon: icon(BookOpen) },
       { href: '/teach/bundles', label: 'Bundles', icon: icon(Layers) },
+      { href: '/teach/grading', label: 'Grading', icon: icon(ClipboardCheck) },
     ],
   },
   {

@@ -1,5 +1,15 @@
 import { adminContract } from './admin'
 import {
+  assignmentsContract,
+  examsContract,
+  gradingContract,
+  quizzesContract,
+  studioAssignmentsContract,
+  studioQuestionBanksContract,
+  studioQuestionsContract,
+  studioQuizzesContract,
+} from './assessment-procedures'
+import {
   catalogPublicContract,
   coursesContract,
   instructorProfileContract,
@@ -49,6 +59,10 @@ export const contract = {
     coupons: studioCouponsContract,
     drip: studioDripContract,
     learners: studioLearnersContract,
+    questionBanks: studioQuestionBanksContract,
+    questions: studioQuestionsContract,
+    quizzes: studioQuizzesContract,
+    assignments: studioAssignmentsContract,
   },
   instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
@@ -72,6 +86,10 @@ export const contract = {
   notes: notesContract,
   bookmarks: bookmarksContract,
   engagement: engagementContract,
+  quizzes: quizzesContract,
+  exams: examsContract,
+  assignments: assignmentsContract,
+  grading: gradingContract,
 }
 export type Contract = typeof contract
 
@@ -91,6 +109,44 @@ export {
   type ServerAnalyticsEvent,
   serverEvents,
 } from './analytics'
+export {
+  AttemptDto,
+  AttemptReviewDto,
+  FlaggedAttemptDto,
+  GradingViewDto,
+  MyAssignmentDto,
+  QuestionBankDto,
+  QuestionDto,
+  QueueItemDto,
+  QuizIntroDto,
+  StudioAssignmentDto,
+  StudioQuizDto,
+  SubmissionDto,
+} from './assessment-procedures'
+export {
+  AcceptedText,
+  AnswerKey,
+  type AnswerKeyOf,
+  AnyLearnerAnswer,
+  defaultQuizSettings,
+  LearnerAnswer,
+  type LearnerAnswerOf,
+  QuestionOptions,
+  type QuestionOptionsOf,
+  QuestionType,
+  QuizKind,
+  QuizSettings,
+  ShowAnswers,
+} from './assessments'
+export {
+  AssignmentSettings,
+  LatePolicy,
+  Rubric,
+  RubricCriterion,
+  RubricLevel,
+  rubricMax,
+  SubmissionType,
+} from './assignments'
 export {
   AdminCourseRow,
   CategoryDirectoryDto,

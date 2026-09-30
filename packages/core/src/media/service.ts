@@ -15,6 +15,17 @@ export interface FileUpload {
   expiresAt: Date
 }
 
+/** Keeps a display name: no path, no control characters, at most 120 characters. */
+export const cleanFilename = (name: string): string | null => {
+  const base = name.split(/[\\/]/).pop() ?? ''
+  const printable = [...base].filter((ch) => {
+    const code = ch.codePointAt(0) ?? 0
+    return code >= 0x20 && code !== 0x7f
+  })
+  const clean = printable.join('').trim().slice(0, 120)
+  return clean || null
+}
+
 /** Step 1: validate type and size, reserve a key, return a presigned PUT (docs/09 §5). */
 export async function createFileUpload(
   ctx: Ctx,
@@ -42,6 +53,7 @@ export async function createFileUpload(
     key,
     mime: input.mime,
     sizeBytes: input.sizeBytes,
+    originalName: cleanFilename(input.filename),
     purpose: input.purpose,
   })
   const signed = await provider(ctx, 'storage').presignUpload({

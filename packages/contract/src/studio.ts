@@ -21,7 +21,8 @@ export const CourseStatus = z.enum([
 export const RevisionStatus = z.enum(['draft', 'submitted', 'approved', 'rejected', 'superseded'])
 export const CourseLevel = z.enum(['beginner', 'intermediate', 'advanced', 'all'])
 export const LessonType = z.enum(['video', 'article', 'quiz', 'assignment', 'live', 'resource'])
-export const NewLessonType = z.enum(['video', 'article', 'resource'])
+/** `exam` creates a quiz lesson whose quiz is an exam. */
+export const NewLessonType = z.enum(['video', 'article', 'resource', 'quiz', 'exam', 'assignment'])
 export const VideoStatus = z.enum(['uploading', 'processing', 'ready', 'failed'])
 export const RefundPolicyDays = z.union([z.literal(0), z.literal(3), z.literal(7), z.literal(14)])
 export const ChecklistKey = z.enum([
@@ -82,6 +83,8 @@ const StudioLessonDtoShape = z.object({
   video: z.object({ assetId: z.uuid(), status: VideoStatus, filename: z.string() }).nullable(),
   articleDoc: RichTextDoc.nullable(),
   resources: z.array(StudioResourceDto),
+  quizId: z.uuid().nullable(),
+  assignmentId: z.uuid().nullable(),
 })
 export type StudioLessonDto = z.infer<typeof StudioLessonDtoShape>
 /** Named type so declaration files refer to it instead of repeating the shape per procedure. */

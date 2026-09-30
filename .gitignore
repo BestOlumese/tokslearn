@@ -24,3 +24,6 @@ blob-report/
 *.log
 .vercel
 .sentryclirc
+
+# k6 load-test tokens (packages/core seed:load-exam)
+load/.exam-users.json

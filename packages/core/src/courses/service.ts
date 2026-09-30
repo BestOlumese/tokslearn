@@ -54,6 +54,9 @@ export interface StudioLesson {
   } | null
   articleDoc: RichTextDoc | null
   resources: StudioResource[]
+  /** Quiz and exam lessons: the quiz to edit in the assessments tab (Phase 6). */
+  quizId: string | null
+  assignmentId: string | null
 }
 
 export interface StudioSection {
@@ -140,6 +143,8 @@ async function buildOutline(ctx: Ctx, courseId: string): Promise<StudioSection[]
             ? { assetId: l.videoAssetId, status: videoStatus, filename: videoFilename ?? '' }
             : null,
         articleDoc: (l.articleDoc as RichTextDoc | null) ?? null,
+        quizId: l.quizId,
+        assignmentId: l.assignmentId,
         resources: resources
           .filter((r) => r.lessonId === l.id)
           .map((r) => ({
@@ -518,19 +523,33 @@ export async function addLesson(
     courseId: string
     version: number
     sectionId: string
-    type: 'video' | 'article' | 'resource'
+    type: 'video' | 'article' | 'resource' | 'quiz' | 'assignment'
     title: string
+    /**
+     * Quiz and assignment lessons: creates their quiz or assignment inside the same transaction
+     * (assessments and assignments own those rows) and returns its id to link.
+     */
+    attach?: (
+      tx: Ctx,
+      course: { id: string },
+    ) => Promise<{ quizId?: string; assignmentId?: string }>
   },
 ) {
+  if ((input.type === 'quiz' || input.type === 'assignment') && !input.attach) {
+    throw new Error(`${input.type} lessons are created through their own module`)
+  }
   return edit(ctx, input.courseId, input.version, async (tx, { course }) => {
     const section = await sectionOf(tx, course.id, input.sectionId)
     if (section.removalRequestedAt) throw new RuleViolationError('INVALID_MOVE')
+    const linked = input.attach ? await input.attach(tx, course) : {}
     await repo.insertLesson(tx.db, {
       courseId: course.id,
       sectionId: section.id,
       type: input.type,
       title: input.title.trim(),
       position: (await repo.maxLessonPosition(tx.db, section.id)) + 1,
+      quizId: input.type === 'quiz' ? (linked.quizId ?? null) : null,
+      assignmentId: input.type === 'assignment' ? (linked.assignmentId ?? null) : null,
     })
   })
 }

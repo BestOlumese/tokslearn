@@ -73,7 +73,7 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
       title: revisions.title,
       coverFileId: revisions.coverFileId,
       instructorName: sql<string>`coalesce(${instructorProfiles.displayName}, ${user.name})`,
-      staff: sql<boolean>`exists (select 1 from course_staff cs where cs.course_id = ${courses.id} and cs.user_id = ${actor.userId})`,
+      staff: sql<boolean>`exists (select 1 from course_staff cs where cs.course_id = "courses"."id" and cs.user_id = ${actor.userId})`,
     })
     .from(courses)
     .innerJoin(revisions, eq(revisions.id, courses.liveRevisionId))

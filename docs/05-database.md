@@ -101,18 +101,20 @@ Write pattern: clients send heartbeats every 20 s (or on pause/end/leave); serve
 Rate-limit heartbeats per user (1 per 10 s per lesson).
 
 ### assessments
-- `question_banks`: `owner_id`, `course_id`, `title`.
-- `questions`: `bank_id`, `type` enum(single, multiple, true_false, short_text, ordering, matching), `prompt_doc jsonb`, `prompt_html`, `options jsonb`, `answer jsonb` (**never sent to clients**), `explanation_html`, `points`, `difficulty`, `tags text[]`.
+- `question_banks`: `owner_id`, `course_id`, `title`, `archived_at`.
+- `questions`: `bank_id`, `type` enum(single, multiple, true_false, short_text, ordering, matching), `prompt_doc jsonb`, `prompt_html`, `options jsonb`, `answer jsonb` (**never sent to clients**), `explanation_html`, `points`, `difficulty`, `tags text[]`, `position`, `archived_at` (questions that attempts point at are archived, never deleted).
 - `quizzes`: `course_id`, `kind` enum(practice, graded, exam), `title`, `settings jsonb` (time_limit_sec, attempts_allowed, cooldown_hours, pass_pct, shuffle_questions, shuffle_options, questions_per_attempt, show_answers enum(never, after_submit, after_pass, after_close), lockdown flags).
+- `quiz_questions`: pk(`quiz_id`, `question_id`), `position` (fixed quizzes).
 - `quiz_sources`: `quiz_id`, `bank_id`, `question_count`, `tag_filter` (draw N questions from bank).
-- `quiz_attempts`: `quiz_id`, `user_id`, `status` enum(in_progress, submitted, auto_submitted, graded, void), `started_at`, `deadline_at` (server), `submitted_at`, `question_ids uuid[]` (frozen selection), `option_orders jsonb`, `score`, `max_score`, `passed`, `integrity jsonb` (focus-loss count, paste attempts, IP changes), `flagged` bool.
+- A quiz or exam is a lesson of type `quiz` (`lessons.quiz_id`, unique); an exam is a quiz with `kind = exam`.
+- `quiz_attempts`: `quiz_id`, `user_id`, `attempt_no`, `status` enum(in_progress, submitted, auto_submitted, graded, void), `started_at`, `deadline_at` (server), `submitted_at`, `question_ids uuid[]` (frozen selection), `option_orders jsonb`, `score`, `max_score`, `passed`, `integrity jsonb` (focus-loss count, paste attempts, IP changes), `flagged` bool, `void_reason`, `voided_by`, `voided_at`. Scores are `numeric(10,2)` (partial credit).
 - `attempt_answers`: pk(attempt_id, question_id), `answer jsonb`, `is_correct`, `points_awarded`, `answered_at`.
 - Constraint: one `in_progress` attempt per (quiz, user) — partial unique index.
 
 ### assignments
-- `assignments`: `course_id`, `lesson_id`, `instructions_html`, `submission_types` (text, file, link), `max_files`, `max_file_mb`, `rubric jsonb`, `due_mode` (none, days_after_enrollment, cohort_date), `late_policy jsonb`, `resubmissions_allowed`.
-- `submissions`: `assignment_id`, `user_id`, `attempt_no`, `text_html`, `file_ids uuid[]`, `link`, `status` enum(submitted, grading, graded, returned), `submitted_at`, `is_late`.
-- `grades`: `submission_id` unique, `grader_id`, `rubric_scores jsonb`, `score`, `max_score`, `passed`, `feedback_html`, `graded_at`.
+- `assignments`: `course_id`, `instructions_doc`, `instructions_html`, `submission_types` (text, file, link), `max_files`, `max_file_mb`, `rubric jsonb`, `max_score`, `pass_pct`, `due_mode` (none, days_after_enrollment, cohort_date), `due_days`, `late_policy jsonb`, `resubmissions_allowed` (count). The lesson points at it (`lessons.assignment_id`, unique).
+- `submissions`: `assignment_id`, `user_id`, `attempt_no`, `text_html`, `file_ids uuid[]`, `link`, `status` enum(draft, submitted, grading, graded, returned), `submitted_at`, `is_late`, `late_penalty_pct`. One draft per (assignment, user) — partial unique index; the grading queue reads a partial index on submitted/grading.
+- `grades`: `submission_id` unique, `grader_id`, `decision` enum(graded, returned), `rubric_scores jsonb`, `score`, `max_score`, `passed`, `feedback_doc`, `feedback_html`, `graded_at`.
 
 ### certificates
 - `certificate_templates`: `instructor_id` nullable (platform default), `layout jsonb`.

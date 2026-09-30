@@ -39,6 +39,7 @@ export {
   type ChecklistKey,
   canEditCourse,
   canReviewCourses,
+  canViewCourseInStudio,
   checklistKeys,
   MAX_PRICE_KOBO,
   MIN_PAID_PRICE_KOBO,
@@ -76,3 +77,4 @@ export {
   updateResource,
 } from './service'
 export { addStaff, listStaff, removeStaff } from './staff'
+export { type StudioCourseRef, studioCourse } from './studio-access'

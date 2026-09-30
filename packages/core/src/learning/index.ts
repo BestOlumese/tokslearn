@@ -13,11 +13,13 @@ export {
   type LearnOutline,
   type LessonResourceView,
   type LessonType,
+  lessonLocked,
   type OutlineLesson,
   type ProgressStatus,
 } from './outline'
 export {
   clampWatched,
+  completeLessonFor,
   type HeartbeatInput,
   type HeartbeatResult,
   heartbeat,

@@ -4,7 +4,7 @@ import { closeTestDb, withRollback } from '@tokslearn/db/testing'
 import { and, eq } from 'drizzle-orm'
 import { afterAll, describe, expect, it } from 'vitest'
 import { addToCart, completeOrder, startCheckout } from '../commerce'
-import { getDripSettings, updateDripSettings } from '../courses'
+import { addStaff, getDripSettings, updateDripSettings } from '../courses'
 import {
   createNote,
   deleteNote,
@@ -557,6 +557,16 @@ describe('drip schedule, learners and the continue card', () => {
       const { env, owner, course, buyer, video, article } = await world(db)
       const page = await listCourseLearners(env.ctx(owner), { courseId: course.id })
       expect(page).toMatchObject({ total: 1, nextCursor: null })
+      // The course's teaching assistants see the list too.
+      const taId = await insertUser(db, { email: 'ta@example.com', roles: ['learner'] })
+      await addStaff(env.ctx(owner), { courseId: course.id, emailOrUsername: 'ta@example.com' })
+      expect(
+        (
+          await listCourseLearners(env.ctx(testUser(['learner'], { userId: taId })), {
+            courseId: course.id,
+          })
+        ).total,
+      ).toBe(1)
       expect(page.items[0]).toMatchObject({
         displayName: 'Amaka O.',
         progressPct: 0,

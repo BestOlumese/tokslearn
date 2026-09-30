@@ -13,6 +13,7 @@ import { CourseStatusBadge } from './course-status-badge'
 const tabs = [
   ['details', 'Details'],
   ['curriculum', 'Curriculum'],
+  ['assessments', 'Assessments'],
   ['pricing', 'Pricing'],
   ['drip', 'Drip schedule'],
   ['learners', 'Learners'],
