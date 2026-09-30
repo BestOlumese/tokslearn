@@ -1,6 +1,7 @@
 import { render, toPlainText } from '@react-email/components'
 import type { ReactElement } from 'react'
 import type { EmailData, EmailId } from './catalog'
+import * as announcement from './templates/announcement'
 import * as applicationDecision from './templates/application-decision'
 import * as applicationReceived from './templates/application-received'
 import * as assignmentGraded from './templates/assignment-graded'
@@ -13,12 +14,14 @@ import * as emailChangedOld from './templates/email-changed-old'
 import * as enrollmentFree from './templates/enrollment-free'
 import * as kycResult from './templates/kyc-result'
 import * as lessonUnlocked from './templates/lesson-unlocked'
+import * as mention from './templates/mention'
 import * as newSignIn from './templates/new-sign-in'
 import * as orderReceipt from './templates/order-receipt'
 import * as passwordChanged from './templates/password-changed'
 import * as payoutAccountChanged from './templates/payout-account-changed'
 import * as resetPassword from './templates/reset-password'
 import * as signInCode from './templates/sign-in-code'
+import * as threadReply from './templates/thread-reply'
 import * as twoFactorChanged from './templates/two-factor-changed'
 import * as verifyEmail from './templates/verify-email'
 
@@ -90,6 +93,18 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'certificate-issued': {
     subject: certificateIssued.subject,
     element: (d) => <certificateIssued.CertificateIssued {...d} />,
+  },
+  'thread-reply': {
+    subject: threadReply.subject,
+    element: (d) => <threadReply.ThreadReply {...d} />,
+  },
+  mention: {
+    subject: mention.subject,
+    element: (d) => <mention.Mention {...d} />,
+  },
+  announcement: {
+    subject: announcement.subject,
+    element: (d) => <announcement.Announcement {...d} />,
   },
   'attempt-voided': {
     subject: attemptVoided.subject,

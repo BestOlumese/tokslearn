@@ -121,6 +121,31 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     linkedInUrl:
       'https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=Bookkeeping%20for%20Small%20Businesses&organizationName=Tokslearn&issueYear=2026&issueMonth=9&certUrl=https%3A%2F%2Ftokslearn.com%2Fverify%2FTL-C-8Q2M-4K7P&certId=TL-C-8Q2M-4K7P',
   },
+  'thread-reply': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    threadTitle: 'Where does VAT go in the cash book?',
+    replierName: 'Tobi Adeleke',
+    excerpt: 'Keep VAT in its own column so you can total it for the monthly return…',
+    isAnswer: true,
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/community/01920000-0000-7000-8000-000000000009',
+  },
+  mention: {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    threadTitle: 'Month-end checklist',
+    authorName: 'Bola A.',
+    excerpt: '@amaka your template helped me close March in a day.',
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/community/01920000-0000-7000-8000-000000000009',
+  },
+  announcement: {
+    courseTitle: 'Bookkeeping for Small Businesses',
+    instructorName: 'Tobi Adeleke',
+    cohortName: 'November 2026',
+    title: 'Live review on Thursday',
+    body: 'We meet on Thursday at 7pm to go through your March reconciliations.\n\nBring your workbook and one question.',
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/community/01920000-0000-7000-8000-000000000009',
+  },
   'attempt-voided': {
     name: 'Amaka',
     courseTitle: 'Bookkeeping for Small Businesses',

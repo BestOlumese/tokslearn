@@ -67,6 +67,11 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   'certificates.requestNameCorrection': { limit: 5, windowSec: 60 },
   // Each preview renders a PDF.
   'studio.certificates.preview': { limit: 10, windowSec: 60 },
+  community: { limit: 120, windowSec: 60 },
+  // Posting is where spam comes from (docs/10 §10).
+  'community.createThread': { limit: 5, windowSec: 60 },
+  'community.reply': { limit: 20, windowSec: 60 },
+  'community.report': { limit: 10, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {

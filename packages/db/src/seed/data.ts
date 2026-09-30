@@ -37,6 +37,11 @@ export const seedFeatureFlags: ReadonlyArray<{
     description: 'Shows the maintenance page to everyone except staff.',
   },
   { key: 'cohorts', enabled: false, description: 'Cohort-based courses and schedules.' },
+  {
+    key: 'community',
+    enabled: false,
+    description: 'Course discussions, lesson Q&A and announcements.',
+  },
   { key: 'live_classes', enabled: false, description: 'Live classes on Daily.' },
   {
     key: 'subscriptions',

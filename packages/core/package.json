@@ -24,7 +24,8 @@
     "./notifications": "./src/notifications/index.ts",
     "./testing": "./src/kernel/testing.ts",
     "./certificates": "./src/certificates/index.ts",
-    "./cohorts": "./src/cohorts/index.ts"
+    "./cohorts": "./src/cohorts/index.ts",
+    "./community": "./src/community/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

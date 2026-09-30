@@ -37,6 +37,7 @@ import {
   studioCouponsRouter,
   wishlistRouter,
 } from './procedures/commerce'
+import { adminModerationRouter, communityRouter } from './procedures/community'
 import { healthRouter } from './procedures/health'
 import { instructorsRouter, kycRouter, payoutAccountsRouter } from './procedures/instructors'
 import {
@@ -83,6 +84,7 @@ export const router = impl.router({
     coupons: adminCouponsRouter,
     ledger: adminLedgerRouter,
     certificates: adminCertificatesRouter,
+    moderation: adminModerationRouter,
   },
   cart: cartRouter,
   wishlist: wishlistRouter,
@@ -102,6 +104,7 @@ export const router = impl.router({
   grading: gradingRouter,
   certificates: certificatesRouter,
   cohorts: cohortsRouter,
+  community: communityRouter,
 })
 
 export type Router = typeof router
