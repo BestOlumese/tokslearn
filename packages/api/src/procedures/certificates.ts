@@ -40,6 +40,9 @@ export const certificatesRouter = {
   listMine: authed.certificates.listMine.handler(async ({ context }) => ({
     items: (await certificates.listMyCertificates(context.ctx)).map(toMine),
   })),
+  forCourse: authed.certificates.forCourse.handler(({ context, input }) =>
+    certificates.myCourseCertificate(context.ctx, input.courseId),
+  ),
   download: authed.certificates.download.handler(async ({ context, input }) => ({
     url: await certificates.certificateDownloadUrl(context.ctx, input.certificateId),
   })),

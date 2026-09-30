@@ -11,7 +11,7 @@ import { type Ctx, inTransaction, provider } from '../kernel/ctx'
 import { ConflictError, NotFoundError, RuleViolationError } from '../kernel/errors'
 import { requireStaff, requireUser } from '../kernel/guards'
 import { getFiles, getOwnedUploadedFile, privateFileUrl } from '../media'
-import { renderCertificateFile, verifyUrlFor } from './issue'
+import { earnedDecision, renderCertificateFile, verifyUrlFor } from './issue'
 import {
   basisText,
   type CertificateBasis,
@@ -660,4 +660,32 @@ export async function recordCertificateView(ctx: Ctx, input: string): Promise<vo
       { certificate_id: row.id },
       { distinctId: 'verify-page' },
     )
+}
+
+export interface CourseCertificateState {
+  /** The course's live mode; 'none' means the player shows nothing. */
+  mode: CertificateMode
+  certificate: { id: string; code: string; status: 'active' | 'revoked' } | null
+  /** Criteria met but not issued yet: the job is on its way ("being prepared"). */
+  preparing: boolean
+}
+
+/** For the course player: the learner's certificate for this course, or whether one is coming. */
+export async function myCourseCertificate(
+  ctx: Ctx,
+  courseId: string,
+): Promise<CourseCertificateState> {
+  const me = requireUser(ctx.actor)
+  const [[course], [cert]] = await Promise.all([
+    ctx.db.select({ mode: courses.certificateMode }).from(courses).where(eq(courses.id, courseId)),
+    ctx.db
+      .select({ id: certificates.id, code: certificates.publicCode, status: certificates.status })
+      .from(certificates)
+      .where(and(eq(certificates.userId, me.userId), eq(certificates.courseId, courseId))),
+  ])
+  const mode = course?.mode ?? 'none'
+  if (cert) return { mode, certificate: cert, preparing: false }
+  if (mode === 'none') return { mode, certificate: null, preparing: false }
+  const earned = await earnedDecision(ctx, me.userId, courseId)
+  return { mode, certificate: null, preparing: earned !== null }
 }

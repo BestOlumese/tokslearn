@@ -173,6 +173,7 @@ export {
   CertificateBasis,
   CertificateMode,
   CertificateSettings,
+  CourseCertificateDto,
   ExternalResultDto,
   IssuedCertificateDto,
   MyCertificateDto,

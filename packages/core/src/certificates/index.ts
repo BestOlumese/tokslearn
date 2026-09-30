@@ -16,6 +16,7 @@ export {
 } from './rules'
 export {
   type AdminCertificate,
+  type CourseCertificateState,
   certificateDownloadUrl,
   type ExternalResult,
   externalEvidenceUrl,
@@ -25,6 +26,7 @@ export {
   listIssuedCertificates,
   listMyCertificates,
   type MyCertificate,
+  myCourseCertificate,
   type PublicCertificate,
   previewCertificate,
   recordCertificateView,
