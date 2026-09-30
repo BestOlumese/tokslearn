@@ -396,15 +396,19 @@ async function studioQuizView(
   }
 }
 
-/** All quizzes and exams of a course, for the assessments tab. */
+/**
+ * The quizzes and exams in a course's curriculum, for the assessments tab. A quiz whose lesson was
+ * deleted keeps its row (attempts point at it) but has nothing left to edit, so it isn't listed.
+ */
 export async function listCourseQuizzes(ctx: Ctx, courseId: string): Promise<StudioQuiz[]> {
   const course = await studioCourse(ctx, courseId, 'view')
   const rows = await ctx.db
     .select()
     .from(quizzes)
     .where(eq(quizzes.courseId, course.id))
-    .orderBy(asc(quizzes.createdAt))
-  return Promise.all(rows.map((q) => studioQuizView(ctx, q, course)))
+    .orderBy(asc(quizzes.createdAt), asc(quizzes.id))
+  const views = await Promise.all(rows.map((q) => studioQuizView(ctx, q, course)))
+  return views.filter((q) => q.lessonId !== null)
 }
 
 export async function updateQuiz(

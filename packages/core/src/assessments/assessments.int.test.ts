@@ -5,7 +5,7 @@ import { closeTestDb, withRollback } from '@tokslearn/db/testing'
 import { and, eq, sql } from 'drizzle-orm'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import { addToCart, completeOrder, startCheckout } from '../commerce'
-import { addStaff, getStudioCourse } from '../courses'
+import { addStaff, getStudioCourse, removeLesson } from '../courses'
 import type { UserActor } from '../kernel/actor'
 import { fixedClock } from '../kernel/clock'
 import { createCtx } from '../kernel/ctx'
@@ -20,6 +20,7 @@ import {
   getAttempt,
   getAttemptForReview,
   getStudioQuiz,
+  listCourseQuizzes,
   listFlaggedAttempts,
   listQuestions,
   logIntegrityEvent,
@@ -166,6 +167,35 @@ async function world(
 }
 
 describe('authoring', () => {
+  it('lists only quizzes still in the curriculum', async () => {
+    await withRollback(async (db) => {
+      const { env, owner, course, quizId } = await world(db)
+      const teach = env.ctx(owner, T0)
+      let studio = await getStudioCourse(teach, course.id)
+      studio = await addQuizLesson(teach, {
+        courseId: course.id,
+        version: studio.version,
+        sectionId: studio.sections[0]?.id ?? '',
+        title: 'Second check',
+        kind: 'practice',
+      })
+      const draft = studio.sections
+        .flatMap((s) => s.lessons)
+        .find((l) => l.title === 'Second check')
+      expect((await listCourseQuizzes(teach, course.id)).map((q) => q.lessonTitle)).toEqual([
+        'Check your understanding',
+        'Second check',
+      ])
+      // A lesson that never went live is deleted outright; its quiz row stays behind.
+      await removeLesson(teach, {
+        courseId: course.id,
+        version: studio.version,
+        lessonId: draft?.id ?? '',
+      })
+      expect((await listCourseQuizzes(teach, course.id)).map((q) => q.id)).toEqual([quizId])
+    })
+  })
+
   it('validates questions, keeps answers to the studio, and lets TAs look but not change', async () => {
     await withRollback(async (db) => {
       const { env, owner, course, bank, questions, quizId } = await world(db)
