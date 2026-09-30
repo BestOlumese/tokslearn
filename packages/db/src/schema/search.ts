@@ -61,6 +61,9 @@ export const courseSearch = pgTable(
     ratingCount: integer().notNull().default(0),
     popularityScore: real().notNull().default(0),
     featuredAt: tstz(),
+    /** Cohort-based courses: the next open run's start, for the badge, filter and home row. */
+    cohortBased: boolean().notNull().default(false),
+    nextCohortStartsAt: tstz(),
     publishedAt: tstz().notNull(),
     ...timestamps(),
   },
@@ -73,6 +76,9 @@ export const courseSearch = pgTable(
     index().on(t.popularityScore.desc(), t.publishedAt.desc()),
     index().on(t.publishedAt.desc()),
     index().on(t.priceKobo),
+    index('course_search_next_cohort_idx')
+      .on(t.nextCohortStartsAt)
+      .where(sql`${t.nextCohortStartsAt} is not null`),
     index('course_search_featured_idx')
       .on(t.featuredAt.desc())
       .where(sql`${t.featuredAt} is not null`),

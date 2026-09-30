@@ -18,7 +18,7 @@ import {
 import type { Ctx } from '../kernel/ctx'
 
 // Catalog read model (docs/05 `course_search`, docs/12 §4). Owns course_search.
-// Foreign reads (docs/03 §3): courses, course_revisions, files (cover key), instructor_profiles, user (instructor name), course_tags/tags, categories.
+// Foreign reads (docs/03 §3): cohorts and enrollments (next start date), courses, course_revisions, files (cover key), instructor_profiles, user (instructor name), course_tags/tags, categories.
 
 const {
   courseSearch: cs,
@@ -51,6 +51,27 @@ const plain = (html: string | null) =>
  * Rebuilds one course's catalog row: upserts it while the course is published and live, removes
  * it otherwise (draft, unlisted, archived, deleted). Call inside the transaction that changed it.
  */
+/**
+ * The soonest published run still taking people and not full. Read directly: the cohorts module
+ * calls the catalog, so the catalog can't call it back (docs/03 §3).
+ */
+async function nextCohortStart(ctx: Ctx, courseId: string): Promise<Date | null> {
+  const { cohorts } = schema
+  const [row] = await ctx.db
+    .select({ at: sql`min(${cohorts.startsAt})`.mapWith(cohorts.startsAt) })
+    .from(cohorts)
+    .where(
+      and(
+        eq(cohorts.courseId, courseId),
+        eq(cohorts.status, 'open'),
+        sql`coalesce(${cohorts.enrollClosesAt}, ${cohorts.startsAt}) > ${ctx.now}`,
+        // Literal outer column: Drizzle leaves single-table columns unqualified.
+        sql`(${cohorts.capacity} is null or ${cohorts.capacity} > (select count(*) from enrollments e where e.cohort_id = "cohorts"."id" and e.status in ('active', 'completed')))`,
+      ),
+    )
+  return row?.at ?? null
+}
+
 export async function reindexCourse(ctx: Ctx, courseId: string): Promise<'indexed' | 'removed'> {
   const db = ctx.db
   const [row] = await db
@@ -106,6 +127,8 @@ export async function reindexCourse(ctx: Ctx, courseId: string): Promise<'indexe
     totalDurationSec: c.totalDurationSec,
     lessonCount: c.lessonCount,
     featuredAt: c.featuredAt,
+    cohortBased: c.cohortBased,
+    nextCohortStartsAt: c.cohortBased ? await nextCohortStart(ctx, c.id) : null,
     publishedAt: c.publishedAt ?? ctx.now,
   }
   if (r.coverFileId) {

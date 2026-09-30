@@ -334,12 +334,13 @@ export const engagementContract = {
 // ─── Studio: drip schedule and learners ───────────────────────────────────────────────────────
 
 const LagosDay = z.iso.date()
-export const DripMode = z.enum(['none', 'after_enrollment', 'fixed_dates'])
+export const DripMode = z.enum(['none', 'after_enrollment', 'fixed_dates', 'cohort_relative'])
 
 const DripSettingsShape = z.object({
   courseId: z.uuid(),
   version: z.number().int(),
   mode: DripMode,
+  cohortBased: z.boolean(),
   canEdit: z.boolean(),
   lessons: z.array(
     z.object({

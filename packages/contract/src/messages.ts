@@ -56,6 +56,7 @@ export const errorCatalog = {
   CATEGORY_NOT_FOUND: notFound('category'),
   SECTION_NOT_FOUND: notFound('section'),
   BUNDLE_NOT_FOUND: notFound('bundle'),
+  COHORT_NOT_FOUND: notFound('start date'),
   REVISION_NOT_FOUND: notFound('course version'),
   VIDEO_NOT_FOUND: notFound('video'),
 
@@ -179,6 +180,21 @@ export const errorCatalog = {
     status: 'UNPROCESSABLE_CONTENT',
     message: 'Enrollment for this cohort has closed.',
   },
+  COHORT_REQUIRED: { status: 'UNPROCESSABLE_CONTENT', message: 'Pick a start date for {course}.' },
+  COHORT_HAS_LEARNERS: {
+    status: 'CONFLICT',
+    message:
+      "Learners have joined this start date, so it can't be cancelled. Close enrolment instead.",
+  },
+  COHORT_CAPACITY_TOO_LOW: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: '{taken} seats are already taken. Set the capacity to at least that.',
+  },
+  COURSE_IN_BUNDLE: {
+    status: 'CONFLICT',
+    message: "Cohort-based courses can't be sold in bundles. Take it out of {bundle} first.",
+  },
+  FEATURE_DISABLED: { status: 'FORBIDDEN', message: "This isn't available yet." },
   PAYMENT_NOT_CONFIRMED: {
     status: 'UNPROCESSABLE_CONTENT',
     message: "Your payment wasn't completed. You haven't been charged.",

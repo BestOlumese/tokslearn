@@ -8,11 +8,11 @@ import { canEditCourse, canViewCourseInStudio } from './rules'
 
 // Drip schedule (docs/10 §2, docs/20 `/teach/courses/[id]/drip`). Scheduling, not content: it
 // applies to the live course straight away, without a review (ADR-034). Cohort-relative drip
-// arrives with cohorts in Phase 8.
+// counts from each cohort run's start (Phase 8) and is only offered on cohort-based courses.
 
 const { lessons, sections, courses } = schema
 
-export type EditableDripMode = 'none' | 'after_enrollment' | 'fixed_dates'
+export type EditableDripMode = 'none' | 'after_enrollment' | 'fixed_dates' | 'cohort_relative'
 export const MAX_DRIP_OFFSET_DAYS = 365
 
 export interface DripLesson {
@@ -31,6 +31,8 @@ export interface DripSettings {
   courseId: string
   version: number
   mode: EditableDripMode
+  /** Offers "days after the start date" (cohort_relative). */
+  cohortBased: boolean
   canEdit: boolean
   lessons: DripLesson[]
 }
@@ -69,7 +71,8 @@ export async function getDripSettings(ctx: Ctx, courseId: string): Promise<DripS
   return {
     courseId: course.id,
     version: course.version,
-    mode: course.dripMode === 'cohort_relative' ? 'none' : course.dripMode,
+    mode: course.dripMode,
+    cohortBased: course.cohortBased,
     canEdit: canEditCourse(user, course),
     lessons: rows.map(({ liveSince, date, ...r }) => ({
       ...r,
@@ -112,6 +115,11 @@ export async function updateDripSettings(
     }
     if (course.status === 'archived') throw new ConflictError('COURSE_NOT_EDITABLE')
     if (course.version !== input.version) throw new ConflictError('VERSION_CONFLICT')
+    if (input.mode === 'cohort_relative' && !course.cohortBased) {
+      throw new RuleViolationError('VALIDATION_FAILED', {
+        issues: [{ path: 'mode', message: 'Sell this course in cohorts first.' }],
+      })
+    }
     const own = new Set(
       (
         await tx.db

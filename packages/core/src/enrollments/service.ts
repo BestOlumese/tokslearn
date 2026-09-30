@@ -1,5 +1,6 @@
 import { schema } from '@tokslearn/db'
 import { and, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm'
+import { claimSeat } from '../cohorts'
 import { hasRole, isUser, type UserActor } from '../kernel/actor'
 import { cacheTags } from '../kernel/cache'
 import type { Ctx } from '../kernel/ctx'
@@ -11,11 +12,12 @@ import { sendEmail } from '../notifications'
 
 // Enrollments (docs/05 enrollments, docs/08 §6). The only answer to "may this person open this
 // paid lesson?" is `canAccessCourse` / `canAccessLesson`; every learning surface calls them.
-// Foreign reads (docs/03 §3): courses, course_revisions, course_staff, lessons, user,
+// Foreign reads (docs/03 §3): cohorts (start date for drip), courses, course_revisions, course_staff, lessons, user,
 // instructor_profiles, files, lesson_progress.
 
 const {
   enrollments,
+  cohorts,
   courses,
   courseRevisions: revisions,
   lessons,
@@ -46,6 +48,8 @@ export async function grantEnrollment(
     courseId: string
     source: EnrollmentSource
     orderItemId?: string | null
+    /** The run, for cohort-based courses (docs/10 §9). */
+    cohortId?: string | null
   },
 ): Promise<{ enrollmentId: string; created: boolean }> {
   const [inserted] = await ctx.db
@@ -55,6 +59,7 @@ export async function grantEnrollment(
       courseId: input.courseId,
       source: input.source,
       orderItemId: input.orderItemId ?? null,
+      cohortId: input.cohortId ?? null,
     })
     .onConflictDoNothing({ target: [enrollments.userId, enrollments.courseId] })
     .returning({ id: enrollments.id })
@@ -79,6 +84,7 @@ export async function grantEnrollment(
         status: 'active',
         source: input.source,
         orderItemId: input.orderItemId ?? null,
+        cohortId: input.cohortId ?? null,
         accessExpiresAt: null,
       })
       .where(eq(enrollments.id, existing.id))
@@ -182,15 +188,19 @@ const DAY_MS = 86_400_000
 
 /**
  * When a lesson opens for one enrollment under the course's drip mode (docs/10 §2). Cohort-
- * relative drip arrives with cohorts (Phase 8); until then those lessons are open.
+ * relative delays count from the run's start; a learner without a run counts from enrolment.
  */
 export function dripUnlocksAt(
   dripMode: 'none' | 'fixed_dates' | 'after_enrollment' | 'cohort_relative',
   lesson: { dripOffsetDays: number | null; dripDate: Date | null },
   enrolledAt: Date,
+  cohortStartsAt: Date | null = null,
 ): Date | null {
   if (dripMode === 'after_enrollment' && lesson.dripOffsetDays) {
     return new Date(enrolledAt.getTime() + lesson.dripOffsetDays * DAY_MS)
+  }
+  if (dripMode === 'cohort_relative' && lesson.dripOffsetDays) {
+    return new Date((cohortStartsAt ?? enrolledAt).getTime() + lesson.dripOffsetDays * DAY_MS)
   }
   if (dripMode === 'fixed_dates' && lesson.dripDate) return lesson.dripDate
   return null
@@ -245,12 +255,14 @@ export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAc
       status: enrollments.status,
       enrolledAt: enrollments.createdAt,
       accessExpiresAt: enrollments.accessExpiresAt,
+      cohortStartsAt: cohorts.startsAt,
     })
     .from(courses)
     .leftJoin(
       enrollments,
       and(eq(enrollments.courseId, courses.id), eq(enrollments.userId, actor.userId)),
     )
+    .leftJoin(cohorts, eq(cohorts.id, enrollments.cohortId))
     .where(eq(courses.id, row.courseId))
   const expired =
     facts?.accessExpiresAt !== null &&
@@ -261,7 +273,7 @@ export async function lessonAccess(ctx: Ctx, lessonId: string): Promise<LessonAc
     // Enrolled means learner, drip included, even for staff: an admin testing a course they
     // bought sees what learners see. Staff who aren't enrolled see everything (below).
     if (preview) return ok('enrolled')
-    const unlocksAt = dripUnlocksAt(row.dripMode, row, facts.enrolledAt)
+    const unlocksAt = dripUnlocksAt(row.dripMode, row, facts.enrolledAt, facts.cohortStartsAt)
     if (unlocksAt && unlocksAt > ctx.now) {
       // Drip moved later after the learner started: what they opened stays open (ADR-034).
       const [started] = await ctx.db
@@ -291,7 +303,7 @@ export async function canAccessLesson(ctx: Ctx, lessonId: string): Promise<boole
  * Enroll in a free course (docs/20 `/courses/[slug]` "Enroll free"). No order, no payment:
  * the course must be live and cost ₦0. Needs a verified email, like buying.
  */
-export async function enrollFree(ctx: Ctx, courseId: string) {
+export async function enrollFree(ctx: Ctx, courseId: string, cohortId: string | null = null) {
   const actor = requireUser(ctx.actor)
   if (!actor.emailVerified) throw new RuleViolationError('EMAIL_NOT_VERIFIED')
   const [course] = await ctx.db
@@ -305,6 +317,7 @@ export async function enrollFree(ctx: Ctx, courseId: string) {
       lessonCount: courses.lessonCount,
       totalDurationSec: courses.totalDurationSec,
       certificateMode: courses.certificateMode,
+      cohortBased: courses.cohortBased,
     })
     .from(courses)
     .innerJoin(revisions, eq(revisions.id, courses.liveRevisionId))
@@ -315,12 +328,19 @@ export async function enrollFree(ctx: Ctx, courseId: string) {
   }
   if (course.priceKobo !== 0n) throw new RuleViolationError('COURSE_UNAVAILABLE')
   if (course.instructorId === actor.userId) throw new RuleViolationError('OWN_COURSE')
+  if (course.cohortBased && !cohortId) {
+    throw new RuleViolationError('COHORT_REQUIRED', { course: course.title })
+  }
 
   const result = await inTransaction(ctx, async (tx) => {
+    // Free runs still have a capacity: the run is locked and checked in this transaction.
+    const run = course.cohortBased && cohortId ? cohortId : null
+    if (run) await claimSeat(tx, { userId: actor.userId, courseId: course.id, cohortId: run })
     const granted = await grantEnrollment(tx, {
       userId: actor.userId,
       courseId: course.id,
       source: 'free',
+      cohortId: run,
     })
     if (granted.created) {
       const [me] = await tx.db

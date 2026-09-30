@@ -10,9 +10,14 @@ const round2 = (n: number) => Math.round(n * 100) / 100
 export function dueAtFor(
   settings: Pick<AssignmentSettings, 'dueMode' | 'dueDays'>,
   enrolledAt: Date,
+  cohortStartsAt: Date | null = null,
 ): Date | null {
-  if (settings.dueMode === 'days_after_enrollment' && settings.dueDays) {
+  if (!settings.dueDays) return null
+  if (settings.dueMode === 'days_after_enrollment') {
     return new Date(enrolledAt.getTime() + settings.dueDays * DAY_MS)
+  }
+  if (settings.dueMode === 'cohort_date') {
+    return new Date((cohortStartsAt ?? enrolledAt).getTime() + settings.dueDays * DAY_MS)
   }
   return null
 }

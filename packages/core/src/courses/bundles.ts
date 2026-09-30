@@ -53,6 +53,17 @@ async function checkCourses(
   if (rows.length !== unique.length || rows.some((c) => c.instructorId !== instructorId)) {
     throw new NotFoundError('COURSE_NOT_FOUND')
   }
+  // A bundle has no start date to pick, so cohort-based courses stay out (ADR-037).
+  if (rows.some((c) => c.cohortBased)) {
+    throw new RuleViolationError('VALIDATION_FAILED', {
+      issues: [
+        {
+          path: 'courseIds',
+          message: 'Cohort-based courses are sold by start date, not in bundles.',
+        },
+      ],
+    })
+  }
   if (status === 'active' && rows.filter((c) => c.liveRevisionId).length < MIN_BUNDLE_COURSES) {
     throw new RuleViolationError('VALIDATION_FAILED', {
       issues: [

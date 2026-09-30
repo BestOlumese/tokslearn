@@ -28,7 +28,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `KYC_REQUIRED` — FORBIDDEN — "Complete identity verification to continue."
 - `STAFF_ONLY` — FORBIDDEN — "This area is for Tokslearn staff."
 - `SELF_REVIEW_NOT_ALLOWED` — FORBIDDEN — staff deciding their own application or course — "You can't decide your own application or course. Ask another reviewer."
-- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND`, `QUESTION_BANK_NOT_FOUND`, `QUESTION_NOT_FOUND`, `QUIZ_NOT_FOUND`, `ATTEMPT_NOT_FOUND`, `ASSIGNMENT_NOT_FOUND`, `SUBMISSION_NOT_FOUND`, `EXTERNAL_RESULT_NOT_FOUND`, `ENROLLMENT_NOT_FOUND` ("learner") — "We couldn't find that {thing}."
+- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND`, `QUESTION_BANK_NOT_FOUND`, `QUESTION_NOT_FOUND`, `QUIZ_NOT_FOUND`, `ATTEMPT_NOT_FOUND`, `ASSIGNMENT_NOT_FOUND`, `SUBMISSION_NOT_FOUND`, `EXTERNAL_RESULT_NOT_FOUND`, `ENROLLMENT_NOT_FOUND` ("learner"), `COHORT_NOT_FOUND` ("start date") — "We couldn't find that {thing}."
 
 ## Instructor onboarding
 - `APPLICATION_EXISTS` — CONFLICT — "You already have an application in progress."
@@ -71,6 +71,11 @@ Format: `CODE` — oRPC status — when — user message.
 - `CART_FULL` — UNPROCESSABLE_CONTENT — more than 20 items — "Your cart holds up to 20 items. Buy these first, then add more."
 - `COHORT_FULL` — UNPROCESSABLE_CONTENT — "This cohort is full. Choose another start date."
 - `COHORT_ENROLLMENT_CLOSED` — UNPROCESSABLE_CONTENT — "Enrollment for this cohort has closed."
+- `COHORT_REQUIRED` — UNPROCESSABLE_CONTENT — a cohort-based course without a start date picked — "Pick a start date for {course}."
+- `COHORT_HAS_LEARNERS` — CONFLICT — cancelling or deleting a run people joined — "Learners have joined this start date, so it can't be cancelled. Close enrolment instead."
+- `COHORT_CAPACITY_TOO_LOW` — UNPROCESSABLE_CONTENT — capacity below seats already taken — "{taken} seats are already taken. Set the capacity to at least that."
+- `COURSE_IN_BUNDLE` — CONFLICT — cohort-based course in a bundle, either way round — "Cohort-based courses can't be sold in bundles. Take it out of {bundle} first."
+- `FEATURE_DISABLED` — FORBIDDEN — a feature switched off by Tokslearn — "This isn't available yet."
 - `PAYMENT_NOT_CONFIRMED` — UNPROCESSABLE_CONTENT — verify says not successful — "Your payment wasn't completed. You haven't been charged."
 - `PAYMENT_AMOUNT_MISMATCH` — UNPROCESSABLE_CONTENT — internal alert, user sees — "We couldn't confirm your payment. Our team has been notified; contact support with reference {ref}."
 - `PAYMENT_PROVIDER_UNAVAILABLE` — SERVICE_UNAVAILABLE — "Payments are temporarily unavailable. Your cart is saved; try again in a few minutes."

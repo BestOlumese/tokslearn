@@ -61,8 +61,8 @@ export const AssignmentSettings = z.object({
   /** Used when there is no rubric. */
   maxScore: z.number().int().min(1).max(1000).default(100),
   passPct: z.number().int().min(0).max(100).default(50),
-  /** Cohort dates arrive with cohorts (Phase 8). */
-  dueMode: z.enum(['none', 'days_after_enrollment']).default('none'),
+  /** cohort_date: `dueDays` after the learner's cohort starts (after enrolment without one). */
+  dueMode: z.enum(['none', 'days_after_enrollment', 'cohort_date']).default('none'),
   dueDays: z.number().int().min(1).max(365).nullable().default(null),
   latePolicy: LatePolicy.default({ mode: 'accept', penaltyPct: 0, graceHours: 0 }),
   resubmissionsAllowed: z.number().int().min(0).max(10).default(0),

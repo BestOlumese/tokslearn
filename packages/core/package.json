@@ -23,7 +23,8 @@
     "./media": "./src/media/index.ts",
     "./notifications": "./src/notifications/index.ts",
     "./testing": "./src/kernel/testing.ts",
-    "./certificates": "./src/certificates/index.ts"
+    "./certificates": "./src/certificates/index.ts",
+    "./cohorts": "./src/cohorts/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -15,6 +15,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 import { baseColumns, currency, kobo, tstz } from '../columns'
+import { cohorts } from './cohorts'
 import { bundles, courses } from './courses'
 import { user } from './identity'
 
@@ -43,8 +44,10 @@ export const cartItems = pgTable(
       .references(() => carts.id, { onDelete: 'cascade' }),
     itemType: cartItemTypeEnum().notNull(),
     itemId: uuid().notNull(),
+    /** The start date picked for a cohort-based course. */
+    cohortId: uuid().references(() => cohorts.id, { onDelete: 'set null' }),
   },
-  (t) => [uniqueIndex().on(t.cartId, t.itemType, t.itemId)],
+  (t) => [uniqueIndex().on(t.cartId, t.itemType, t.itemId), index().on(t.cohortId)],
 )
 
 export const wishlistItems = pgTable(
@@ -257,6 +260,8 @@ export const orderItems = pgTable(
       .notNull()
       .references(() => courses.id, { onDelete: 'restrict' }),
     bundleId: uuid().references(() => bundles.id, { onDelete: 'restrict' }),
+    /** The cohort run bought, for cohort-based courses. */
+    cohortId: uuid().references(() => cohorts.id, { onDelete: 'restrict' }),
     instructorId: uuid()
       .notNull()
       .references(() => user.id, { onDelete: 'restrict' }),
@@ -282,6 +287,7 @@ export const orderItems = pgTable(
     index().on(t.orderId),
     index().on(t.courseId),
     index().on(t.bundleId),
+    index().on(t.cohortId),
     index().on(t.referralLinkId),
     index().on(t.instructorId, t.earningStatus),
     index('order_items_release_due')
