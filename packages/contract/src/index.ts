@@ -36,6 +36,7 @@ import {
   studioCouponsContract,
   wishlistContract,
 } from './commerce'
+import { adminModerationContract, communityContract } from './community'
 import { healthContract } from './health'
 import { meContract, usersContract } from './identity'
 import { instructorsContract, kycContract, payoutAccountsContract } from './instructors'
@@ -82,6 +83,7 @@ export const contract = {
     coupons: adminCouponsContract,
     ledger: adminLedgerContract,
     certificates: adminCertificatesContract,
+    moderation: adminModerationContract,
   },
   cart: cartContract,
   wishlist: wishlistContract,
@@ -101,6 +103,7 @@ export const contract = {
   grading: gradingContract,
   certificates: certificatesContract,
   cohorts: cohortsContract,
+  community: communityContract,
 }
 export type Contract = typeof contract
 
@@ -209,6 +212,15 @@ export {
   PublicBundleDto,
   type ReferralLinkDto,
 } from './commerce'
+export {
+  ReportDto,
+  ScopeType,
+  ThreadDto,
+  ThreadFilter,
+  ThreadKind,
+  ThreadSummaryDto,
+  UnansweredQuestionDto,
+} from './community'
 export {
   type ErrorCode,
   ErrorCodeSchema,

@@ -64,6 +64,13 @@
       "when": 1790760479847,
       "tag": "0008_phase8_cohorts",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790779130528,
+      "tag": "0009_phase8_community",
+      "breakpoints": true
     }
   ]
 }

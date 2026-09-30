@@ -1,3 +1,4 @@
+import { isFeatureEnabled } from '@tokslearn/core/admin'
 import * as certificates from '@tokslearn/core/certificates'
 import { isDomainError } from '@tokslearn/core/kernel'
 import * as learning from '@tokslearn/core/learning'
@@ -73,6 +74,7 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
     throw o.error
   }
   const outline = o.value
+  const communityOn = await isFeatureEnabled(ctx, 'community')
   // Learners only: teachers and staff never earn one here.
   const certificate =
     outline.role === 'learner'
@@ -217,6 +219,7 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
             <LessonTabs
               lessonId={lesson.id}
               courseId={lesson.courseId}
+              community={communityOn ? { courseSlug } : null}
               overview={
                 <Overview
                   position={index + 1}
@@ -225,6 +228,7 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
                   courseHref={courseHref}
                   instructorName={outline.course.instructorName}
                   progressPct={outline.role === 'learner' ? outline.progressPct : null}
+                  discussionsHref={communityOn ? (`${base}/community` as Route) : null}
                   cohort={
                     outline.cohort
                       ? { name: outline.cohort.name, href: `${base}/cohort` as Route }
@@ -389,6 +393,7 @@ function Overview({
   instructorName,
   progressPct,
   cohort,
+  discussionsHref,
 }: {
   position: number
   total: number
@@ -397,6 +402,8 @@ function Overview({
   instructorName: string
   progressPct: number | null
   cohort: { name: string; href: Route } | null
+  /** The course's discussions, when the `community` flag is on. */
+  discussionsHref: Route | null
 }) {
   return (
     <div className="flex flex-col gap-3 text-body-sm text-ink-2">
@@ -408,6 +415,15 @@ function Overview({
         by {instructorName}.
         {progressPct !== null ? ` You’ve finished ${progressPct}% of the course.` : ''}
       </p>
+      {discussionsHref ? (
+        <p>
+          Questions and conversations about the whole course are in{' '}
+          <Link href={discussionsHref} className="font-medium text-brand-ink hover:underline">
+            Discussions
+          </Link>
+          .
+        </p>
+      ) : null}
       {cohort ? (
         <p>
           You’re in the {cohort.name} cohort.{' '}

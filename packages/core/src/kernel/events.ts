@@ -69,6 +69,8 @@ export interface DomainEvents {
   /** The learner corrected the name once: the render job makes a new PDF (same code). */
   'certificate.name_corrected': { certificateId: string; userId: string; courseId: string }
   'certificate.revoked': { certificateId: string; userId: string; courseId: string }
+  /** The announcement-send job emails it to the course's (or cohort's) learners. */
+  'announcement.posted': { threadId: string; courseId: string }
   'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }
   'order.failed': { orderId: string; reason: string }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */

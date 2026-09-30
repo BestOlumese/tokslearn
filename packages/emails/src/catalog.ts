@@ -109,6 +109,35 @@ export interface EmailData {
     verifyUrl: string
     linkedInUrl: string
   }
+  'thread-reply': {
+    name: string
+    courseTitle: string
+    threadTitle: string
+    replierName: string
+    /** First words of the reply, plain text. */
+    excerpt: string
+    /** An instructor's or TA's answer to the reader's question. */
+    isAnswer: boolean
+    url: string
+  }
+  mention: {
+    name: string
+    courseTitle: string
+    threadTitle: string
+    authorName: string
+    excerpt: string
+    url: string
+  }
+  announcement: {
+    courseTitle: string
+    instructorName: string
+    /** Set when it went to one cohort. */
+    cohortName: string | null
+    title: string
+    /** Plain text, paragraphs separated by a blank line, at most 2,000 characters. */
+    body: string
+    url: string
+  }
   'lesson-unlocked': {
     name: string
     courseTitle: string
@@ -142,6 +171,9 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'assignment-graded': 'activity',
   'attempt-voided': 'transactional',
   'certificate-issued': 'transactional',
+  'thread-reply': 'activity',
+  mention: 'activity',
+  announcement: 'activity',
 }
 
 export const emailIds = Object.keys(emailCategory) as EmailId[]

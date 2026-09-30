@@ -246,6 +246,17 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Catalog:** `course_search.next_cohort_starts_at` (the soonest open, not-full run) drives the "Cohort starts 3 Nov" badge, the filter and the home row "Cohorts starting soon". It is refreshed on every run change and cohort enrolment; the filter compares with the current time, so a run that has started drops out without a reindex.
 - **Deferred to the community and live parts of Phase 8:** cohort announcements and discussion on the cohort home, live sessions in its schedule, messaging a cohort from the studio.
 
+### ADR-038 Community (Phase 8)
+- **One thread model for three places.** A thread belongs to a course and is scoped to the course, a cohort run or a lesson (lesson Q&A in the player). Kinds: discussion, question, announcement. Learners see the course's and its lessons' threads and their own cohort's; a learner outside a cohort gets "not found" for its threads (tested). The course's instructor, co-instructors and TAs see everything in their course; support and admins everywhere.
+- **Bodies are editor JSON; the HTML is ours.** The server renders HTML from the same allowlist as course text (escaped text, http/https/mailto links only, unknown nodes dropped). The client never sends HTML, so there is nothing to sanitise after the fact (tested with a script tag, a javascript: link and an image node). The post editor has no headings.
+- **Filter:** learners' posts are checked against a short wordlist (English and Pidgin slurs and the crudest words, whole words only), accounts under three days old can't post links, and nobody more than five. Posting limits: 5 threads and 20 replies a minute. Teachers and staff aren't filtered.
+- **Q&A:** a teacher's reply to a question is the instructor answer and marks the question answered; the asker (or a teacher) can accept one reply. `/teach/qa` lists unanswered questions across the courses someone teaches.
+- **Announcements:** the instructor and co-instructors (not TAs) post to the course or a cohort; the `announcement-send` job emails every learner it's for, 500 per step, one email per learner per announcement.
+- **Emails before the notification centre:** a reply to your thread or your question, or a mention of your `@username`, sends at most one email per person per thread per hour (the hour is in the idempotency key). The digest, in-app notifications and per-type preferences are Phase 9; until then these activity emails go to everyone involved, like `lesson-unlocked` (ADR-034).
+- **Moderation:** anyone can report a thread or reply once; staff work the queue at `/admin/moderation` (hide, which resolves the reports, or dismiss). Teachers hide, lock and pin in their own course. Every action is audit-logged. Hidden things stay visible to teachers and staff, marked.
+- **Names:** learners appear as "Ada E.", teachers by their public name with an Instructor label, as elsewhere.
+- **Deferred:** editing a post (delete and repost for now), reactions other than like, per-cohort TAs, messaging a cohort from the learners table (announce from the discussions page, choosing the cohort's page), reviews in the moderation queue (Phase 9).
+
 ---
 
 ## Open questions (resolve before the phase that needs them)

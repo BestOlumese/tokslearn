@@ -80,3 +80,8 @@ export const coursePublished = eventType('course.published', {
 export const courseUpdated = eventType('course.updated', {
   schema: z.object({ courseId: z.string(), revisionId: z.string(), instructorId: z.string() }),
 })
+
+/** An instructor's announcement: emailed to the course's (or cohort's) learners. */
+export const announcementPosted = eventType('announcement.posted', {
+  schema: z.object({ threadId: z.string(), courseId: z.string() }),
+})

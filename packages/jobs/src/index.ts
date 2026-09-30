@@ -10,6 +10,7 @@ import { accountDeletion } from './functions/account-deletion'
 import { examAutosubmit } from './functions/assessments'
 import { certificateBackfill, certificateIssue, certificateRender } from './functions/certificates'
 import { commerceHourly } from './functions/commerce-hourly'
+import { announcementSend } from './functions/community'
 import { dataExport } from './functions/data-export'
 import { emailSend } from './functions/email-send'
 import { badgesEvaluate, dripUnlocks, streakRollover } from './functions/learning'
@@ -39,6 +40,7 @@ export const functions = [
   certificateIssue,
   certificateRender,
   certificateBackfill,
+  announcementSend,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

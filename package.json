@@ -26,6 +26,7 @@
     "db:seed:demo-catalog": "pnpm --filter @tokslearn/core seed:demo-catalog",
     "db:seed:demo-assessments": "pnpm --filter @tokslearn/core seed:demo-assessments",
     "db:seed:demo-cohorts": "pnpm --filter @tokslearn/core seed:demo-cohorts",
+    "db:seed:demo-community": "pnpm --filter @tokslearn/core seed:demo-community",
     "db:reindex": "pnpm --filter @tokslearn/core reindex:catalog",
     "db:up": "docker compose up -d db"
   },
