@@ -69,6 +69,7 @@ export {
   type StudioCourse,
   type StudioLesson,
   type StudioSection,
+  setCohortBased,
   startLessonVideoUpload,
   startPromoVideoUpload,
   updateCertificateSettings,

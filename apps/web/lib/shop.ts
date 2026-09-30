@@ -42,7 +42,8 @@ export async function shopApi<T>(
 export const isSignedIn = (): boolean =>
   typeof document !== 'undefined' && document.cookie.split('; ').includes('tl_signed_in=1')
 
-export type LocalItem = { itemType: 'course' | 'bundle'; itemId: string }
+/** `cohortId`: the start date picked for a cohort-based course. */
+export type LocalItem = { itemType: 'course' | 'bundle'; itemId: string; cohortId?: string | null }
 
 const KEY = 'tl_cart'
 export const CART_EVENT = 'tl:cart'
@@ -67,11 +68,9 @@ export function writeLocalCart(items: LocalItem[]): void {
   cartChanged(items.length)
 }
 
+/** Adds an item, or switches its start date if it's already there. */
 export function addLocal(item: LocalItem): void {
-  const items = readLocalCart()
-  if (!items.some((i) => i.itemType === item.itemType && i.itemId === item.itemId)) {
-    writeLocalCart([...items, item])
-  }
+  writeLocalCart([...readLocalCart().filter((i) => i.itemId !== item.itemId), item])
 }
 
 /** Tells the header badge the new count. */

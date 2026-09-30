@@ -13,7 +13,7 @@ import { Track } from '@/components/catalog/track'
 import { RichHtml } from '@/components/rich-html'
 import { JsonLd } from '@/components/seo/json-ld'
 import { env } from '@/env'
-import { getCourse, topCourseSlugs } from '@/lib/catalog-data'
+import { getCourse, getCourseCohorts, topCourseSlugs } from '@/lib/catalog-data'
 import { certificateLabel, formatDate, languageLabel, levelLabel } from '@/lib/format'
 import { resized } from '@/lib/image'
 
@@ -81,6 +81,7 @@ async function Course({ params }: { params: Params }) {
   if (result.kind === 'redirect') permanentRedirect(`/courses/${result.slug}` as Route)
   if (result.kind === 'missing') notFound()
   const c = result.course
+  const runs = c.cohortBased ? await getCourseCohorts(c.id) : []
   const site = env.NEXT_PUBLIC_APP_URL
 
   return (
@@ -142,7 +143,7 @@ async function Course({ params }: { params: Params }) {
       <div className="mx-auto grid max-w-catalog gap-10 px-4 pt-8 pb-28 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:pb-16 lg:px-8">
         <div className="flex min-w-0 flex-col gap-12">
           <div id="purchase" className="scroll-mt-24 lg:hidden">
-            <PurchasePanel course={c} />
+            <PurchasePanel course={c} cohorts={runs} group="cohort-main" />
           </div>
 
           {c.outcomes.length > 0 ? (
@@ -213,7 +214,7 @@ async function Course({ params }: { params: Params }) {
 
         <aside aria-label="Buy this course" className="hidden lg:block">
           <div className="sticky top-24">
-            <PurchasePanel course={c} />
+            <PurchasePanel course={c} cohorts={runs} group="cohort-side" />
           </div>
         </aside>
       </div>

@@ -122,8 +122,9 @@ Rate-limit heartbeats per user (1 per 10 s per lesson).
 - `external_exam_results`: `course_id`, `user_id`, `provider_name`, `exam_url`, `result` enum(pass, fail), `score`, `evidence_file_id`, `recorded_by`, `recorded_at`.
 
 ### cohorts
-- `cohorts`: `course_id`, `name`, `starts_at`, `ends_at`, `enroll_opens_at`, `enroll_closes_at`, `capacity`, `status`, `timezone`.
-- `cohort_members`: pk(cohort_id, user_id), `role` enum(learner, ta).
+- `cohorts`: `course_id`, `name`, `starts_at`, `ends_at`, `enroll_opens_at` (null: when published), `enroll_closes_at` (null: at the start), `capacity` (null: no limit), `status` enum(draft, open, cancelled), `timezone`. Checks: capacity > 0, ends after starts.
+- `cohort_holds`: `cohort_id`, `order_id` (no FK: commerce owns orders), `user_id`, `expires_at` (30 min). unique(order_id, cohort_id). Seats taken = active/completed enrolments in the run + holds not expired (ADR-037).
+- Learners belong to a run through `enrollments.cohort_id`; `cart_items.cohort_id` and `order_items.cohort_id` carry the pick. `courses.cohort_based`; `course_search.cohort_based`, `next_cohort_starts_at`. `cohort_members` is not created (ADR-037).
 
 ### community
 - `threads`: `scope_type` enum(course, cohort, lesson), `scope_id`, `kind` enum(discussion, question, announcement), `author_id`, `title`, `body_html`, `is_pinned`, `is_locked`, `accepted_post_id`, `reply_count`, `last_activity_at`, `deleted_at`.

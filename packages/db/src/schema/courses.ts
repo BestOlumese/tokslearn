@@ -86,6 +86,8 @@ export const courses = pgTable(
       .notNull()
       .default(sql`'{}'::jsonb`),
     dripMode: dripModeEnum().notNull().default('none'),
+    /** Sold by cohort run: buyers pick a start date (docs/10 §9). Applies at once, like drip. */
+    cohortBased: boolean().notNull().default(false),
     completionThresholdPct: smallint().notNull().default(90),
     subscriptionOptIn: boolean().notNull().default(false),
     drmRequired: boolean().notNull().default(false),

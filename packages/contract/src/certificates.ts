@@ -84,6 +84,17 @@ const MyCertificateShape = z.object({
 export type MyCertificateDto = z.infer<typeof MyCertificateShape>
 export const MyCertificateDto = named(MyCertificateShape)
 
+const CourseCertificateShape = z.object({
+  mode: CertificateMode,
+  certificate: z
+    .object({ id: z.uuid(), code: z.string(), status: z.enum(['active', 'revoked']) })
+    .nullable(),
+  /** Criteria met, certificate not issued yet (it's on its way). */
+  preparing: z.boolean(),
+})
+export type CourseCertificateDto = z.infer<typeof CourseCertificateShape>
+export const CourseCertificateDto = named(CourseCertificateShape)
+
 export const certificatesContract = {
   listMine: get(
     '/me/certificates',
@@ -91,6 +102,14 @@ export const certificatesContract = {
     'My certificates',
     'Every certificate the signed-in learner has earned, newest first, revoked ones included.',
   ).output(z.object({ items: z.array(MyCertificateDto) })),
+  forCourse: get(
+    '/me/courses/{courseId}/certificate',
+    'Certificates',
+    'My certificate for a course',
+    'For the course player: the certificate if issued, or `preparing` while it is on its way.',
+  )
+    .input(z.object({ courseId: z.uuid() }))
+    .output(CourseCertificateDto),
   download: post(
     '/me/certificates/{certificateId}/download',
     'Certificates',

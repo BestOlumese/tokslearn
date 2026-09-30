@@ -28,6 +28,7 @@ import {
   issueCertificate,
   listIssuedCertificates,
   listMyCertificates,
+  myCourseCertificate,
   recordExternalResult,
   renderCertificateFile,
   requestNameCorrection,
@@ -299,6 +300,8 @@ describe('exam certificates', () => {
       expect(settings.liveMode).toBe('exam')
       expect(settings.exams).toHaveLength(1)
       expect(await w.issue()).toBeNull()
+      const state = () => myCourseCertificate(w.env.ctx(w.buyer, at(4)), w.course.id)
+      expect(await state()).toEqual({ mode: 'exam', certificate: null, preparing: false })
 
       const me = w.env.ctx(w.buyer, at(1))
       const attempt = await startAttempt(me, { lessonId: w.examLessonId ?? '', confirmed: true })
@@ -309,9 +312,12 @@ describe('exam certificates', () => {
       })
       const done = await submitAttempt(w.env.ctx(w.buyer, at(3)), attempt.id)
       expect(done.result?.passed).toBe(true)
+      // Passed, not issued yet: the player says it's being prepared.
+      expect((await state()).preparing).toBe(true)
 
       const issued = await w.issue()
       expect(issued?.created).toBe(true)
+      expect(await state()).toMatchObject({ preparing: false, certificate: { status: 'active' } })
       const [cert] = await db
         .select()
         .from(schema.certificates)

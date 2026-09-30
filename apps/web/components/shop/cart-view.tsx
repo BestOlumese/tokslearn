@@ -2,7 +2,7 @@
 // Client component: the cart (docs/20 `/cart`). Signed-in users edit their server cart; visitors
 // see their browser cart priced by the server and sign in to check out, which merges it.
 
-import type { CartDto } from '@tokslearn/contract'
+import type { CartDto, PublicCohortDto } from '@tokslearn/contract'
 import { buttonClasses } from '@tokslearn/ui/button'
 import { EmptyState } from '@tokslearn/ui/empty-state'
 import { Input } from '@tokslearn/ui/input'
@@ -10,7 +10,7 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { CourseCover } from '@/components/catalog/course-cover'
-import { formatNaira } from '@/lib/format'
+import { formatDate, formatNaira } from '@/lib/format'
 import { cartChanged, readLocalCart, ShopError, shopApi, writeLocalCart } from '@/lib/shop'
 
 const removedWords = {
@@ -25,6 +25,13 @@ const couponWords: Record<string, string> = {
   COUPON_LIMIT_REACHED: 'This coupon has been fully used.',
   COUPON_NOT_APPLICABLE: "This coupon doesn't apply to the items in your cart.",
 }
+
+/** The browser cart keeps the picked start date as well (docs/10 §9). */
+const toLocal = (i: CartDto['items'][number]) => ({
+  itemType: i.itemType,
+  itemId: i.itemId,
+  cohortId: i.cohort?.id ?? null,
+})
 
 export function CartView({ initial, signedIn }: { initial: CartDto | null; signedIn: boolean }) {
   const [cart, setCart] = useState<CartDto | null>(initial)
@@ -53,7 +60,7 @@ export function CartView({ initial, signedIn }: { initial: CartDto | null; signe
       .then((c) => {
         setCart(c)
         // Drop what can't be bought from the browser cart too.
-        writeLocalCart(c.items.map((i) => ({ itemType: i.itemType, itemId: i.itemId })))
+        writeLocalCart(c.items.map(toLocal))
       })
       .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
   }, [signedIn, initial])
@@ -66,7 +73,7 @@ export function CartView({ initial, signedIn }: { initial: CartDto | null; signe
       setCart(next)
       cartChanged(next.items.length)
       if (!signedIn) {
-        writeLocalCart(next.items.map((i) => ({ itemType: i.itemType, itemId: i.itemId })))
+        writeLocalCart(next.items.map(toLocal))
       }
       return next
     } catch (e) {
@@ -87,6 +94,19 @@ export function CartView({ initial, signedIn }: { initial: CartDto | null; signe
       }
       const left = readLocalCart().filter((i) => !(i.itemType === itemType && i.itemId === itemId))
       return shopApi<CartDto>('/cart/preview', { method: 'POST', body: { items: left } })
+    })
+
+  /** Switch a cohort course to another start date. */
+  const pickDate = (courseId: string, cohortId: string) =>
+    act(() => {
+      if (signedIn) {
+        return shopApi<CartDto>('/cart/items', {
+          method: 'POST',
+          body: { itemType: 'course', itemId: courseId, cohortId },
+        })
+      }
+      const items = readLocalCart().map((i) => (i.itemId === courseId ? { ...i, cohortId } : i))
+      return shopApi<CartDto>('/cart/preview', { method: 'POST', body: { items } })
     })
 
   if (!cart) {
@@ -150,6 +170,24 @@ export function CartView({ initial, signedIn }: { initial: CartDto | null; signe
                       : ''}
                     {item.instructorName}
                   </p>
+                  {item.cohortBased ? (
+                    item.cohort ? (
+                      <DatePick
+                        courseId={item.itemId}
+                        current={item.cohort}
+                        disabled={busy}
+                        onPick={(id) => pickDate(item.itemId, id)}
+                      />
+                    ) : (
+                      <p className="text-body-sm text-danger">
+                        Pick a start date on the{' '}
+                        <Link href={`/courses/${item.slug}` as Route} className="underline">
+                          course page
+                        </Link>{' '}
+                        before you pay.
+                      </p>
+                    )
+                  ) : null}
                   <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
                     <button
                       type="button"
@@ -300,6 +338,74 @@ export function CartView({ initial, signedIn }: { initial: CartDto | null; signe
           {error}
         </p>
       ) : null}
+    </div>
+  )
+}
+
+/** A cohort course's start date, switchable to another open run without leaving the cart. */
+function DatePick({
+  courseId,
+  current,
+  disabled,
+  onPick,
+}: {
+  courseId: string
+  current: { id: string; name: string; startsAt: string }
+  disabled: boolean
+  onPick: (cohortId: string) => void
+}) {
+  const [runs, setRuns] = useState<PublicCohortDto[] | null>(null)
+  const [failed, setFailed] = useState(false)
+  if (!runs) {
+    return (
+      <p className="text-body-sm text-ink">
+        Starts {formatDate(current.startsAt)} · {current.name}{' '}
+        <button
+          type="button"
+          disabled={disabled}
+          className="text-brand hover:underline disabled:opacity-60"
+          onClick={() =>
+            shopApi<{ items: PublicCohortDto[] }>(`/courses/${courseId}/cohorts`)
+              .then((r) => setRuns(r.items))
+              .catch(() => setFailed(true))
+          }
+        >
+          Change date
+        </button>
+        {failed ? (
+          <span className="block text-danger">Couldn’t load the dates. Try again.</span>
+        ) : null}
+      </p>
+    )
+  }
+  const id = `date-${courseId}`
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <label htmlFor={id} className="text-body-sm text-ink-2">
+        Start date
+      </label>
+      <select
+        id={id}
+        value={current.id}
+        disabled={disabled}
+        onChange={(e) => onPick(e.target.value)}
+        className="h-9 rounded-control border border-border-strong bg-surface px-2 text-body-sm text-ink"
+      >
+        {runs.map((r) => (
+          <option
+            key={r.id}
+            value={r.id}
+            disabled={r.availability !== 'open' && r.id !== current.id}
+          >
+            {r.name} · starts {formatDate(r.startsAt)}
+            {r.availability === 'full'
+              ? ' (full)'
+              : r.availability === 'not_open_yet'
+                ? ' (not open yet)'
+                : ''}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

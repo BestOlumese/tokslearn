@@ -11,6 +11,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 import { baseColumns, tstz } from '../columns'
+import { cohorts } from './cohorts'
 import { orderItems } from './commerce'
 import { courses } from './courses'
 import { user } from './identity'
@@ -48,8 +49,8 @@ export const enrollments = pgTable(
       .references(() => courses.id, { onDelete: 'restrict' }),
     source: enrollmentSourceEnum().notNull(),
     orderItemId: uuid().references(() => orderItems.id, { onDelete: 'restrict' }),
-    /** Cohorts arrive in Phase 8; the foreign key is added then. */
-    cohortId: uuid(),
+    /** The run a cohort-based course was bought for; null for self-paced courses. */
+    cohortId: uuid().references(() => cohorts.id, { onDelete: 'restrict' }),
     status: enrollmentStatusEnum().notNull().default('active'),
     accessExpiresAt: tstz(),
     completedAt: tstz(),
@@ -61,6 +62,7 @@ export const enrollments = pgTable(
     index().on(t.courseId, t.status),
     index().on(t.userId, t.lastAccessedAt.desc()),
     index().on(t.orderItemId),
+    index().on(t.cohortId, t.status),
     check('enrollments_progress', sql`${t.progressPct} between 0 and 100`),
   ],
 )

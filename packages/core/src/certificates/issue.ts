@@ -97,6 +97,29 @@ async function latestExternalPass(ctx: Ctx, userId: string, courseId: string) {
   return row ?? null
 }
 
+/**
+ * Whether the learner meets the course's live criteria right now, with what issuing needs.
+ * Shared by issuing and by the player's "being prepared" notice, so both agree.
+ */
+export async function earnedDecision(ctx: Ctx, userId: string, courseId: string) {
+  const course = await liveCertificateCourse(ctx, courseId)
+  if (!course || course.mode === 'none') return null
+  const enrollment = await activeEnrollment(ctx, userId, courseId)
+  if (!enrollment) return null
+  const [exam, external] = await Promise.all([
+    course.mode === 'exam' && course.settings.examQuizId
+      ? passedAttempt(ctx, { userId, quizId: course.settings.examQuizId })
+      : null,
+    course.mode === 'external' ? latestExternalPass(ctx, userId, courseId) : null,
+  ])
+  const decision = decide(course.mode, course.settings, {
+    completed: enrollment.completedAt !== null,
+    examAttemptId: exam?.attemptId ?? null,
+    externalPassId: external?.id ?? null,
+  })
+  return decision ? { course, enrollment, decision, external } : null
+}
+
 export type IssueResult = { certificateId: string; created: boolean } | null
 
 /**
@@ -114,23 +137,9 @@ export async function issueCertificate(
       .where(and(eq(certificates.userId, input.userId), eq(certificates.courseId, input.courseId)))
     if (existing) return { certificateId: existing.id, created: false }
 
-    const course = await liveCertificateCourse(tx, input.courseId)
-    if (!course || course.mode === 'none') return null
-    const enrollment = await activeEnrollment(tx, input.userId, input.courseId)
-    if (!enrollment) return null
-
-    const [exam, external] = await Promise.all([
-      course.mode === 'exam' && course.settings.examQuizId
-        ? passedAttempt(tx, { userId: input.userId, quizId: course.settings.examQuizId })
-        : null,
-      course.mode === 'external' ? latestExternalPass(tx, input.userId, input.courseId) : null,
-    ])
-    const decision = decide(course.mode, course.settings, {
-      completed: enrollment.completedAt !== null,
-      examAttemptId: exam?.attemptId ?? null,
-      externalPassId: external?.id ?? null,
-    })
-    if (!decision) return null
+    const earned = await earnedDecision(tx, input.userId, input.courseId)
+    if (!earned) return null
+    const { course, enrollment, decision, external } = earned
 
     const [learner] = await tx.db
       .select({ name: user.name })

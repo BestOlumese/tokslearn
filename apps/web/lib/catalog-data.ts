@@ -1,7 +1,14 @@
 import 'server-only'
 import { toCardDto, toPublicCourseDto } from '@tokslearn/api'
-import type { CategoryDirectoryDto, CourseCardDto, PublicCourseDto } from '@tokslearn/contract'
+import type {
+  CategoryDirectoryDto,
+  CourseCardDto,
+  PublicCohortDto,
+  PublicCourseDto,
+} from '@tokslearn/contract'
+import { isFeatureEnabled } from '@tokslearn/core/admin'
 import * as catalog from '@tokslearn/core/catalog'
+import * as cohorts from '@tokslearn/core/cohorts'
 import * as commerce from '@tokslearn/core/commerce'
 import { anonymousActor, type Ctx, cacheTags, createCtx, DomainError } from '@tokslearn/core/kernel'
 import { publicFileUrl } from '@tokslearn/core/media'
@@ -35,9 +42,18 @@ export async function getHome() {
     newest: cards(h.newest),
     free: cards(h.free),
     popular: cards(h.popular),
+    startingSoon: cards(h.startingSoon),
     categories: h.categories as CategoryDirectoryDto,
     courseCount: h.courseCount,
   }
+}
+
+/** The `cohorts` flag, for public pages that offer cohort filters. */
+export async function cohortsOn(): Promise<boolean> {
+  'use cache'
+  cacheTag(cacheTags.featureFlags)
+  cacheLife('hours')
+  return isFeatureEnabled(publicCtx(), 'cohorts')
 }
 
 export async function getDirectory(): Promise<CategoryDirectoryDto> {
@@ -108,6 +124,24 @@ export async function getCourse(slug: string): Promise<CourseResult> {
   if (result.kind !== 'course') return result
   cacheTag(cacheTags.course(result.course.id), cacheTags.instructor(result.course.instructor.id))
   return { kind: 'course', course: toPublicCourseDto(result.course) }
+}
+
+/**
+ * A cohort-based course's start dates (docs/10 §9). Tagged with the course, which cohort changes
+ * and cohort enrolments invalidate; checkout re-checks seats, so a stale count never oversells.
+ */
+export async function getCourseCohorts(courseId: string): Promise<PublicCohortDto[]> {
+  'use cache'
+  cacheTag(cacheTags.course(courseId))
+  cacheLife('minutes')
+  const list = await cohorts.listCourseCohorts(publicCtx(), courseId)
+  return list.map((c) => ({
+    ...c,
+    startsAt: c.startsAt.toISOString(),
+    endsAt: c.endsAt.toISOString(),
+    closesAt: c.closesAt.toISOString(),
+    opensAt: c.opensAt?.toISOString() ?? null,
+  }))
 }
 
 export type CategoryPageData =

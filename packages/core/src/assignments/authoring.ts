@@ -31,7 +31,7 @@ export function readAssignmentSettings(a: AssignmentRow): AssignmentSettings {
     rubric: a.rubric ?? null,
     maxScore: a.maxScore,
     passPct: a.passPct,
-    dueMode: a.dueMode === 'cohort_date' ? 'none' : a.dueMode,
+    dueMode: a.dueMode,
     dueDays: a.dueDays,
     latePolicy: a.latePolicy,
     resubmissionsAllowed: a.resubmissionsAllowed,
@@ -142,9 +142,15 @@ export async function updateAssignment(
     )
   }
   const s = parsed.data
-  if (s.dueMode === 'days_after_enrollment' && !s.dueDays) {
+  if (s.dueMode !== 'none' && !s.dueDays) {
     throw new ValidationError([
-      { path: 'settings.dueDays', message: 'How many days after enrolling?' },
+      {
+        path: 'settings.dueDays',
+        message:
+          s.dueMode === 'cohort_date'
+            ? 'How many days after the start date?'
+            : 'How many days after enrolling?',
+      },
     ])
   }
   const text = richTextToPlain(input.instructions)
@@ -164,7 +170,7 @@ export async function updateAssignment(
       maxScore: s.rubric ? rubricMax(s.rubric) : s.maxScore,
       passPct: s.passPct,
       dueMode: s.dueMode,
-      dueDays: s.dueMode === 'days_after_enrollment' ? s.dueDays : null,
+      dueDays: s.dueMode === 'none' ? null : s.dueDays,
       latePolicy: s.latePolicy,
       resubmissionsAllowed: s.resubmissionsAllowed,
     })

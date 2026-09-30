@@ -15,6 +15,8 @@ export const toCartDto = (c: commerce.CartView): CartDto => ({
     compareAtKobo: i.compareAtKobo?.toString() ?? null,
     courseIds: i.courseIds,
     refundPolicyDays: i.refundPolicyDays,
+    cohortBased: i.cohortBased,
+    cohort: i.cohort ? { ...i.cohort, startsAt: i.cohort.startsAt.toISOString() } : null,
   })),
   removed: c.removed,
   couponCode: c.couponCode,

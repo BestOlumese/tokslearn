@@ -23,6 +23,7 @@ export function parseFilters(raw: RawParams): Filters & { q: string } {
     ...(f.minRating ? { minRating: f.minRating } : {}),
     ...(f.duration ? { duration: f.duration } : {}),
     ...(f.certificate ? { certificate: true } : {}),
+    ...(f.cohort ? { cohort: true } : {}),
     ...(f.cursor ? { cursor: f.cursor } : {}),
   }
 }

@@ -18,7 +18,7 @@ import {
 import type { Ctx } from '../kernel/ctx'
 
 // Catalog read model (docs/05 `course_search`, docs/12 §4). Owns course_search.
-// Foreign reads (docs/03 §3): courses, course_revisions, files (cover key), instructor_profiles, user (instructor name), course_tags/tags, categories.
+// Foreign reads (docs/03 §3): cohorts and enrollments (next start date), courses, course_revisions, files (cover key), instructor_profiles, user (instructor name), course_tags/tags, categories.
 
 const {
   courseSearch: cs,
@@ -51,6 +51,27 @@ const plain = (html: string | null) =>
  * Rebuilds one course's catalog row: upserts it while the course is published and live, removes
  * it otherwise (draft, unlisted, archived, deleted). Call inside the transaction that changed it.
  */
+/**
+ * The soonest published run still taking people and not full. Read directly: the cohorts module
+ * calls the catalog, so the catalog can't call it back (docs/03 §3).
+ */
+async function nextCohortStart(ctx: Ctx, courseId: string): Promise<Date | null> {
+  const { cohorts } = schema
+  const [row] = await ctx.db
+    .select({ at: sql`min(${cohorts.startsAt})`.mapWith(cohorts.startsAt) })
+    .from(cohorts)
+    .where(
+      and(
+        eq(cohorts.courseId, courseId),
+        eq(cohorts.status, 'open'),
+        sql`coalesce(${cohorts.enrollClosesAt}, ${cohorts.startsAt}) > ${ctx.now}`,
+        // Literal outer column: Drizzle leaves single-table columns unqualified.
+        sql`(${cohorts.capacity} is null or ${cohorts.capacity} > (select count(*) from enrollments e where e.cohort_id = "cohorts"."id" and e.status in ('active', 'completed')))`,
+      ),
+    )
+  return row?.at ?? null
+}
+
 export async function reindexCourse(ctx: Ctx, courseId: string): Promise<'indexed' | 'removed'> {
   const db = ctx.db
   const [row] = await db
@@ -106,6 +127,8 @@ export async function reindexCourse(ctx: Ctx, courseId: string): Promise<'indexe
     totalDurationSec: c.totalDurationSec,
     lessonCount: c.lessonCount,
     featuredAt: c.featuredAt,
+    cohortBased: c.cohortBased,
+    nextCohortStartsAt: c.cohortBased ? await nextCohortStart(ctx, c.id) : null,
     publishedAt: c.publishedAt ?? ctx.now,
   }
   if (r.coverFileId) {
@@ -148,7 +171,14 @@ export async function reindexMissing(ctx: Ctx): Promise<number> {
 
 // ─── Listing and search ───────────────────────────────────────────────────────────────────────
 
-export type CourseSort = 'popular' | 'newest' | 'rating' | 'price_low' | 'price_high'
+/** `starting_soon`: cohort runs by start date (the home row; pair it with `cohort: true`). */
+export type CourseSort =
+  | 'popular'
+  | 'newest'
+  | 'rating'
+  | 'price_low'
+  | 'price_high'
+  | 'starting_soon'
 export type DurationBucket = 'short' | 'medium' | 'long'
 
 export interface CourseFilters {
@@ -161,6 +191,7 @@ export interface CourseFilters {
   minRating?: number | undefined
   duration?: DurationBucket | undefined
   certificate?: boolean | undefined
+  cohort?: boolean | undefined
   sort?: CourseSort | undefined
   cursor?: string | undefined
   limit: number
@@ -187,6 +218,7 @@ const cardColumns = {
   ratingCount: cs.ratingCount,
   enrollmentCount: cs.enrollmentCount,
   publishedAt: cs.publishedAt,
+  nextCohortStartsAt: cs.nextCohortStartsAt,
 }
 
 function selectCards(db: DbOrTx) {
@@ -214,6 +246,7 @@ function filterConditions(f: CourseFilters): SQL[] {
   }
   if (f.duration === 'long') c.push(gt(cs.totalDurationSec, 6 * HOUR))
   if (f.certificate) c.push(sql`${cs.certificateMode} <> 'none'`)
+  if (f.cohort) c.push(sql`${cs.nextCohortStartsAt} > now()`)
   return c
 }
 
@@ -253,6 +286,12 @@ function sortSpec(sort: CourseSort) {
         col: cs.priceKobo,
         dir: 'asc' as const,
         value: (r: CourseCard) => r.priceKobo.toString(),
+      }
+    case 'starting_soon':
+      return {
+        col: cs.nextCohortStartsAt,
+        dir: 'asc' as const,
+        value: (r: CourseCard) => r.nextCohortStartsAt?.toISOString() ?? '',
       }
     case 'price_high':
       return {

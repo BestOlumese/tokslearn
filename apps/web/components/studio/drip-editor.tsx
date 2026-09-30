@@ -32,6 +32,11 @@ const modes: ReadonlyArray<[Mode, string, string]> = [
     'On set dates',
     'Everyone gets a lesson on the same day. Good for a course that runs alongside a class.',
   ],
+  [
+    'cohort_relative',
+    'Days after the start date',
+    'Counted from the start of each learner’s cohort, so every run follows the same timetable.',
+  ],
 ]
 
 export function DripEditor() {
@@ -113,35 +118,45 @@ function DripForm({ initial }: { initial: DripSettingsDto }) {
           description="A lesson a learner has already started stays open, even if you move its date later. Free previews are always open."
         >
           <div className="flex flex-col gap-2">
-            {modes.map(([value, label, hint]) => (
-              <div key={value} className="flex items-start gap-3">
-                <Radio
-                  id={`drip-${value}`}
-                  name="drip-mode"
-                  checked={mode === value}
-                  onChange={() => {
-                    setMode(value)
-                    setSaved(false)
-                  }}
-                  className="mt-0.5"
-                />
-                <Label htmlFor={`drip-${value}`} kind="option">
-                  <span className="font-medium text-ink">{label}</span>
-                  <span className="block text-body-sm text-ink-2">{hint}</span>
-                </Label>
-              </div>
-            ))}
+            {modes
+              .filter(([value]) => value !== 'cohort_relative' || initial.cohortBased)
+              .map(([value, label, hint]) => (
+                <div key={value} className="flex items-start gap-3">
+                  <Radio
+                    id={`drip-${value}`}
+                    name="drip-mode"
+                    checked={mode === value}
+                    onChange={() => {
+                      setMode(value)
+                      setSaved(false)
+                    }}
+                    className="mt-0.5"
+                  />
+                  <Label htmlFor={`drip-${value}`} kind="option">
+                    <span className="font-medium text-ink">{label}</span>
+                    <span className="block text-body-sm text-ink-2">{hint}</span>
+                  </Label>
+                </div>
+              ))}
           </div>
         </SettingsPanel>
 
         {mode !== 'none' ? (
           <SettingsPanel
             id="drip-lessons"
-            title={mode === 'after_enrollment' ? 'Days after enrolling' : 'Opening dates'}
+            title={
+              mode === 'after_enrollment'
+                ? 'Days after enrolling'
+                : mode === 'cohort_relative'
+                  ? 'Days after the start date'
+                  : 'Opening dates'
+            }
             description={
               mode === 'after_enrollment'
                 ? 'Counted from each learner’s own enrollment date, so someone who joined 10 days ago already has a “7 days” lesson. Leave a lesson empty or at 0 to open it straight away.'
-                : 'Dates are in Lagos time; a lesson opens at midnight. Leave empty to open it straight away.'
+                : mode === 'cohort_relative'
+                  ? 'Counted from the start date of the learner’s cohort. Leave a lesson empty or at 0 to open it as soon as they join.'
+                  : 'Dates are in Lagos time; a lesson opens at midnight. Leave empty to open it straight away.'
             }
           >
             <ol className="flex flex-col divide-y divide-border rounded-card border border-border">
@@ -167,10 +182,10 @@ function DripForm({ initial }: { initial: DripSettingsDto }) {
                         <p className="shrink-0 text-body-sm text-ink-3">
                           Free preview, always open
                         </p>
-                      ) : mode === 'after_enrollment' ? (
+                      ) : mode === 'after_enrollment' || mode === 'cohort_relative' ? (
                         <div className="flex shrink-0 items-center gap-2">
                           <Input
-                            aria-label={`Days after enrolling for ${l.title}`}
+                            aria-label={`${mode === 'cohort_relative' ? 'Days after the start date' : 'Days after enrolling'} for ${l.title}`}
                             type="number"
                             inputMode="numeric"
                             min={0}

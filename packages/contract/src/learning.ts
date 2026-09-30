@@ -334,12 +334,13 @@ export const engagementContract = {
 // ─── Studio: drip schedule and learners ───────────────────────────────────────────────────────
 
 const LagosDay = z.iso.date()
-export const DripMode = z.enum(['none', 'after_enrollment', 'fixed_dates'])
+export const DripMode = z.enum(['none', 'after_enrollment', 'fixed_dates', 'cohort_relative'])
 
 const DripSettingsShape = z.object({
   courseId: z.uuid(),
   version: z.number().int(),
   mode: DripMode,
+  cohortBased: z.boolean(),
   canEdit: z.boolean(),
   lessons: z.array(
     z.object({
@@ -364,6 +365,7 @@ const LearnerShape = z.object({
   progressPct: z.number().int(),
   lastActiveAt: IsoDateTime.nullable(),
   cohortId: z.uuid().nullable(),
+  cohortName: z.string().nullable(),
 })
 export type CourseLearnerDto = z.infer<typeof LearnerShape>
 export const CourseLearnerDto = named(LearnerShape)
@@ -414,6 +416,7 @@ export const studioLearnersContract = {
         courseId: z.uuid(),
         status: z.enum(['active', 'completed']).optional(),
         q: z.string().trim().max(100).optional(),
+        cohortId: z.uuid().optional(),
         cursor: Cursor.optional(),
       }),
     )

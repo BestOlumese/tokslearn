@@ -34,6 +34,8 @@ const toItem = (i: commerce.ItemView): CartItemDto => ({
   compareAtKobo: kn(i.compareAtKobo),
   courseIds: i.courseIds,
   refundPolicyDays: i.refundPolicyDays,
+  cohortBased: i.cohortBased,
+  cohort: i.cohort ? { ...i.cohort, startsAt: iso(i.cohort.startsAt) } : null,
 })
 
 const toCart = (c: commerce.CartView): CartDto => ({
@@ -181,7 +183,7 @@ export const ordersRouter = {
 
 export const enrollmentsRouter = {
   enrollFree: authed.enrollments.enrollFree.handler(async ({ context, input }) =>
-    enrollments.enrollFree(context.ctx, input.courseId),
+    enrollments.enrollFree(context.ctx, input.courseId, input.cohortId ?? null),
   ),
   listMine: authed.enrollments.listMine.handler(async ({ context, input }) => ({
     items: (await enrollments.listMyCourses(context.ctx, input)).map(

@@ -1,7 +1,8 @@
 import type { CourseCardDto } from '@tokslearn/contract'
+import { Badge } from '@tokslearn/ui/badge'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { formatDuration, levelLabel } from '@/lib/format'
+import { formatDayMonth, formatDuration, levelLabel } from '@/lib/format'
 import { trackAttr } from '@/lib/track-attr'
 import { CourseCover } from './course-cover'
 import { Price } from './price'
@@ -55,6 +56,11 @@ export function CourseCard({
         ) : null}
         <p className="text-body-sm text-ink-3">{meta.join(' · ')}</p>
         <Price priceKobo={course.priceKobo} compareAtKobo={course.compareAtKobo} />
+        {course.nextCohortStartsAt ? (
+          <Badge tone="accent" className="w-fit">
+            Cohort starts {formatDayMonth(course.nextCohortStartsAt)}
+          </Badge>
+        ) : null}
       </div>
       <span
         aria-hidden

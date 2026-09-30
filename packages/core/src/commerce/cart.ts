@@ -3,7 +3,7 @@ import { and, asc, desc, eq, inArray } from 'drizzle-orm'
 import { enrolledCourseIds } from '../enrollments'
 import { isUser } from '../kernel/actor'
 import type { Ctx } from '../kernel/ctx'
-import { DomainError, RuleViolationError } from '../kernel/errors'
+import { DomainError, NotFoundError, RuleViolationError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
 import { attributionFacts } from './attribution'
 import { type ItemRef, type ItemView, loadItems } from './catalog-items'
@@ -50,7 +50,11 @@ async function cartFor(ctx: Ctx, userId: string) {
 
 async function cartRefs(ctx: Ctx, cartId: string): Promise<ItemRef[]> {
   const rows = await ctx.db
-    .select({ itemType: cartItems.itemType, itemId: cartItems.itemId })
+    .select({
+      itemType: cartItems.itemType,
+      itemId: cartItems.itemId,
+      cohortId: cartItems.cohortId,
+    })
     .from(cartItems)
     .where(eq(cartItems.cartId, cartId))
     .orderBy(asc(cartItems.createdAt))
@@ -206,14 +210,21 @@ export async function addToCart(ctx: Ctx, ref: ItemRef): Promise<CartView> {
   if (reason === 'own_course') throw new RuleViolationError('OWN_COURSE')
   if (reason === 'owned') throw new RuleViolationError('ALREADY_ENROLLED')
   if (reason === 'unavailable') throw new RuleViolationError('COURSE_UNAVAILABLE')
+  // A start date that isn't one of this course's runs (docs/10 §9).
+  if (ref.cohortId && item.cohortBased && !item.cohort) throw new NotFoundError('COHORT_NOT_FOUND')
+  const cohortId = item.cohort?.id ?? null
   const cart = await cartFor(ctx, actor.userId)
   const refs = await cartRefs(ctx, cart.id)
   const already = refs.some((r) => r.itemType === ref.itemType && r.itemId === ref.itemId)
   if (!already && refs.length >= MAX_CART_ITEMS) throw new RuleViolationError('CART_FULL')
   await ctx.db
     .insert(cartItems)
-    .values({ cartId: cart.id, itemType: ref.itemType, itemId: ref.itemId })
-    .onConflictDoNothing()
+    .values({ cartId: cart.id, itemType: ref.itemType, itemId: ref.itemId, cohortId })
+    // Adding the course again with another start date switches the date.
+    .onConflictDoUpdate({
+      target: [cartItems.cartId, cartItems.itemType, cartItems.itemId],
+      set: { cohortId },
+    })
   await ctx.db.update(carts).set({ updatedAt: ctx.now }).where(eq(carts.id, cart.id))
   return getCart(ctx)
 }
@@ -249,7 +260,14 @@ export async function mergeCart(ctx: Ctx, refs: ReadonlyArray<ItemRef>): Promise
   if (addable.length > 0) {
     await ctx.db
       .insert(cartItems)
-      .values(addable.map((i) => ({ cartId: cart.id, itemType: i.itemType, itemId: i.itemId })))
+      .values(
+        addable.map((i) => ({
+          cartId: cart.id,
+          itemType: i.itemType,
+          itemId: i.itemId,
+          cohortId: i.cohort?.id ?? null,
+        })),
+      )
       .onConflictDoNothing()
   }
   return getCart(ctx)

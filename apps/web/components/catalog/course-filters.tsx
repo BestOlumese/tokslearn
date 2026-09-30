@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { cohortsOn } from '@/lib/catalog-data'
 import type { RawParams } from '@/lib/catalog-params'
 import { languageLabel, levelLabel } from '@/lib/format'
 
@@ -47,7 +48,7 @@ function Choice({
  * Filters as a plain GET form (no client JS on public pages, docs/12 §1): the URL holds the state.
  * Hidden fields keep the search query or category the filters apply to.
  */
-export function CourseFilters({
+export async function CourseFilters({
   params,
   action,
   keep = [],
@@ -56,6 +57,7 @@ export function CourseFilters({
   action: string
   keep?: ReadonlyArray<string>
 }) {
+  const cohorts = await cohortsOn()
   const price = one(params.price) || 'any'
   const level = one(params.level)
   const duration = one(params.duration)
@@ -127,6 +129,24 @@ export function CourseFilters({
           Includes a certificate
         </label>
       </Group>
+      {cohorts ? (
+        <Group legend="Format">
+          <label
+            htmlFor="f-cohort"
+            className="flex min-h-9 cursor-pointer items-center gap-2.5 text-body-sm text-ink"
+          >
+            <input
+              id="f-cohort"
+              type="checkbox"
+              name="cohort"
+              value="true"
+              defaultChecked={one(params.cohort) === 'true'}
+              className="size-4 accent-[var(--color-brand)]"
+            />
+            Runs in a cohort, with a start date
+          </label>
+        </Group>
+      ) : null}
       <div className="flex gap-3">
         <button
           type="submit"

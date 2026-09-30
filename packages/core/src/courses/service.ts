@@ -1,7 +1,10 @@
 import type { RichTextDoc } from '@tokslearn/contract'
+import { schema } from '@tokslearn/db'
+import { and, eq, sql } from 'drizzle-orm'
 import { track } from '../analytics'
 import { courseTagNames, requireCategory, setCourseTags } from '../catalog'
 import { hasRole, type UserActor } from '../kernel/actor'
+import { cacheTags } from '../kernel/cache'
 import { type Ctx, inTransaction } from '../kernel/ctx'
 import { ConflictError, ForbiddenError, NotFoundError, RuleViolationError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
@@ -75,6 +78,8 @@ export interface StudioCourse {
   version: number
   isPublished: boolean
   canEdit: boolean
+  /** Sold by cohort run (docs/10 §9). */
+  cohortBased: boolean
   revision: {
     id: string
     number: number
@@ -224,6 +229,7 @@ export async function getStudioCourse(ctx: Ctx, courseId: string): Promise<Studi
     version: course.version,
     isPublished: course.liveRevisionId !== null,
     canEdit: canEditCourse(user, course),
+    cohortBased: course.cohortBased,
     revision: {
       id: revision.id,
       number: revision.number,
@@ -459,6 +465,42 @@ export async function updateCertificateSettings(
       certificateMode: input.mode,
       certificateSettings: input.settings,
     })
+  })
+}
+
+/**
+ * Turns selling by cohort run on or off (docs/10 §9). Applies at once, like drip. The cohorts
+ * module checks the feature flag and the caller's rights first. A course in a bundle can't be
+ * cohort-based: a bundle has no start date to pick.
+ */
+export async function setCohortBased(ctx: Ctx, input: { courseId: string; cohortBased: boolean }) {
+  await inTransaction(ctx, async (tx) => {
+    const course = await repo.lockCourse(tx.db, input.courseId)
+    if (!course) throw new NotFoundError('COURSE_NOT_FOUND')
+    if (course.cohortBased === input.cohortBased) return
+    if (input.cohortBased) {
+      const [bundle] = await tx.db
+        .select({ title: schema.bundles.title })
+        .from(schema.bundleCourses)
+        .innerJoin(schema.bundles, eq(schema.bundles.id, schema.bundleCourses.bundleId))
+        .where(
+          and(
+            eq(schema.bundleCourses.courseId, course.id),
+            sql`${schema.bundles.status} <> 'archived'`,
+          ),
+        )
+        .limit(1)
+      if (bundle) throw new ConflictError('COURSE_IN_BUNDLE', { bundle: bundle.title })
+    }
+    await repo.updateCourse(tx.db, course.id, {
+      cohortBased: input.cohortBased,
+      // Cohort-relative drip means nothing without runs.
+      ...(!input.cohortBased && course.dripMode === 'cohort_relative' ? { dripMode: 'none' } : {}),
+      version: course.version + 1,
+    })
+    tx.afterCommit(() =>
+      tx.cache.invalidate([cacheTags.course(course.id), cacheTags.courseSlug(course.slug)]),
+    )
   })
 }
 

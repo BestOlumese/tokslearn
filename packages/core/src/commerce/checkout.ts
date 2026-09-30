@@ -3,6 +3,7 @@ import { ProviderError } from '@tokslearn/integrations/paystack'
 import { and, desc, eq, gt, inArray, isNotNull, lt, or, sql } from 'drizzle-orm'
 import { getSetting } from '../admin'
 import { track } from '../analytics'
+import { releaseOrderHolds, reserveSeats } from '../cohorts'
 import { grantEnrollment } from '../enrollments'
 import { cacheTags } from '../kernel/cache'
 import { type Ctx, inTransaction, provider } from '../kernel/ctx'
@@ -78,6 +79,11 @@ export async function startCheckout(
   const cart = await getCart(ctx, { anonymousId: input.anonymousId })
   if (cart.removed.length > 0) throw new ConflictError('CART_CHANGED')
   if (cart.items.length === 0) throw new RuleViolationError('CART_EMPTY')
+  const noDate = cart.items.find((i) => i.cohortBased && !i.cohort)
+  if (noDate) throw new RuleViolationError('COHORT_REQUIRED', { course: noDate.title })
+  const runOf = new Map(
+    cart.items.flatMap((i) => (i.cohort ? [[i.itemId, i.cohort.id] as const] : [])),
+  )
   const coupon = cart.couponCode ? await findUsableCoupon(ctx, cart.couponCode, actor.userId) : null
   const facts = await attributionFacts(ctx, { anonymousId: input.anonymousId })
   let priced: ReturnType<typeof priceOrder>
@@ -114,6 +120,13 @@ export async function startCheckout(
       .onConflictDoNothing({ target: orders.idempotencyKey })
       .returning()
     if (!row) return null
+    // Seats for cohort runs, held in this transaction with the runs locked, before anything
+    // referencing the runs is written (ADR-037).
+    await reserveSeats(tx, {
+      orderId: row.id,
+      userId: actor.userId,
+      picks: [...runOf].map(([courseId, cohortId]) => ({ courseId, cohortId })),
+    })
     await tx.db.insert(orderItems).values(
       priced.lines.map((l) => ({
         orderId: row.id,
@@ -134,6 +147,7 @@ export async function startCheckout(
         commissionRuleId: l.commissionRuleId,
         platformRateBps: l.platformRateBps,
         refundPolicyDaysSnapshot: l.refundPolicyDays,
+        cohortId: l.bundleId ? null : (runOf.get(l.courseId) ?? null),
       })),
     )
     return row
@@ -185,6 +199,7 @@ export async function startCheckout(
         .update(orders)
         .set({ status: 'failed', failureReason: 'provider_unavailable' })
         .where(eq(orders.id, order.id))
+      await releaseOrderHolds(ctx, order.id)
       throw new ExternalServiceError('PAYMENT_PROVIDER_UNAVAILABLE', {}, { cause: e })
     }
     throw e
@@ -411,8 +426,12 @@ async function finalizePaid(
         courseId: item.courseId,
         source: fromCoupon100 ? 'coupon_100' : item.bundleId ? 'bundle' : 'purchase',
         orderItemId: item.id,
+        cohortId: item.cohortId,
       })
     }
+    // Paid: the members now count, so the holds go. A payment that lands after its hold
+    // expired still gets its seat; we never take money and refuse the place (ADR-037).
+    await releaseOrderHolds(tx, order.id)
 
     if (order.couponId) {
       // Honour the discount the buyer already paid with, even if the limit was reached meanwhile.
@@ -587,6 +606,7 @@ export async function abandonStaleOrders(ctx: Ctx): Promise<{ abandoned: number;
       .set({ status: 'abandoned' })
       .where(and(eq(orders.id, o.id), eq(orders.status, 'pending')))
       .returning({ id: orders.id })
+    if (updated.length > 0) await releaseOrderHolds(ctx, o.id)
     abandoned += updated.length
   }
   return { abandoned, paid }

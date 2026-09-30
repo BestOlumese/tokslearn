@@ -45,14 +45,27 @@ const starterRubric = (): Rubric => ({
   ],
 })
 
-export function AssignmentBuilder({ assignmentId }: { assignmentId: string }) {
+export function AssignmentBuilder({
+  assignmentId,
+  cohortBased = false,
+}: {
+  assignmentId: string
+  /** Offers due dates counted from the cohort's start. */
+  cohortBased?: boolean
+}) {
   const q = useQuery(orpc.studio.assignments.get.queryOptions({ input: { assignmentId } }))
   if (q.isPending) return <Skeleton className="h-96 w-full rounded-card" />
   if (!q.data) return <FormAlert tone="error">{apiErrorDetails(q.error)}</FormAlert>
-  return <AssignmentForm key={q.data.id} initial={q.data} />
+  return <AssignmentForm key={q.data.id} initial={q.data} cohortBased={cohortBased} />
 }
 
-function AssignmentForm({ initial }: { initial: StudioAssignmentDto }) {
+function AssignmentForm({
+  initial,
+  cohortBased,
+}: {
+  initial: StudioAssignmentDto
+  cohortBased: boolean
+}) {
   const [a, setA] = useState(initial)
   const [brief, setBrief] = useState<RichTextDoc | null>(initial.instructionsDoc)
   const [s, setS] = useState<AssignmentSettings>(initial.settings)
@@ -268,29 +281,48 @@ function AssignmentForm({ initial }: { initial: StudioAssignmentDto }) {
                 No due date
               </Label>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Radio
-                id="asg-due-days"
-                name="asg-due"
-                checked={s.dueMode === 'days_after_enrollment'}
-                onChange={() => set({ dueMode: 'days_after_enrollment', dueDays: s.dueDays ?? 7 })}
-              />
-              <Label htmlFor="asg-due-days" kind="option">
-                Due
-              </Label>
-              <Input
-                aria-label="Days after enrolling"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={365}
-                value={s.dueDays ?? ''}
-                disabled={s.dueMode !== 'days_after_enrollment' || disabled}
-                onChange={(e) => set({ dueDays: e.target.value ? Number(e.target.value) : null })}
-                className="w-20"
-              />
-              <span className="text-body text-ink-2">days after each learner enrolls</span>
-            </div>
+            {(
+              [
+                [
+                  'days_after_enrollment',
+                  'Days after enrolling',
+                  'days after each learner enrolls',
+                ],
+                ...(cohortBased
+                  ? ([
+                      [
+                        'cohort_date',
+                        'Days after the start date',
+                        'days after their cohort starts',
+                      ],
+                    ] as const)
+                  : []),
+              ] as const
+            ).map(([mode, aria, after]) => (
+              <div key={mode} className="flex flex-wrap items-center gap-2">
+                <Radio
+                  id={`asg-due-${mode}`}
+                  name="asg-due"
+                  checked={s.dueMode === mode}
+                  onChange={() => set({ dueMode: mode, dueDays: s.dueDays ?? 7 })}
+                />
+                <Label htmlFor={`asg-due-${mode}`} kind="option">
+                  Due
+                </Label>
+                <Input
+                  aria-label={aria}
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={365}
+                  value={s.dueMode === mode ? (s.dueDays ?? '') : ''}
+                  disabled={s.dueMode !== mode || disabled}
+                  onChange={(e) => set({ dueDays: e.target.value ? Number(e.target.value) : null })}
+                  className="w-20"
+                />
+                <span className="text-body text-ink-2">{after}</span>
+              </div>
+            ))}
           </div>
           {s.dueMode !== 'none' ? (
             <div className="mt-4 grid gap-4 sm:grid-cols-3">

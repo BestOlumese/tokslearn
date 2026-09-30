@@ -1,8 +1,9 @@
-import type { PublicCourseDto } from '@tokslearn/contract'
+import type { PublicCohortDto, PublicCourseDto } from '@tokslearn/contract'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { certificateLabel, formatDuration } from '@/lib/format'
 import { BuyButtons } from './buy-buttons'
+import { CohortPicker } from './cohort-picker'
 import { CourseCover } from './course-cover'
 import { Price } from './price'
 
@@ -16,7 +17,20 @@ export function refundLine(days: number): string {
  * The course page's purchase panel (docs/11 §5): price, buying actions, refund rule in plain
  * words, what's included, certificate.
  */
-export function PurchasePanel({ course }: { course: PublicCourseDto }) {
+export function PurchasePanel({
+  course,
+  cohorts = [],
+  group = 'cohort',
+}: {
+  course: PublicCourseDto
+  /** Start dates, for cohort-based courses. */
+  cohorts?: ReadonlyArray<PublicCohortDto>
+  /**
+   * The page shows the panel twice (phone and sidebar): each copy needs its own radio group,
+   * or the hidden copy's default choice wins.
+   */
+  group?: string
+}) {
   const firstPreview = course.sections.flatMap((s) => s.lessons).find((l) => l.isPreview)
   const previewHref = course.promo
     ? `/courses/${course.slug}/preview/promo`
@@ -58,7 +72,16 @@ export function PurchasePanel({ course }: { course: PublicCourseDto }) {
       </div>
       <div className="flex flex-col gap-4 p-6">
         <Price priceKobo={course.priceKobo} compareAtKobo={course.compareAtKobo} size="lg" />
-        <BuyButtons courseId={course.id} courseSlug={course.slug} free={course.priceKobo === '0'} />
+        {course.cohortBased ? <CohortPicker cohorts={cohorts} name={group} /> : null}
+        {/* No date open: nothing to buy yet; the picker says so. */}
+        {course.cohortBased && !cohorts.some((c) => c.availability === 'open') ? null : (
+          <BuyButtons
+            courseId={course.id}
+            courseSlug={course.slug}
+            free={course.priceKobo === '0'}
+            group={group}
+          />
+        )}
         {course.priceKobo === '0' ? null : (
           <p className="text-body-sm text-ink-2">
             Pay in naira by card, bank transfer or USSD through Paystack.

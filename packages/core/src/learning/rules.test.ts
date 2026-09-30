@@ -65,9 +65,18 @@ describe('dripUnlocksAt', () => {
     expect(
       dripUnlocksAt('after_enrollment', { dripOffsetDays: 0, dripDate: null }, enrolled),
     ).toBeNull()
+    // Cohort runs count from the run's start; without a run, from enrolment.
+    expect(
+      dripUnlocksAt(
+        'cohort_relative',
+        { dripOffsetDays: 3, dripDate: null },
+        enrolled,
+        t('2026-11-03T08:00:00Z'),
+      ),
+    ).toEqual(t('2026-11-06T08:00:00Z'))
     expect(
       dripUnlocksAt('cohort_relative', { dripOffsetDays: 3, dripDate: null }, enrolled),
-    ).toBeNull()
+    ).toEqual(t('2026-10-04T09:00:00Z'))
   })
 })
 

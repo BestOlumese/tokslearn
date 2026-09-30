@@ -20,10 +20,19 @@ import { dueAtFor, lateness, type SubmitBlock, submitBlock } from './rules'
 
 // The learner's side of assignments (docs/20 assignment lesson, docs/10 §7): read the brief,
 // keep a draft (autosaved), submit, see grades and feedback, submit again when allowed.
-// Foreign reads (docs/03 §3): lessons, enrollments, files (own uploads);
+// Foreign reads (docs/03 §3): lessons, enrollments, cohorts (start date), files (own uploads);
 // writes consumption_events (assignment_submitted: evidence only, no refund effect).
 
-const { assignments, submissions, grades, lessons, enrollments, files, consumptionEvents } = schema
+const {
+  assignments,
+  submissions,
+  grades,
+  lessons,
+  enrollments,
+  cohorts,
+  files,
+  consumptionEvents,
+} = schema
 
 export const TEXT_MAX = 20_000
 const LINK_MAX = 2000
@@ -104,12 +113,18 @@ async function assignmentForLesson(ctx: Ctx, lessonId: string) {
   }
 }
 
-async function enrolledAt(ctx: Ctx, userId: string, courseId: string): Promise<Date | null> {
+/** When the learner enrolled, and when their cohort starts (for cohort due dates). */
+async function enrolledAt(
+  ctx: Ctx,
+  userId: string,
+  courseId: string,
+): Promise<{ at: Date; cohortStartsAt: Date | null } | null> {
   const [e] = await ctx.db
-    .select({ at: enrollments.createdAt })
+    .select({ at: enrollments.createdAt, cohortStartsAt: cohorts.startsAt })
     .from(enrollments)
+    .leftJoin(cohorts, eq(cohorts.id, enrollments.cohortId))
     .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)))
-  return e?.at ?? null
+  return e ?? null
 }
 
 export async function fileRefs(
@@ -195,7 +210,7 @@ export async function getMyAssignment(ctx: Ctx, lessonId: string): Promise<MyAss
   )
   const draft = rows.find((r) => r.s.status === 'draft')?.s
   const done = rows.filter((r) => r.s.status !== 'draft')
-  const dueAt = since ? dueAtFor(settings, since) : null
+  const dueAt = since ? dueAtFor(settings, since.at, since.cohortStartsAt) : null
   const late = lateness(settings, dueAt, ctx.now)
   const block = submitBlock(
     settings,
@@ -371,7 +386,11 @@ export async function submitAssignment(ctx: Ctx, lessonId: string): Promise<MyAs
     if (block === 'awaiting_grade' || block === 'no_resubmissions')
       throw new RuleViolationError('RESUBMISSION_NOT_ALLOWED')
     const since = await enrolledAt(tx, user.userId, lesson.courseId)
-    const late = lateness(settings, since ? dueAtFor(settings, since) : null, tx.now)
+    const late = lateness(
+      settings,
+      since ? dueAtFor(settings, since.at, since.cohortStartsAt) : null,
+      tx.now,
+    )
     if (late.rejected) throw new RuleViolationError('SUBMISSION_PAST_DUE')
     const [row] = await tx.db
       .update(submissions)

@@ -114,6 +114,7 @@ const StudioCourseDtoShape = z.object({
   status: CourseStatus,
   version: z.number().int(),
   isPublished: z.boolean(),
+  cohortBased: z.boolean(),
   canEdit: z.boolean(),
   revision: z.object({
     id: z.uuid(),

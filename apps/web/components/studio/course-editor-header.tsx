@@ -17,6 +17,7 @@ const tabs = [
   ['certificate', 'Certificate'],
   ['pricing', 'Pricing'],
   ['drip', 'Drip schedule'],
+  ['cohorts', 'Cohorts'],
   ['learners', 'Learners'],
   ['staff', 'Teaching assistants'],
   ['publish', 'Publish'],
@@ -24,7 +25,7 @@ const tabs = [
 
 const saveLabel = { idle: '', saving: 'Saving…', saved: 'All changes saved', error: 'Not saved' }
 
-export function CourseEditorHeader() {
+export function CourseEditorHeader({ cohorts = false }: { cohorts?: boolean }) {
   const { course, saveState, conflict, locked } = useCourseEditor()
   const pathname = usePathname()
   const base = `/teach/courses/${course.id}`
@@ -82,31 +83,34 @@ export function CourseEditorHeader() {
 
       <nav aria-label="Course editor" className="-mx-1 overflow-x-auto border-b border-border">
         <ul className="flex min-w-max gap-1 px-1">
-          {tabs.map(([slug, label]) => {
-            const href = `${base}/${slug}`
-            const active = pathname === href
-            return (
-              <li key={slug}>
-                <Link
-                  href={href as Route}
-                  aria-current={active ? 'page' : undefined}
-                  className={cn(
-                    '-mb-px inline-flex min-h-11 items-center gap-2 border-b-2 px-3 text-body-sm font-medium',
-                    active
-                      ? 'border-brand text-brand-ink'
-                      : 'border-transparent text-ink-2 hover:text-ink',
-                  )}
-                >
-                  {label}
-                  {slug === 'publish' && missing > 0 && !locked ? (
-                    <span className="rounded-full bg-surface-sunken px-2 text-[12px] text-ink-2 tabular-nums">
-                      {missing} to do
-                    </span>
-                  ) : null}
-                </Link>
-              </li>
-            )
-          })}
+          {tabs
+            // Behind the `cohorts` flag, unless the course already sells by start date.
+            .filter(([slug]) => slug !== 'cohorts' || cohorts || course.cohortBased)
+            .map(([slug, label]) => {
+              const href = `${base}/${slug}`
+              const active = pathname === href
+              return (
+                <li key={slug}>
+                  <Link
+                    href={href as Route}
+                    aria-current={active ? 'page' : undefined}
+                    className={cn(
+                      '-mb-px inline-flex min-h-11 items-center gap-2 border-b-2 px-3 text-body-sm font-medium',
+                      active
+                        ? 'border-brand text-brand-ink'
+                        : 'border-transparent text-ink-2 hover:text-ink',
+                    )}
+                  >
+                    {label}
+                    {slug === 'publish' && missing > 0 && !locked ? (
+                      <span className="rounded-full bg-surface-sunken px-2 text-[12px] text-ink-2 tabular-nums">
+                        {missing} to do
+                      </span>
+                    ) : null}
+                  </Link>
+                </li>
+              )
+            })}
         </ul>
       </nav>
     </div>

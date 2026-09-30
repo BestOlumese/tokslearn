@@ -2,7 +2,13 @@
 // shop helpers: the player shell stays light so taps respond fast on mid-range phones (INP).
 // No server-only imports here.
 
-import type { AttemptDto, MyAssignmentDto, QuizIntroDto, RichTextDoc } from '@tokslearn/contract'
+import type {
+  AttemptDto,
+  CourseCertificateDto,
+  MyAssignmentDto,
+  QuizIntroDto,
+  RichTextDoc,
+} from '@tokslearn/contract'
 import { ShopError as LearnErrorClass, shopApi } from './shop'
 
 export { ShopError as LearnError } from './shop'
@@ -141,7 +147,10 @@ export function requestSeek(positionSec: number): void {
 // ── Quizzes, exams, assignments (docs/10 §5–7) ──────────────────────────────────────────────
 // Types come from the contract (type-only: no runtime cost).
 
-export type { AttemptDto, MyAssignmentDto, QuizIntroDto }
+export type { AttemptDto, CourseCertificateDto, MyAssignmentDto, QuizIntroDto }
+
+export const myCourseCertificate = (courseId: string) =>
+  shopApi<CourseCertificateDto>(`/me/courses/${courseId}/certificate`)
 
 export const quizIntro = (lessonId: string) =>
   shopApi<QuizIntroDto>(`/learn/lessons/${lessonId}/quiz`)

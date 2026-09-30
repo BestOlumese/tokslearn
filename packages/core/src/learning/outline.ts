@@ -10,10 +10,11 @@ import { getFiles, getVideoAssets, publicFileUrl } from '../media'
 
 // The course player's reads (docs/10 §3, docs/20 `/learn/…`): outline with ticks and drip locks,
 // and one lesson with everything its page needs. Access is decided by enrollments.lessonAccess.
-// Foreign reads (docs/03 §3): courses, course_revisions, sections, lessons, lesson_resources,
+// Foreign reads (docs/03 §3): cohorts (start date for drip), courses, course_revisions, sections, lessons, lesson_resources,
 // enrollments, course_staff, user, instructor_profiles.
 
 const {
+  cohorts,
   courses,
   courseRevisions: revisions,
   sections,
@@ -52,6 +53,8 @@ export interface LearnOutline {
   /** How the viewer is here: an enrolled learner, or the course's teacher/staff checking it. */
   role: 'learner' | 'teaching'
   progressPct: number
+  /** The learner's cohort run, for the cohort home link (docs/10 §9). */
+  cohort: { name: string; startsAt: Date } | null
   sections: Array<{ id: string; title: string; lessons: OutlineLesson[] }>
   /** First lesson not yet completed that the learner can open ("Continue learning"). */
   nextLessonId: string | null
@@ -83,10 +86,12 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
   if (!course) throw new NotFoundError('COURSE_NOT_FOUND')
 
   const teaching = course.instructorId === actor.userId || course.staff || canSeeEverything(actor)
-  const [enrollment] = await ctx.db
-    .select()
+  const [row] = await ctx.db
+    .select({ e: enrollments, cohortStartsAt: cohorts.startsAt, cohortName: cohorts.name })
     .from(enrollments)
+    .leftJoin(cohorts, eq(cohorts.id, enrollments.cohortId))
     .where(and(eq(enrollments.userId, actor.userId), eq(enrollments.courseId, course.id)))
+  const enrollment = row?.e
   const expired =
     enrollment?.accessExpiresAt !== null &&
     enrollment?.accessExpiresAt !== undefined &&
@@ -136,7 +141,7 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
     // Drip follows the enrollment, the same rule as lessonAccess: staff who bought the course are
     // learners here; staff who didn't see every lesson.
     if (!learning || l.isPreview || statusOf.has(l.id)) return null
-    const at = dripUnlocksAt(course.dripMode, l, learning.createdAt)
+    const at = dripUnlocksAt(course.dripMode, l, learning.createdAt, row?.cohortStartsAt ?? null)
     return at && at > ctx.now ? at : null
   }
   const shaped = sectionRows
@@ -178,6 +183,10 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
     },
     role: teaching && !learning ? 'teaching' : 'learner',
     progressPct: enrollment?.progressPct ?? 0,
+    cohort:
+      learning && row?.cohortName && row.cohortStartsAt
+        ? { name: row.cohortName, startsAt: row.cohortStartsAt }
+        : null,
     sections: shaped,
     nextLessonId: next?.id ?? null,
   }

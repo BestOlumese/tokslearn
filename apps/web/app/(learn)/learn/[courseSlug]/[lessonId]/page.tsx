@@ -1,3 +1,4 @@
+import * as certificates from '@tokslearn/core/certificates'
 import { isDomainError } from '@tokslearn/core/kernel'
 import * as learning from '@tokslearn/core/learning'
 import { buttonClasses } from '@tokslearn/ui/button'
@@ -9,6 +10,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { AssignmentLesson } from '@/components/learn/assignment-lesson'
+import { CertificateNotice } from '@/components/learn/certificate-notice'
 import { CourseOutline } from '@/components/learn/course-outline'
 import { LessonTabs } from '@/components/learn/lesson-tabs'
 import { MarkComplete } from '@/components/learn/mark-complete'
@@ -71,6 +73,11 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
     throw o.error
   }
   const outline = o.value
+  // Learners only: teachers and staff never earn one here.
+  const certificate =
+    outline.role === 'learner'
+      ? await certificates.myCourseCertificate(ctx, outline.course.id)
+      : null
   const flat = outline.sections.flatMap((s) => s.lessons)
   const index = flat.findIndex((x) => x.id === lessonId)
   const meta = flat[index]
@@ -151,6 +158,14 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
 
       <div className="mx-auto grid w-full max-w-page gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:py-8">
         <div className="flex min-w-0 flex-col gap-6">
+          {certificate ? (
+            <CertificateNotice
+              // A refresh after a pass or the last lesson brings new state: start from it.
+              key={`${certificate.preparing}:${certificate.certificate?.id ?? ''}`}
+              courseId={outline.course.id}
+              initial={certificate}
+            />
+          ) : null}
           {lesson ? (
             <LessonBody
               lesson={lesson}
@@ -210,6 +225,11 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
                   courseHref={courseHref}
                   instructorName={outline.course.instructorName}
                   progressPct={outline.role === 'learner' ? outline.progressPct : null}
+                  cohort={
+                    outline.cohort
+                      ? { name: outline.cohort.name, href: `${base}/cohort` as Route }
+                      : null
+                  }
                 />
               }
             />
@@ -368,6 +388,7 @@ function Overview({
   courseHref,
   instructorName,
   progressPct,
+  cohort,
 }: {
   position: number
   total: number
@@ -375,6 +396,7 @@ function Overview({
   courseHref: Route
   instructorName: string
   progressPct: number | null
+  cohort: { name: string; href: Route } | null
 }) {
   return (
     <div className="flex flex-col gap-3 text-body-sm text-ink-2">
@@ -386,6 +408,14 @@ function Overview({
         by {instructorName}.
         {progressPct !== null ? ` You’ve finished ${progressPct}% of the course.` : ''}
       </p>
+      {cohort ? (
+        <p>
+          You’re in the {cohort.name} cohort.{' '}
+          <Link href={cohort.href} className="font-medium text-brand-ink hover:underline">
+            Dates, schedule and classmates
+          </Link>
+        </p>
+      ) : null}
       <p className="hidden sm:block">
         Shortcuts: <Kbd>N</Kbd> next, <Kbd>P</Kbd> previous, <Kbd>B</Kbd> bookmark, <Kbd>M</Kbd>{' '}
         note at the current moment.

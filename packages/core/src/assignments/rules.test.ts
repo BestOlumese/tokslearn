@@ -18,6 +18,10 @@ describe('due dates and lateness', () => {
       rejected: false,
       penaltyPct: 0,
     })
+    const start = new Date('2026-11-03T08:00:00Z')
+    expect(dueAtFor(settings({ dueMode: 'cohort_date', dueDays: 7 }), enrolled, start)).toEqual(
+      new Date('2026-11-10T08:00:00Z'),
+    )
   })
 
   it('applies grace, then the policy', () => {

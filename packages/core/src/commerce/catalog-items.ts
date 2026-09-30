@@ -7,7 +7,7 @@ import type { CartLine, PricedCourse } from './pricing'
 // Purchasable items as checkout sees them: live price, status and instructor, read fresh from
 // the courses module's tables (never from the cart or the client).
 // Foreign reads (docs/03 §3): courses, course_revisions, bundles, bundle_courses, files, user,
-// instructor_profiles.
+// instructor_profiles, cohorts (the picked run's name and date).
 
 const {
   courses,
@@ -17,9 +17,15 @@ const {
   files,
   user,
   instructorProfiles,
+  cohorts,
 } = schema
 
-export type ItemRef = { itemType: 'course' | 'bundle'; itemId: string }
+/** `cohortId`: the start date picked for a cohort-based course (docs/10 §9). */
+export type ItemRef = {
+  itemType: 'course' | 'bundle'
+  itemId: string
+  cohortId?: string | null | undefined
+}
 
 export interface ItemView {
   itemType: 'course' | 'bundle'
@@ -37,6 +43,10 @@ export interface ItemView {
   refundPolicyDays: number
   /** Why it can't be bought right now, if so. */
   unavailable: 'not_live' | 'free' | null
+  /** Sold by start date (docs/10 §9). */
+  cohortBased: boolean
+  /** The picked run, when it belongs to this course; null when none is picked (yet). */
+  cohort: { id: string; name: string; startsAt: Date } | null
   line: CartLine
 }
 
@@ -55,6 +65,7 @@ async function loadCourses(ctx: Ctx, ids: ReadonlyArray<string>) {
       priceKobo: courses.priceKobo,
       compareAtKobo: courses.compareAtKobo,
       refundPolicyDays: courses.refundPolicyDays,
+      cohortBased: courses.cohortBased,
       live: sql<boolean>`${live}`,
     })
     .from(courses)
@@ -95,6 +106,18 @@ export async function loadItems(ctx: Ctx, refs: ReadonlyArray<ItemRef>): Promise
     : []
   const courseRows = await loadCourses(ctx, [...courseIds, ...members.map((m) => m.courseId)])
   const byId = new Map(courseRows.map((c) => [c.id, c]))
+  const cohortIds = refs.flatMap((r) => (r.itemType === 'course' && r.cohortId ? [r.cohortId] : []))
+  const runs = cohortIds.length
+    ? await ctx.db
+        .select({
+          id: cohorts.id,
+          courseId: cohorts.courseId,
+          name: cohorts.name,
+          startsAt: cohorts.startsAt,
+        })
+        .from(cohorts)
+        .where(inArray(cohorts.id, cohortIds))
+    : []
   const priced = (c: (typeof courseRows)[number]): PricedCourse => ({
     id: c.id,
     title: c.title,
@@ -121,6 +144,13 @@ export async function loadItems(ctx: Ctx, refs: ReadonlyArray<ItemRef>): Promise
           courseIds: [c.id],
           refundPolicyDays: c.refundPolicyDays,
           unavailable: !c.live ? 'not_live' : c.priceKobo === 0n ? 'free' : null,
+          cohortBased: c.cohortBased,
+          cohort: c.cohortBased
+            ? (() => {
+                const run = runs.find((r) => r.id === ref.cohortId && r.courseId === c.id)
+                return run ? { id: run.id, name: run.name, startsAt: run.startsAt } : null
+              })()
+            : null,
           line: { type: 'course', course: priced(c) },
         },
       ]
@@ -148,8 +178,15 @@ export async function loadItems(ctx: Ctx, refs: ReadonlyArray<ItemRef>): Promise
         compareAtKobo: inBundle.reduce((a, c) => a + c.priceKobo, 0n),
         courseIds: inBundle.map((c) => c.id),
         refundPolicyDays: Math.min(...inBundle.map((c) => c.refundPolicyDays), 14),
+        // A bundle has no start date to pick (ADR-037).
         unavailable:
-          b.status !== 'active' || !allLive ? 'not_live' : b.priceKobo === 0n ? 'free' : null,
+          b.status !== 'active' || !allLive || inBundle.some((c) => c.cohortBased)
+            ? 'not_live'
+            : b.priceKobo === 0n
+              ? 'free'
+              : null,
+        cohortBased: false,
+        cohort: null,
         line: {
           type: 'bundle',
           bundle: { id: b.id, instructorId: b.instructorId, priceKobo: b.priceKobo },

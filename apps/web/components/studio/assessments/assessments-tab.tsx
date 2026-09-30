@@ -63,7 +63,7 @@ export function AssessmentsTab() {
     return (
       <div className="flex max-w-[860px] flex-col gap-4">
         {back}
-        <AssignmentBuilder assignmentId={assignmentId} />
+        <AssignmentBuilder assignmentId={assignmentId} cohortBased={course.cohortBased} />
       </div>
     )
   }

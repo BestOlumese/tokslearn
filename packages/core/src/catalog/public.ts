@@ -68,6 +68,8 @@ export interface PublicCourse {
   compareAtKobo: bigint | null
   refundPolicyDays: number
   certificateMode: 'none' | 'completion' | 'exam' | 'external'
+  /** Sold by start date: the page lists runs (docs/10 §9). */
+  cohortBased: boolean
   totalDurationSec: number
   lessonCount: number
   resourceCount: number
@@ -208,6 +210,7 @@ export async function getPublicCourse(ctx: Ctx, slug: string): Promise<PublicCou
       compareAtKobo: c.compareAtKobo,
       refundPolicyDays: c.refundPolicyDays,
       certificateMode: c.certificateMode,
+      cohortBased: c.cohortBased,
       totalDurationSec: c.totalDurationSec,
       lessonCount: c.lessonCount,
       resourceCount,
@@ -436,12 +439,13 @@ export async function topInstructorsIn(ctx: Ctx, categoryIds: ReadonlyArray<stri
 
 /** Home page rows (docs/20 `/`); empty rows are left out by the page. */
 export async function getHomeRows(ctx: Ctx) {
-  const [featured, newest, free, popular, directory] = await Promise.all([
+  const [featured, newest, free, popular, directory, cohorts] = await Promise.all([
     featuredCourses(ctx),
     listCourses(ctx, { sort: 'newest', limit: 8 }),
     listCourses(ctx, { price: 'free', sort: 'newest', limit: 8 }),
     listCourses(ctx, { sort: 'popular', limit: 8 }),
     getCategoryDirectory(ctx),
+    listCourses(ctx, { cohort: true, sort: 'starting_soon', limit: 8 }),
   ])
   const total = directory.reduce((sum, t) => sum + t.count, 0)
   return {
@@ -449,6 +453,8 @@ export async function getHomeRows(ctx: Ctx) {
     newest: newest.items,
     free: free.items,
     popular: popular.items,
+    /** Cohort runs still open, soonest first (docs/20 `/` "Cohorts starting soon"). */
+    startingSoon: cohorts.items,
     categories: directory,
     courseCount: total,
   }
