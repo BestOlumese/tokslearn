@@ -21,7 +21,11 @@ const {
 } = schema
 
 /** `cohortId`: the start date picked for a cohort-based course (docs/10 §9). */
-export type ItemRef = { itemType: 'course' | 'bundle'; itemId: string; cohortId?: string | null }
+export type ItemRef = {
+  itemType: 'course' | 'bundle'
+  itemId: string
+  cohortId?: string | null | undefined
+}
 
 export interface ItemView {
   itemType: 'course' | 'bundle'

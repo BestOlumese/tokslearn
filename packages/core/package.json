@@ -34,6 +34,7 @@
     "seed:demo-catalog": "tsx --conditions=react-server src/scripts/seed-demo-catalog.ts",
     "seed:demo-assessments": "tsx --conditions=react-server src/scripts/seed-demo-assessments.ts",
     "seed:load-exam": "tsx --conditions=react-server src/scripts/seed-load-exam.ts",
+    "seed:demo-cohorts": "tsx --conditions=react-server src/scripts/seed-demo-cohorts.ts",
     "reindex:catalog": "tsx --conditions=react-server src/scripts/reindex-catalog.ts",
     "test:money": "vitest run --coverage --coverage.provider=v8 --coverage.include=src/kernel/money.ts --coverage.include='src/ledger/**' --coverage.include='src/commerce/**' --coverage.include='src/enrollments/**' --coverage.exclude='**/*.test.ts' --coverage.exclude='**/index.ts' --coverage.thresholds.lines=95 --coverage.thresholds.functions=95 --coverage.reporter=text-summary"
   },

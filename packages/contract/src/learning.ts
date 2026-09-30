@@ -365,6 +365,7 @@ const LearnerShape = z.object({
   progressPct: z.number().int(),
   lastActiveAt: IsoDateTime.nullable(),
   cohortId: z.uuid().nullable(),
+  cohortName: z.string().nullable(),
 })
 export type CourseLearnerDto = z.infer<typeof LearnerShape>
 export const CourseLearnerDto = named(LearnerShape)
@@ -415,6 +416,7 @@ export const studioLearnersContract = {
         courseId: z.uuid(),
         status: z.enum(['active', 'completed']).optional(),
         q: z.string().trim().max(100).optional(),
+        cohortId: z.uuid().optional(),
         cursor: Cursor.optional(),
       }),
     )

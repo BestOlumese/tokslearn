@@ -17,10 +17,13 @@ export function BuyButtons({
   courseId,
   courseSlug,
   free,
+  group = 'cohort',
 }: {
   courseId: string
   courseSlug: string
   free: boolean
+  /** The picker's radio group name. */
+  group?: string
 }) {
   'use no memo' // Tiny island near the JS budget: the compiler's memo cache would double it.
   const [user, setUser] = useState(false)
@@ -62,14 +65,19 @@ export function BuyButtons({
     setBusy(false)
   }
 
+  // The start date picked in the server-rendered picker, read at click time. One is always
+  // checked when there is a date to pick; without one the server answers COHORT_REQUIRED.
+  const run_ = () =>
+    document.querySelector<HTMLInputElement>(`input[name="${group}"]:checked`)?.value ?? null
   const add = async () => {
+    const cohortId = run_()
     if (user) {
       const cart = await shopApi<{ items: unknown[] }>('/cart/items', {
         method: 'POST',
-        body: { itemType: 'course', itemId: courseId },
+        body: { itemType: 'course', itemId: courseId, cohortId },
       })
       cartChanged(cart.items.length)
-    } else addLocal({ itemType: 'course', itemId: courseId })
+    } else addLocal({ itemType: 'course', itemId: courseId, cohortId })
     setS((v) => ({ ...v, inCart: true }))
   }
 
@@ -94,7 +102,10 @@ export function BuyButtons({
         disabled={busy}
         onClick={() =>
           run(async () => {
-            await shopApi('/enrollments/free', { method: 'POST', body: { courseId } })
+            await shopApi('/enrollments/free', {
+              method: 'POST',
+              body: { courseId, cohortId: run_() },
+            })
             setS((v) => ({ ...v, enrolled: true }))
           })
         }
@@ -104,7 +115,11 @@ export function BuyButtons({
     )
   } else if (s.inCart) {
     primary = (
-      <Link href="/cart" className={big}>
+      <Link
+        href="/cart"
+        className={big}
+        // Cohort courses: the picked date may differ from the cart's, so save it on the way.
+      >
         Go to cart
       </Link>
     )

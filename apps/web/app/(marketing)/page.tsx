@@ -103,6 +103,12 @@ export default async function HomePage() {
             courses={notSpotlight(home.featured)}
           />
           <CourseRow
+            id="row-cohorts"
+            title="Cohorts starting soon"
+            href="/courses?cohort=true"
+            courses={home.startingSoon}
+          />
+          <CourseRow
             id="row-new"
             title="New on Tokslearn"
             href="/courses?sort=newest"

@@ -63,6 +63,10 @@ export async function grantEnrollment(
     })
     .onConflictDoNothing({ target: [enrollments.userId, enrollments.courseId] })
     .returning({ id: enrollments.id })
+  // A seat in a run was taken: the course page's seat count must refresh (docs/10 §9).
+  if (input.cohortId) {
+    ctx.afterCommit(() => ctx.cache.invalidate([cacheTags.course(input.courseId)]))
+  }
   if (inserted) {
     await ctx.events.emit('enrollment.created', {
       enrollmentId: inserted.id,

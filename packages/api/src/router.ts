@@ -21,6 +21,7 @@ import {
   certificatesRouter,
   studioCertificatesRouter,
 } from './procedures/certificates'
+import { cohortsRouter, studioCohortsRouter } from './procedures/cohorts'
 import {
   adminCommissionRouter,
   adminCouponsRouter,
@@ -70,6 +71,7 @@ export const router = impl.router({
     quizzes: studioQuizzesRouter,
     assignments: studioAssignmentsRouter,
     certificates: studioCertificatesRouter,
+    cohorts: studioCohortsRouter,
   },
   instructors: { ...instructorsRouter, ...instructorProfileHandlers },
   kyc: kycRouter,
@@ -99,6 +101,7 @@ export const router = impl.router({
   assignments: assignmentsRouter,
   grading: gradingRouter,
   certificates: certificatesRouter,
+  cohorts: cohortsRouter,
 })
 
 export type Router = typeof router

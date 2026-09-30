@@ -33,6 +33,7 @@ export const toCardDto = (ctx: Ctx, c: catalog.CourseCard): CourseCardDto => ({
   ratingCount: c.ratingCount,
   enrollmentCount: c.enrollmentCount,
   publishedAt: c.publishedAt.toISOString(),
+  nextCohortStartsAt: c.nextCohortStartsAt?.toISOString() ?? null,
 })
 
 export const toPublicCourseDto = (c: catalog.PublicCourse): PublicCourseDto => ({

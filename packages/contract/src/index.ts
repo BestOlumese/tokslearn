@@ -20,6 +20,7 @@ import {
   certificatesContract,
   studioCertificatesContract,
 } from './certificates'
+import { cohortsContract, studioCohortsContract } from './cohorts'
 import {
   adminCommissionContract,
   adminCouponsContract,
@@ -69,6 +70,7 @@ export const contract = {
     quizzes: studioQuizzesContract,
     assignments: studioAssignmentsContract,
     certificates: studioCertificatesContract,
+    cohorts: studioCohortsContract,
   },
   instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
@@ -98,6 +100,7 @@ export const contract = {
   assignments: assignmentsContract,
   grading: gradingContract,
   certificates: certificatesContract,
+  cohorts: cohortsContract,
 }
 export type Contract = typeof contract
 
@@ -180,6 +183,12 @@ export {
   PublicCertificateDto,
   StudioCertificateSettingsDto,
 } from './certificates'
+export {
+  CohortStatus,
+  MyCohortDto,
+  PublicCohortDto,
+  StudioCohortsDto,
+} from './cohorts'
 export {
   type AdminOrderDto,
   type AdminOrderRowDto,

@@ -1,7 +1,7 @@
 'use client'
 
 // Client component: the course's learners (docs/20 `/teach/courses/[id]/learners`). Display names
-// only, never emails. Cohorts and cohort messages arrive with Phase 8.
+// only, never emails. The cohort column names each learner's run (Phase 8).
 
 import { useQuery } from '@tanstack/react-query'
 import type { CourseLearnerDto } from '@tokslearn/contract'
@@ -157,7 +157,9 @@ export function LearnersTable() {
                   <TableCell className="whitespace-nowrap">
                     {l.lastActiveAt ? formatDate(l.lastActiveAt) : 'Not started'}
                   </TableCell>
-                  <TableCell className="text-ink-3">None</TableCell>
+                  <TableCell className={l.cohortName ? 'whitespace-nowrap' : 'text-ink-3'}>
+                    {l.cohortName ?? 'Self-paced'}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

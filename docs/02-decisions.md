@@ -234,6 +234,18 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Revocation:** the instructor or a co-instructor can revoke with a public reason; only an admin can restore (support can search). Both are audit-logged. A revoked certificate can't be downloaded and stays listed for the learner with the reason. External results can be recorded by anyone who grades the course (instructor and TAs), with optional evidence (PDF or image, private).
 - **Deferred:** instructor signature image and templates; revocation email to the learner (not in the catalog yet); certificates in the data export (with the export, Phase 1 open item); the `certificate` badge on My learning cards beyond the "Your certificate" link.
 
+### ADR-037 Cohorts (Phase 8)
+- **A course sells either self-paced or by start date** (`courses.cohort_based`). The switch and the runs apply at once, like drip, not through review: they are scheduling, not content. Learners who bought before a switch keep their access. Behind the `cohorts` flag: the studio tab, the course-page picker and the catalog filter only show when it is on.
+- **Seats are held in Postgres, not Redis** (the guide suggested Redis). Checkout locks the runs' rows (`FOR NO KEY UPDATE`, in id order), counts members plus live holds, and writes a 30-minute hold in the same transaction as the order. The hold and the order can't drift apart, and there is no Redis round trip or cost. Tested: 50 concurrent checkouts for a run of 10 sell exactly 10. `FOR UPDATE` deadlocked, because inserting order items that reference the run takes a key-share lock on it; `NO KEY UPDATE` doesn't conflict with that.
+- **A paid order always gets its seat.** The hold goes when the order is paid, fails or is abandoned. A bank transfer that lands after its hold expired still enrols the buyer, even if that takes the run one over: we never take money and refuse the place.
+- **Learners belong to a run through `enrollments.cohort_id`.** `cohort_members` (docs/05) is not created: course TAs already cover every run, and a second membership table would drift from enrolments. Per-run TAs can add it later.
+- **Cohort-based courses aren't sold in bundles**, either way round: a bundle has no date to pick.
+- **Dates:** drip `cohort_relative` and assignment due `cohort_date` count from the run's start; a learner without a run counts from enrolment. Lessons with no delay are open from enrolment. Studio dates are Lagos days (a run starts at 00:00 and ends at 23:59 WAT).
+- **Runs:** draft → open (on sale within its enrolment window) → cancelled. A run with members or live holds can't be unpublished or cancelled, and its capacity can't go below the seats taken.
+- **Course page:** the picker is plain server-rendered radios; the buy buttons read the checked one at click time. The page renders the purchase panel twice (phone and sidebar), so each copy has its own radio group. The course page is now 14 bytes under its 145 KB budget: the next feature on it needs a cut first. Changing a date for a course already in the cart happens on the cart page.
+- **Catalog:** `course_search.next_cohort_starts_at` (the soonest open, not-full run) drives the "Cohort starts 3 Nov" badge, the filter and the home row "Cohorts starting soon". It is refreshed on every run change and cohort enrolment; the filter compares with the current time, so a run that has started drops out without a reindex.
+- **Deferred to the community and live parts of Phase 8:** cohort announcements and discussion on the cohort home, live sessions in its schedule, messaging a cohort from the studio.
+
 ---
 
 ## Open questions (resolve before the phase that needs them)

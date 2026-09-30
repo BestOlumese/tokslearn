@@ -171,7 +171,14 @@ export async function reindexMissing(ctx: Ctx): Promise<number> {
 
 // ─── Listing and search ───────────────────────────────────────────────────────────────────────
 
-export type CourseSort = 'popular' | 'newest' | 'rating' | 'price_low' | 'price_high'
+/** `starting_soon`: cohort runs by start date (the home row; pair it with `cohort: true`). */
+export type CourseSort =
+  | 'popular'
+  | 'newest'
+  | 'rating'
+  | 'price_low'
+  | 'price_high'
+  | 'starting_soon'
 export type DurationBucket = 'short' | 'medium' | 'long'
 
 export interface CourseFilters {
@@ -184,6 +191,7 @@ export interface CourseFilters {
   minRating?: number | undefined
   duration?: DurationBucket | undefined
   certificate?: boolean | undefined
+  cohort?: boolean | undefined
   sort?: CourseSort | undefined
   cursor?: string | undefined
   limit: number
@@ -210,6 +218,7 @@ const cardColumns = {
   ratingCount: cs.ratingCount,
   enrollmentCount: cs.enrollmentCount,
   publishedAt: cs.publishedAt,
+  nextCohortStartsAt: cs.nextCohortStartsAt,
 }
 
 function selectCards(db: DbOrTx) {
@@ -237,6 +246,7 @@ function filterConditions(f: CourseFilters): SQL[] {
   }
   if (f.duration === 'long') c.push(gt(cs.totalDurationSec, 6 * HOUR))
   if (f.certificate) c.push(sql`${cs.certificateMode} <> 'none'`)
+  if (f.cohort) c.push(sql`${cs.nextCohortStartsAt} > now()`)
   return c
 }
 
@@ -276,6 +286,12 @@ function sortSpec(sort: CourseSort) {
         col: cs.priceKobo,
         dir: 'asc' as const,
         value: (r: CourseCard) => r.priceKobo.toString(),
+      }
+    case 'starting_soon':
+      return {
+        col: cs.nextCohortStartsAt,
+        dir: 'asc' as const,
+        value: (r: CourseCard) => r.nextCohortStartsAt?.toISOString() ?? '',
       }
     case 'price_high':
       return {

@@ -117,7 +117,7 @@ audit logged).
 
 ## 9. Cohorts
 
-- A course can have cohort runs. Cohort-based courses sell per cohort (enrollment tied to `cohort_id`), with capacity and enrollment window (checked at checkout; capacity reserved at `checkout.start` for 30 min using Redis to avoid oversell).
+- A course can have cohort runs. Cohort-based courses sell per cohort (enrollment tied to `cohort_id`), with capacity and enrollment window (checked at checkout; capacity reserved at `checkout.start` for 30 min in Postgres, in the order's transaction with the run locked, to avoid oversell: ADR-037).
 - Cohort home: schedule (live sessions + drip dates), announcements, discussion, members list (display names).
 - Instructor can message the whole cohort (announcement → in-app + email).
 

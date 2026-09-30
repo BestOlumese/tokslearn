@@ -1,4 +1,5 @@
 import { toStudioCourseDto } from '@tokslearn/api'
+import { isFeatureEnabled } from '@tokslearn/core/admin'
 import { getStudioCourse } from '@tokslearn/core/courses'
 import { isDomainError } from '@tokslearn/core/kernel'
 import { buttonClasses } from '@tokslearn/ui/button'
@@ -57,7 +58,7 @@ async function Editor({
   }
   return (
     <CourseEditorProvider initial={toStudioCourseDto(course)}>
-      <CourseEditorHeader />
+      <CourseEditorHeader cohorts={await isFeatureEnabled(ctx, 'cohorts')} />
       <div className="mt-6">{children}</div>
       <UploadQueue />
     </CourseEditorProvider>

@@ -53,6 +53,8 @@ export interface LearnOutline {
   /** How the viewer is here: an enrolled learner, or the course's teacher/staff checking it. */
   role: 'learner' | 'teaching'
   progressPct: number
+  /** The learner's cohort run, for the cohort home link (docs/10 §9). */
+  cohort: { name: string; startsAt: Date } | null
   sections: Array<{ id: string; title: string; lessons: OutlineLesson[] }>
   /** First lesson not yet completed that the learner can open ("Continue learning"). */
   nextLessonId: string | null
@@ -85,7 +87,7 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
 
   const teaching = course.instructorId === actor.userId || course.staff || canSeeEverything(actor)
   const [row] = await ctx.db
-    .select({ e: enrollments, cohortStartsAt: cohorts.startsAt })
+    .select({ e: enrollments, cohortStartsAt: cohorts.startsAt, cohortName: cohorts.name })
     .from(enrollments)
     .leftJoin(cohorts, eq(cohorts.id, enrollments.cohortId))
     .where(and(eq(enrollments.userId, actor.userId), eq(enrollments.courseId, course.id)))
@@ -181,6 +183,10 @@ export async function getCourseOutline(ctx: Ctx, courseSlug: string): Promise<Le
     },
     role: teaching && !learning ? 'teaching' : 'learner',
     progressPct: enrollment?.progressPct ?? 0,
+    cohort:
+      learning && row?.cohortName && row.cohortStartsAt
+        ? { name: row.cohortName, startsAt: row.cohortStartsAt }
+        : null,
     sections: shaped,
     nextLessonId: next?.id ?? null,
   }

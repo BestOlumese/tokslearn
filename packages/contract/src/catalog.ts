@@ -31,6 +31,8 @@ const CourseCardShape = z.object({
   ratingCount: z.number().int(),
   enrollmentCount: z.number().int(),
   publishedAt: IsoDateTime,
+  /** Cohort-based courses: the next run still taking people. */
+  nextCohortStartsAt: IsoDateTime.nullable(),
 })
 export type CourseCardDto = z.infer<typeof CourseCardShape>
 export const CourseCardDto = named(CourseCardShape)
@@ -95,6 +97,7 @@ const PublicCourseShape = z.object({
   compareAtKobo: Kobo.nullable(),
   refundPolicyDays: z.number().int(),
   certificateMode: CertificateMode,
+  cohortBased: z.boolean(),
   totalDurationSec: z.number().int(),
   lessonCount: z.number().int(),
   resourceCount: z.number().int(),
@@ -149,6 +152,8 @@ export const CourseFiltersInput = z.object({
   minRating: z.coerce.number().min(1).max(5).optional(),
   duration: DurationBucket.optional(),
   certificate: z.coerce.boolean().optional(),
+  /** Only cohort-based courses with a start date still open. */
+  cohort: z.coerce.boolean().optional(),
   sort: CourseSort.default('popular'),
   cursor: Cursor.optional(),
   limit: z.coerce.number().int().min(1).max(48).default(24),

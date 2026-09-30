@@ -276,7 +276,8 @@ export async function nextOpenCohortStart(ctx: Ctx, courseId: string): Promise<D
 export interface MyCohort {
   course: { id: string; slug: string; title: string }
   cohort: { id: string; name: string; startsAt: Date; endsAt: Date; timezone: string }
-  members: Array<{ name: string; isMe: boolean }>
+  /** `id`: the enrollment, as a stable list key; never a user id. */
+  members: Array<{ id: string; name: string; isMe: boolean }>
   memberCount: number
   /** Lessons with a cohort-relative opening date, in course order. */
   schedule: Array<{ lessonId: string; title: string; section: string; opensAt: Date }>
@@ -309,7 +310,7 @@ export async function getMyCohort(ctx: Ctx, courseSlug: string): Promise<MyCohor
 
   const [memberRows, lessonRows] = await Promise.all([
     ctx.db
-      .select({ userId: enrollments.userId, name: user.name })
+      .select({ id: enrollments.id, userId: enrollments.userId, name: user.name })
       .from(enrollments)
       .innerJoin(user, eq(user.id, enrollments.userId))
       .where(
@@ -356,6 +357,7 @@ export async function getMyCohort(ctx: Ctx, courseSlug: string): Promise<MyCohor
       timezone: row.cohort.timezone,
     },
     members: memberRows.map((m) => ({
+      id: m.id,
       name: learnerDisplayName(m.name),
       isMe: m.userId === me.userId,
     })),

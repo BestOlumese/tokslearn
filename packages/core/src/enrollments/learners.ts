@@ -9,7 +9,7 @@ import { requireUser } from '../kernel/guards'
 // Display names only: no emails (docs/14, learners didn't agree to share them).
 // Foreign reads (docs/03 §3): courses, course_staff, user.
 
-const { enrollments, courses, user } = schema
+const { enrollments, courses, user, cohorts } = schema
 
 export interface CourseLearner {
   enrollmentId: string
@@ -18,8 +18,8 @@ export interface CourseLearner {
   status: 'active' | 'completed' | 'revoked' | 'expired'
   progressPct: number
   lastActiveAt: Date | null
-  /** Cohorts arrive in Phase 8. */
   cohortId: string | null
+  cohortName: string | null
 }
 
 const encode = (at: Date, id: string) =>
@@ -45,6 +45,8 @@ export async function listCourseLearners(
     courseId: string
     status?: 'active' | 'completed' | undefined
     q?: string | undefined
+    /** Only learners in this run. */
+    cohortId?: string | undefined
     cursor?: string | undefined
     limit?: number | undefined
   },
@@ -70,6 +72,7 @@ export async function listCourseLearners(
     eq(enrollments.courseId, course.id),
     input.status ? eq(enrollments.status, input.status) : undefined,
     q ? ilike(user.name, `%${q}%`) : undefined,
+    input.cohortId ? eq(enrollments.cohortId, input.cohortId) : undefined,
   )
   const [rows, [count]] = await Promise.all([
     ctx.db
@@ -81,9 +84,11 @@ export async function listCourseLearners(
         progressPct: enrollments.progressPct,
         lastActiveAt: enrollments.lastAccessedAt,
         cohortId: enrollments.cohortId,
+        cohortName: cohorts.name,
       })
       .from(enrollments)
       .innerJoin(user, eq(user.id, enrollments.userId))
+      .leftJoin(cohorts, eq(cohorts.id, enrollments.cohortId))
       .where(
         and(
           filter,

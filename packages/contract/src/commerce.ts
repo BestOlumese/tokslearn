@@ -16,7 +16,12 @@ const post = (path: `/${string}`, tag: string, summary: string, description: str
 
 const Reason = z.string().trim().min(3).max(500)
 export const ItemType = z.enum(['course', 'bundle'])
-export const ItemRefInput = z.strictObject({ itemType: ItemType, itemId: z.uuid() })
+export const ItemRefInput = z.strictObject({
+  itemType: ItemType,
+  itemId: z.uuid(),
+  /** The start date picked for a cohort-based course (docs/10 §9). */
+  cohortId: z.uuid().nullable().optional(),
+})
 export const AttributionSource = z.enum([
   'instructor_referral',
   'instructor_coupon',
@@ -44,6 +49,9 @@ const CartItemShape = z.object({
   compareAtKobo: Kobo.nullable(),
   courseIds: z.array(z.uuid()),
   refundPolicyDays: RefundDays,
+  /** Sold by start date; checkout needs `cohort`. */
+  cohortBased: z.boolean(),
+  cohort: z.object({ id: z.uuid(), name: z.string(), startsAt: IsoDateTime }).nullable(),
 })
 export type CartItemDto = z.infer<typeof CartItemShape>
 export const CartItemDto = named(CartItemShape)
@@ -270,9 +278,9 @@ export const enrollmentsContract = {
     '/enrollments/free',
     'Learning',
     'Enroll in a free course',
-    'No payment. Needs a verified email.',
+    'No payment. Needs a verified email. Cohort-based courses need `cohortId`.',
   )
-    .input(z.strictObject({ courseId: z.uuid() }))
+    .input(z.strictObject({ courseId: z.uuid(), cohortId: z.uuid().nullable().optional() }))
     .output(z.object({ enrollmentId: z.uuid(), courseSlug: z.string(), created: z.boolean() })),
   listMine: get(
     '/enrollments',

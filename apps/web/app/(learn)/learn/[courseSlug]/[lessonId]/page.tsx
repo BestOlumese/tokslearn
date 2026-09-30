@@ -225,6 +225,11 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
                   courseHref={courseHref}
                   instructorName={outline.course.instructorName}
                   progressPct={outline.role === 'learner' ? outline.progressPct : null}
+                  cohort={
+                    outline.cohort
+                      ? { name: outline.cohort.name, href: `${base}/cohort` as Route }
+                      : null
+                  }
                 />
               }
             />
@@ -383,6 +388,7 @@ function Overview({
   courseHref,
   instructorName,
   progressPct,
+  cohort,
 }: {
   position: number
   total: number
@@ -390,6 +396,7 @@ function Overview({
   courseHref: Route
   instructorName: string
   progressPct: number | null
+  cohort: { name: string; href: Route } | null
 }) {
   return (
     <div className="flex flex-col gap-3 text-body-sm text-ink-2">
@@ -401,6 +408,14 @@ function Overview({
         by {instructorName}.
         {progressPct !== null ? ` You’ve finished ${progressPct}% of the course.` : ''}
       </p>
+      {cohort ? (
+        <p>
+          You’re in the {cohort.name} cohort.{' '}
+          <Link href={cohort.href} className="font-medium text-brand-ink hover:underline">
+            Dates, schedule and classmates
+          </Link>
+        </p>
+      ) : null}
       <p className="hidden sm:block">
         Shortcuts: <Kbd>N</Kbd> next, <Kbd>P</Kbd> previous, <Kbd>B</Kbd> bookmark, <Kbd>M</Kbd>{' '}
         note at the current moment.
