@@ -34,7 +34,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `live-reminder-24h` / `-15m` | live reminders | {session} starts {tomorrow at 7:00 pm / in 15 minutes} | Time in Lagos time, join button, add-to-calendar (.ics) | activity |
 | `assignment-graded` | `assignment.graded` | Your assignment in {course} has been graded | Score, pass/fail (or "sent back for changes"), feedback excerpt, view button | activity |
 | `attempt-voided` | `attempt.voided` | Your exam attempt in {course} was cancelled | The instructor's reason, that the attempt no longer counts and can be taken again, button to the exam | transactional |
-| `certificate-issued` | `certificate.issued` | Your certificate for {course} | Congratulate plainly, download PDF, verification link, LinkedIn add | transactional |
+| `certificate-issued` | `certificate.issued` | Your certificate for {course} | Congratulate plainly, download PDF (links to My certificates), verification link, LinkedIn add. Sent once, when first issued; not on name corrections. | transactional |
 | `qa-answered` | answer to my question | {instructor} answered your question | Question title, answer excerpt, view | activity |
 | `thread-reply` / `mention` | replies/mentions (digest if > 5/h) | New replies in {course} discussions | List of threads with counts | activity |
 | `announcement` | instructor announcement | {course}: {announcement title} | Body (plain), view in course | activity |

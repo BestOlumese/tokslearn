@@ -1,4 +1,5 @@
 import {
+  Award,
   Bell,
   BookOpen,
   BookText,
@@ -62,6 +63,7 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [
       { href: '/admin/courses', label: 'Courses', icon: icon(BookOpen) },
       { href: '/admin/categories', label: 'Categories', icon: icon(FolderTree) },
+      { href: '/admin/certificates', label: 'Certificates', icon: icon(Award) },
     ],
   },
   {

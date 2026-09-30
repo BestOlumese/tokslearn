@@ -264,3 +264,27 @@ export async function voidAttempt(
   })
   return getAttemptForReview(ctx, attempt.id)
 }
+
+/**
+ * For certificates: the learner's first passing attempt at a quiz (graded, passed, not voided),
+ * or null. Voided attempts never count.
+ */
+export async function passedAttempt(
+  ctx: Ctx,
+  input: { userId: string; quizId: string },
+): Promise<{ attemptId: string; submittedAt: Date | null } | null> {
+  const [row] = await ctx.db
+    .select({ attemptId: quizAttempts.id, submittedAt: quizAttempts.submittedAt })
+    .from(quizAttempts)
+    .where(
+      and(
+        eq(quizAttempts.quizId, input.quizId),
+        eq(quizAttempts.userId, input.userId),
+        eq(quizAttempts.status, 'graded'),
+        eq(quizAttempts.passed, true),
+      ),
+    )
+    .orderBy(quizAttempts.submittedAt)
+    .limit(1)
+  return row ?? null
+}

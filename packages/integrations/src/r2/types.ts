@@ -25,4 +25,11 @@ export interface FileStorage {
     key: string
   }): Promise<{ sizeBytes: number; contentType: string | null } | null>
   deleteObject(input: { bucket: Bucket; key: string }): Promise<void>
+  /** Server-side upload of a file the platform made itself (certificate PDFs). */
+  uploadObject(input: {
+    bucket: Bucket
+    key: string
+    body: Uint8Array
+    contentType: string
+  }): Promise<void>
 }

@@ -20,7 +20,8 @@ describe.each(emailIds)('%s', (id) => {
     const email = await renderEmail(id, data as never)
     for (const value of Object.values(data)) {
       if (typeof value === 'string' && value.startsWith('https://')) {
-        expect(email.html).toContain(value)
+        // HTML escapes & in attributes.
+        expect(email.html).toContain(value.replaceAll('&', '&amp;'))
         expect(email.text).toContain(value)
       }
     }

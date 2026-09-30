@@ -41,7 +41,7 @@ Column lists show the important fields; add `id`, `created_at`, `updated_at` to 
 - `course_search`: `course_id` pk, `document tsvector`, `title_trgm text`, `popularity_score`, `rating_avg`, `published_at`. GIN on `document`, GIN trigram on `title_trgm`. Rebuilt by job on `course.published` / `course.updated`.
 
 ### courses
-- `courses`: `instructor_id`, `slug` unique, `status` enum(draft, in_review, changes_requested, published, unlisted, archived), `live_revision_id`, `draft_revision_id`, `category_id`, `level` enum(beginner, intermediate, advanced, all), `language` default 'en', `price_kobo`, `compare_at_kobo`, `currency`, `is_free` generated, `refund_policy_days` smallint check in (0,3,7,14), `certificate_mode` enum(none, completion, exam, external), `drip_mode` enum(none, fixed_dates, after_enrollment, cohort_relative), `completion_threshold_pct` default 90, `subscription_opt_in` bool default false (Phase 12), `drm_required` bool default false (Phase 15), `total_duration_sec`, `lesson_count`, `published_at`, `deleted_at`.
+- `courses`: `instructor_id`, `slug` unique, `status` enum(draft, in_review, changes_requested, published, unlisted, archived), `live_revision_id`, `draft_revision_id`, `category_id`, `level` enum(beginner, intermediate, advanced, all), `language` default 'en', `price_kobo`, `compare_at_kobo`, `currency`, `is_free` generated, `refund_policy_days` smallint check in (0,3,7,14), `certificate_mode` enum(none, completion, exam, external), `certificate_settings` jsonb (exam: `examQuizId`, `requireCompletion`; external: `providerName`, `providerUrl`; on revisions too, copied on approval), `drip_mode` enum(none, fixed_dates, after_enrollment, cohort_relative), `completion_threshold_pct` default 90, `subscription_opt_in` bool default false (Phase 12), `drm_required` bool default false (Phase 15), `total_duration_sec`, `lesson_count`, `published_at`, `deleted_at`.
 - `course_revisions`: `course_id`, `number`, `status` enum(draft, submitted, approved, rejected, superseded), `title`, `subtitle`, `description_doc jsonb`, `description_html`, `outcomes text[]`, `requirements text[]`, `cover_key`, `promo_video_id`, `snapshot jsonb` (frozen outline for review), `review_notes`, `reviewed_by`, `reviewed_at`.
 - `sections`: `course_id`, `title`, `position`.
 - `lessons`: `course_id`, `section_id`, `type` enum(video, article, quiz, assignment, live, resource), `title`, `position`, `is_preview` bool, `duration_sec`, `video_asset_id`, `article_doc jsonb`, `article_html`, `quiz_id`, `assignment_id`, `live_session_id`, `drip_offset_days`, `drip_date`, `deleted_at`.
@@ -54,7 +54,7 @@ Index: `lessons(course_id, section_id, position)`, `courses(instructor_id, statu
 
 ### media
 - `video_assets`: `owner_id`, `provider` ('bunny'), `library_id`, `provider_video_id` unique, `status` enum(uploading, processing, ready, failed), `duration_sec`, `width`, `height`, `thumbnail_url`, `drm_enabled` bool, `captions jsonb`, `error`.
-- `files`: `owner_id`, `bucket`, `key` unique, `mime`, `size_bytes`, `sha256`, `purpose` enum(resource, assignment_submission, cover, avatar, certificate, other), `scan_status` enum(pending, clean, infected, skipped).
+- `files`: `owner_id`, `bucket`, `key` unique, `mime`, `size_bytes`, `sha256`, `purpose` enum(resource, assignment_submission, cover, avatar, certificate, exam_evidence, other), `scan_status` enum(pending, clean, infected, skipped).
 
 ### commerce
 - `carts`: `user_id` unique (one active cart), `coupon_code`.
@@ -118,7 +118,7 @@ Rate-limit heartbeats per user (1 per 10 s per lesson).
 
 ### certificates
 - `certificate_templates`: `instructor_id` nullable (platform default), `layout jsonb`.
-- `certificates`: `public_code` unique (e.g. `TL-C-8Q2M-4K7P`), `user_id`, `course_id`, `enrollment_id`, `basis` enum(completion, exam, external), `quiz_attempt_id`, `external_result_id`, `recipient_name_snapshot`, `course_title_snapshot`, `instructor_name_snapshot`, `issued_at`, `file_id`, `status` enum(active, revoked), `revoked_reason`, `revoked_at`.
+- `certificates`: `public_code` unique (e.g. `TL-C-8Q2M-4K7P`), `user_id`, `course_id`, `enrollment_id`, `basis` enum(completion, exam, external), `quiz_attempt_id`, `external_result_id`, `recipient_name_snapshot`, `course_title_snapshot`, `instructor_name_snapshot`, `provider_name_snapshot`, `issued_at`, `file_id` (null until rendered), `status` enum(active, revoked), `revoked_reason`, `revoked_at`, `revoked_by`, `name_corrected_at`. Unique (`user_id`, `course_id`): issuance is insert-if-absent. Check: revoked rows have a reason and time.
 - `external_exam_results`: `course_id`, `user_id`, `provider_name`, `exam_url`, `result` enum(pass, fail), `score`, `evidence_file_id`, `recorded_by`, `recorded_at`.
 
 ### cohorts

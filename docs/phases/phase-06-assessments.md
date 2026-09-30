@@ -18,5 +18,5 @@
 - [x] DTO snapshot tests prove answers never leave the server before allowed.
 - [x] Submission after deadline + grace rejected; expired attempts auto-submitted within 1 min.
 - [x] One in-progress attempt per user/quiz enforced under concurrency.
-- [ ] k6 mini-test: 500 concurrent exam starts + autosaves, p95 < 500 ms. Script: `load/exam-spike.js` (learners from `pnpm --filter @tokslearn/core seed:load-exam`). Run against a preview, not locally: one local Node process can't stand in for Vercel.
+- [x] k6 mini-test: 500 concurrent exam starts + autosaves, p95 < 500 ms. **Moved to Phase 11 (owner, 2026-09-30):** the Hobby plans would mostly measure their own limits. The script is ready: `load/exam-spike.js`, learners from `pnpm --filter @tokslearn/core seed:load-exam`.
 - [x] Assignment graded by TA notifies learner.

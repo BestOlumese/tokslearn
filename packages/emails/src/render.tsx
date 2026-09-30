@@ -5,6 +5,7 @@ import * as applicationDecision from './templates/application-decision'
 import * as applicationReceived from './templates/application-received'
 import * as assignmentGraded from './templates/assignment-graded'
 import * as attemptVoided from './templates/attempt-voided'
+import * as certificateIssued from './templates/certificate-issued'
 import * as courseReviewDecision from './templates/course-review-decision'
 import * as dataExportReady from './templates/data-export-ready'
 import * as deletionRequested from './templates/deletion-requested'
@@ -85,6 +86,10 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'assignment-graded': {
     subject: assignmentGraded.subject,
     element: (d) => <assignmentGraded.AssignmentGraded {...d} />,
+  },
+  'certificate-issued': {
+    subject: certificateIssued.subject,
+    element: (d) => <certificateIssued.CertificateIssued {...d} />,
   },
   'attempt-voided': {
     subject: attemptVoided.subject,

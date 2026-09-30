@@ -4,11 +4,19 @@ import type { Bucket, FileStorage } from './types'
 export function createFakeStorage(): FileStorage & {
   deleted: string[]
   putObject(bucket: Bucket, key: string, sizeBytes: number, contentType: string): void
+  /** Bytes stored with `uploadObject`, for tests. */
+  bytes(bucket: Bucket, key: string): Uint8Array | undefined
 } {
   const deleted: string[] = []
   const objects = new Map<string, { sizeBytes: number; contentType: string }>()
+  const bodies = new Map<string, Uint8Array>()
   return {
     deleted,
+    bytes: (bucket, key) => bodies.get(`${bucket}/${key}`),
+    async uploadObject({ bucket, key, body, contentType }) {
+      objects.set(`${bucket}/${key}`, { sizeBytes: body.byteLength, contentType })
+      bodies.set(`${bucket}/${key}`, body)
+    },
     putObject(bucket, key, sizeBytes, contentType) {
       objects.set(`${bucket}/${key}`, { sizeBytes, contentType })
     },

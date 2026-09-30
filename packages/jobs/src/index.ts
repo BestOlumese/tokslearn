@@ -8,6 +8,7 @@ import {
 } from './events'
 import { accountDeletion } from './functions/account-deletion'
 import { examAutosubmit } from './functions/assessments'
+import { certificateBackfill, certificateIssue, certificateRender } from './functions/certificates'
 import { commerceHourly } from './functions/commerce-hourly'
 import { dataExport } from './functions/data-export'
 import { emailSend } from './functions/email-send'
@@ -35,6 +36,9 @@ export const functions = [
   streakRollover,
   dripUnlocks,
   examAutosubmit,
+  certificateIssue,
+  certificateRender,
+  certificateBackfill,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

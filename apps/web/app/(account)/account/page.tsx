@@ -1,3 +1,4 @@
+import * as certificates from '@tokslearn/core/certificates'
 import * as commerce from '@tokslearn/core/commerce'
 import * as engagement from '@tokslearn/core/engagement'
 import * as enrollments from '@tokslearn/core/enrollments'
@@ -149,6 +150,12 @@ async function TabNav({ searchParams }: { searchParams: Promise<{ tab?: string }
       <Link href="/account/notes" className="shrink-0 pb-3 text-body-sm text-ink-2 hover:text-ink">
         Notes
       </Link>
+      <Link
+        href="/account/certificates"
+        className="shrink-0 pb-3 text-body-sm text-ink-2 hover:text-ink"
+      >
+        Certificates
+      </Link>
     </nav>
   )
 }
@@ -192,9 +199,11 @@ async function Courses({ searchParams }: { searchParams: Promise<{ tab?: string 
     )
   }
 
-  const mine = await enrollments.listMyCourses(ctx, {
-    status: tab === 'completed' ? 'completed' : undefined,
-  })
+  const [mine, earned] = await Promise.all([
+    enrollments.listMyCourses(ctx, { status: tab === 'completed' ? 'completed' : undefined }),
+    certificates.listMyCertificates(ctx),
+  ])
+  const certified = new Set(earned.filter((c) => c.status === 'active').map((c) => c.courseId))
   const list = tab === 'active' ? mine.filter((c) => c.status === 'active') : mine
   if (list.length === 0) {
     return tab === 'completed' ? (
@@ -242,6 +251,14 @@ async function Courses({ searchParams }: { searchParams: Promise<{ tab?: string 
                 ? `Not started · ${c.lessonCount} lessons`
                 : `${c.progressPct}% done`}
           </p>
+          {certified.has(c.courseId) ? (
+            <Link
+              href="/account/certificates"
+              className="text-body-sm font-medium text-brand-ink hover:underline"
+            >
+              Your certificate
+            </Link>
+          ) : null}
         </li>
       ))}
     </ul>

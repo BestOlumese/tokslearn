@@ -1,6 +1,11 @@
 import type { Bucket } from '@tokslearn/integrations/r2'
 
-export type UploadPurpose = 'avatar' | 'cover' | 'resource' | 'assignment_submission'
+export type UploadPurpose =
+  | 'avatar'
+  | 'cover'
+  | 'resource'
+  | 'assignment_submission'
+  | 'exam_evidence'
 
 interface PurposeRule {
   bucket: Bucket
@@ -51,6 +56,11 @@ export const uploadRules: Readonly<Record<UploadPurpose, PurposeRule>> = {
       'image/jpeg': 'jpg',
       'image/png': 'png',
     },
+  }, // An instructor's proof of an external exam result: a results sheet or a screenshot.
+  exam_evidence: {
+    bucket: 'private',
+    maxBytes: 20 * MB,
+    mimes: { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png' },
   },
 }
 

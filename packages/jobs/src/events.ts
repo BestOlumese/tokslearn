@@ -49,3 +49,34 @@ export const courseCompleted = eventType('course.completed', {
 export const streakExtended = eventType('streak.extended', {
   schema: z.object({ userId: z.string(), length: z.number() }),
 })
+
+/** Certificate triggers (docs/10 §8): each may complete a course's criteria. */
+export const examPassed = eventType('exam.passed', {
+  schema: z.object({
+    userId: z.string(),
+    courseId: z.string(),
+    quizId: z.string(),
+    attemptId: z.string(),
+  }),
+})
+export const externalResultRecorded = eventType('external_result.recorded', {
+  schema: z.object({
+    resultId: z.string(),
+    userId: z.string(),
+    courseId: z.string(),
+    result: z.enum(['pass', 'fail']),
+  }),
+})
+export const certificateIssued = eventType('certificate.issued', {
+  schema: z.object({ certificateId: z.string(), userId: z.string(), courseId: z.string() }),
+})
+export const certificateNameCorrected = eventType('certificate.name_corrected', {
+  schema: z.object({ certificateId: z.string(), userId: z.string(), courseId: z.string() }),
+})
+/** A course's rules went live: learners who already qualify get their certificates. */
+export const coursePublished = eventType('course.published', {
+  schema: z.object({ courseId: z.string(), revisionId: z.string(), instructorId: z.string() }),
+})
+export const courseUpdated = eventType('course.updated', {
+  schema: z.object({ courseId: z.string(), revisionId: z.string(), instructorId: z.string() }),
+})

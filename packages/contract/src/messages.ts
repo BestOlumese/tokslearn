@@ -46,6 +46,8 @@ export const errorCatalog = {
   ATTEMPT_NOT_FOUND: notFound('attempt'),
   ASSIGNMENT_NOT_FOUND: notFound('assignment'),
   SUBMISSION_NOT_FOUND: notFound('submission'),
+  EXTERNAL_RESULT_NOT_FOUND: notFound('exam result'),
+  ENROLLMENT_NOT_FOUND: notFound('learner'),
   RESOURCE_NOT_FOUND: notFound('file'),
   FILE_NOT_FOUND: notFound('file'),
   SESSION_NOT_FOUND: notFound('session'),
@@ -265,6 +267,16 @@ export const errorCatalog = {
     status: 'UNPROCESSABLE_CONTENT',
     message:
       "You've already corrected the name on this certificate. Contact support for further changes.",
+  },
+  CERTIFICATE_NOT_REVOKED: { status: 'CONFLICT', message: 'This certificate is already valid.' },
+  CERTIFICATE_EXAM_REQUIRED: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message:
+      "Pick the exam that earns the certificate. Add an exam lesson first if there isn't one.",
+  },
+  CERTIFICATE_PROVIDER_REQUIRED: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Add the name of the organisation that runs the exam.',
   },
 
   // Community, reviews

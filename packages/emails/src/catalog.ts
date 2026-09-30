@@ -98,6 +98,17 @@ export interface EmailData {
     reason: string
     url: string
   }
+  'certificate-issued': {
+    name: string
+    courseTitle: string
+    /** e.g. "You passed the final exam" or "You completed every lesson". */
+    basisText: string
+    code: string
+    /** My certificates, where the PDF downloads. */
+    url: string
+    verifyUrl: string
+    linkedInUrl: string
+  }
   'lesson-unlocked': {
     name: string
     courseTitle: string
@@ -130,6 +141,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'lesson-unlocked': 'activity',
   'assignment-graded': 'activity',
   'attempt-voided': 'transactional',
+  'certificate-issued': 'transactional',
 }
 
 export const emailIds = Object.keys(emailCategory) as EmailId[]

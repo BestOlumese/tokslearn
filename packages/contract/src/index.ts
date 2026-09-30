@@ -16,6 +16,11 @@ import {
   learnContract,
 } from './catalog'
 import {
+  adminCertificatesContract,
+  certificatesContract,
+  studioCertificatesContract,
+} from './certificates'
+import {
   adminCommissionContract,
   adminCouponsContract,
   adminLedgerContract,
@@ -63,6 +68,7 @@ export const contract = {
     questions: studioQuestionsContract,
     quizzes: studioQuizzesContract,
     assignments: studioAssignmentsContract,
+    certificates: studioCertificatesContract,
   },
   instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
@@ -73,6 +79,7 @@ export const contract = {
     orders: adminOrdersContract,
     coupons: adminCouponsContract,
     ledger: adminLedgerContract,
+    certificates: adminCertificatesContract,
   },
   cart: cartContract,
   wishlist: wishlistContract,
@@ -90,6 +97,7 @@ export const contract = {
   exams: examsContract,
   assignments: assignmentsContract,
   grading: gradingContract,
+  certificates: certificatesContract,
 }
 export type Contract = typeof contract
 
@@ -160,6 +168,17 @@ export {
   PublicInstructorDto,
   PublicSectionDto,
 } from './catalog'
+export {
+  AdminCertificateDto,
+  CertificateBasis,
+  CertificateMode,
+  CertificateSettings,
+  ExternalResultDto,
+  IssuedCertificateDto,
+  MyCertificateDto,
+  PublicCertificateDto,
+  StudioCertificateSettingsDto,
+} from './certificates'
 export {
   type AdminOrderDto,
   type AdminOrderRowDto,

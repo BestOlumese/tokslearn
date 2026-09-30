@@ -12,7 +12,9 @@
     "./dojah": "./src/dojah/index.ts",
     "./resend": "./src/resend/index.ts",
     "./upstash": "./src/upstash/index.ts",
-    "./posthog": "./src/posthog/index.ts"
+    "./posthog": "./src/posthog/index.ts",
+    "./pdf": "./src/pdf/index.ts",
+    "./pdf-render": "./src/pdf/render.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -20,15 +22,20 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@react-pdf/renderer": "4.9.0",
     "@upstash/ratelimit": "2.2.0",
     "@upstash/redis": "1.39.0",
     "aws4fetch": "1.0.20",
     "posthog-node": "5.53.0",
+    "qrcode": "1.5.4",
+    "react": "19.3.0",
     "server-only": "0.0.1"
   },
   "devDependencies": {
     "@tokslearn/config": "workspace:*",
     "@types/node": "24.13.6",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
     "typescript": "6.0.3",
     "vite": "8.3.1",
     "vitest": "5.0.1"

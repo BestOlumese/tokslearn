@@ -64,5 +64,15 @@ export function createR2Storage(config: R2Config): FileStorage {
       const res = await aws.fetch(objectUrl(bucket, key), { method: 'DELETE' })
       if (!res.ok && res.status !== 404) throw new Error(`R2 DELETE failed with ${res.status}`)
     },
+
+    async uploadObject({ bucket, key, body, contentType }) {
+      const res = await aws.fetch(objectUrl(bucket, key), {
+        method: 'PUT',
+        headers: { 'content-type': contentType, 'content-length': String(body.byteLength) },
+        // A copy backed by a plain ArrayBuffer, which every fetch typing accepts.
+        body: new Uint8Array(body),
+      })
+      if (!res.ok) throw new Error(`R2 PUT failed with ${res.status}`)
+    },
   }
 }

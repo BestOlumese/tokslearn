@@ -111,6 +111,16 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
       'Clean reconciliation. Label the bank charges next time so the reviewer can follow…',
     url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000002',
   },
+  'certificate-issued': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    basisText: 'You passed the final exam',
+    code: 'TL-C-8Q2M-4K7P',
+    url: 'https://tokslearn.com/account/certificates',
+    verifyUrl: 'https://tokslearn.com/verify/TL-C-8Q2M-4K7P',
+    linkedInUrl:
+      'https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=Bookkeeping%20for%20Small%20Businesses&organizationName=Tokslearn&issueYear=2026&issueMonth=9&certUrl=https%3A%2F%2Ftokslearn.com%2Fverify%2FTL-C-8Q2M-4K7P&certId=TL-C-8Q2M-4K7P',
+  },
   'attempt-voided': {
     name: 'Amaka',
     courseTitle: 'Bookkeeping for Small Businesses',

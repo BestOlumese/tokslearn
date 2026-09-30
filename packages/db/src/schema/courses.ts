@@ -80,6 +80,11 @@ export const courses = pgTable(
     isFree: boolean().notNull().generatedAlwaysAs(sql`price_kobo = 0`),
     refundPolicyDays: smallint().notNull().default(7),
     certificateMode: certificateModeEnum().notNull().default('none'),
+    /** Which exam counts, whether completion is also needed, the outside provider (ADR-036). */
+    certificateSettings: jsonb()
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
     dripMode: dripModeEnum().notNull().default('none'),
     completionThresholdPct: smallint().notNull().default(90),
     subscriptionOptIn: boolean().notNull().default(false),
@@ -139,6 +144,10 @@ export const courseRevisions = pgTable(
     compareAtKobo: kobo(),
     refundPolicyDays: smallint().notNull().default(7),
     certificateMode: certificateModeEnum().notNull().default('none'),
+    certificateSettings: jsonb()
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
     /** Frozen outline + settings at submit time; the reviewer diffs it against the live one. */
     snapshot: jsonb().$type<Record<string, unknown>>(),
     /** Reviewer checklist (docs/25 §B) with ticked items. */

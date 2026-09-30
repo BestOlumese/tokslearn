@@ -7,7 +7,7 @@ import { revalidateTag } from 'next/cache'
  * show old content after a change (a stale price is a wrong price), so those tags expire at once;
  * broad tags like `catalog` refresh in the background ('max').
  */
-const exact = /^(course|course-slug|instructor):/
+const exact = /^(course|course-slug|instructor|certificate):/
 
 export const nextCache: CacheAdapter = {
   async invalidate(tags) {

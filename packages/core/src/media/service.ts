@@ -147,3 +147,49 @@ export async function getFiles(ctx: Ctx, ids: ReadonlyArray<string>) {
     .where(inArray(files.id, [...ids]))
   return new Map(rows.map((r) => [r.id, r]))
 }
+
+/**
+ * Stores a file the platform made itself (certificate PDFs) in the private bucket. The upload
+ * happens before the row is written, so a row always points at a real object.
+ */
+export async function storeGeneratedFile(
+  ctx: Ctx,
+  input: {
+    ownerId: string
+    purpose: 'certificate'
+    bytes: Uint8Array
+    mime: 'application/pdf'
+    originalName: string
+  },
+): Promise<{ id: string }> {
+  const fileId = newId()
+  const key = `${input.purpose}/${input.ownerId}/${fileId}.pdf`
+  await provider(ctx, 'storage').uploadObject({
+    bucket: 'private',
+    key,
+    body: input.bytes,
+    contentType: input.mime,
+  })
+  await ctx.db.insert(files).values({
+    id: fileId,
+    ownerId: input.ownerId,
+    bucket: 'private',
+    key,
+    mime: input.mime,
+    sizeBytes: input.bytes.byteLength,
+    originalName: cleanFilename(input.originalName),
+    purpose: input.purpose,
+    status: 'uploaded',
+    scanStatus: 'skipped',
+    uploadedAt: ctx.now,
+  })
+  return { id: fileId }
+}
+
+/** Deletes a generated file the platform replaced (an old certificate PDF). */
+export async function removeGeneratedFile(ctx: Ctx, fileId: string): Promise<void> {
+  const [file] = await ctx.db.delete(files).where(eq(files.id, fileId)).returning()
+  if (file) {
+    await provider(ctx, 'storage').deleteObject({ bucket: file.bucket, key: file.key })
+  }
+}
