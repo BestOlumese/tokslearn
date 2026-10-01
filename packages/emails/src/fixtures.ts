@@ -153,6 +153,28 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     reason: 'The exam was left for over 20 minutes, twice, in the middle of the attempt.',
     url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000003',
   },
+  'live-reminder-24h': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    cohortName: 'November 2026',
+    sessionTitle: 'Week 2: March reconciliations',
+    hostName: 'Tobi Adeleke',
+    when: 'Thursday 5 November at 7:00 pm',
+    time: '7:00 pm',
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/live/01920000-0000-7000-8000-000000000011',
+    calendarUrl:
+      'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Week+2&dates=20261105T180000Z%2F20261105T190000Z',
+  },
+  'live-reminder-15m': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    cohortName: 'November 2026',
+    sessionTitle: 'Week 2: March reconciliations',
+    hostName: 'Tobi Adeleke',
+    when: 'Thursday 5 November at 7:00 pm',
+    time: '7:00 pm',
+    url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/live/01920000-0000-7000-8000-000000000011',
+  },
   'lesson-unlocked': {
     name: 'Amaka',
     courseTitle: 'Bookkeeping for Small Businesses',

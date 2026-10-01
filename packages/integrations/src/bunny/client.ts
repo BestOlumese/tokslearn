@@ -91,6 +91,36 @@ export function createBunnyStream(config: BunnyConfig): VideoProvider {
       }
     },
 
+    async fetchVideo({ url, title }) {
+      const { status, body } = await providerJson<{
+        success?: boolean
+        id?: string
+        guid?: string
+      }>('bunny', `${API}/library/${lib}/videos/fetch`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ url, title: title.slice(0, 200) }),
+        timeoutMs: 30_000,
+      })
+      if (status !== 200 || body?.success === false) {
+        throw new ProviderError('bunny', status, 'fetch not accepted')
+      }
+      return { videoId: body?.id ?? body?.guid ?? null }
+    },
+
+    async findVideoByTitle(title) {
+      const q = new URLSearchParams({
+        search: title.slice(0, 200),
+        orderBy: 'date',
+        itemsPerPage: '20',
+      })
+      const { status, body } = await providerJson<{
+        items?: Array<{ guid: string; title: string }>
+      }>('bunny', `${API}/library/${lib}/videos?${q}`, { headers })
+      if (status !== 200) throw new ProviderError('bunny', status, 'video search failed')
+      return body?.items?.find((v) => v.title === title.slice(0, 200))?.guid ?? null
+    },
+
     playbackUrls({ videoId, expiresAt }) {
       const exp = Math.floor(expiresAt.getTime() / 1000)
       const token = playbackToken(config.tokenAuthKey, videoId, exp)

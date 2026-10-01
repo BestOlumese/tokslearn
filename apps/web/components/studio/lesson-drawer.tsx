@@ -189,6 +189,25 @@ function LessonEditor({
         </section>
       ) : null}
 
+      {lesson.type === 'live' ? (
+        <section aria-labelledby="live-title" className="flex flex-col gap-2">
+          <h3 id="live-title" className="text-h4 text-ink">
+            Live class
+          </h3>
+          <p className="text-body text-ink-2">
+            Learners see the class time, a Join button and, afterwards, the recording here. Set the
+            time on the Live page and pick this lesson; cohort courses can have one class per cohort
+            on the same lesson.
+          </p>
+          <Link
+            href={'/teach/live' as Route}
+            className="w-fit text-body-sm font-medium text-brand-ink hover:underline"
+          >
+            Schedule on the Live page
+          </Link>
+        </section>
+      ) : null}
+
       {lesson.type === 'video' ? (
         <section aria-labelledby="video-title" className="flex flex-col gap-3">
           <h3 id="video-title" className="text-h4 text-ink">

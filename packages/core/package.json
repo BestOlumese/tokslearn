@@ -19,6 +19,7 @@
     "./identity": "./src/identity/index.ts",
     "./instructors": "./src/instructors/index.ts",
     "./learning": "./src/learning/index.ts",
+    "./live": "./src/live/index.ts",
     "./ledger": "./src/ledger/index.ts",
     "./media": "./src/media/index.ts",
     "./notifications": "./src/notifications/index.ts",
@@ -38,7 +39,9 @@
     "seed:demo-cohorts": "tsx --conditions=react-server src/scripts/seed-demo-cohorts.ts",
     "seed:demo-community": "tsx --conditions=react-server src/scripts/seed-demo-community.ts",
     "reindex:catalog": "tsx --conditions=react-server src/scripts/reindex-catalog.ts",
-    "test:money": "vitest run --coverage --coverage.provider=v8 --coverage.include=src/kernel/money.ts --coverage.include='src/ledger/**' --coverage.include='src/commerce/**' --coverage.include='src/enrollments/**' --coverage.exclude='**/*.test.ts' --coverage.exclude='**/index.ts' --coverage.thresholds.lines=95 --coverage.thresholds.functions=95 --coverage.reporter=text-summary"
+    "test:money": "vitest run --coverage --coverage.provider=v8 --coverage.include=src/kernel/money.ts --coverage.include='src/ledger/**' --coverage.include='src/commerce/**' --coverage.include='src/enrollments/**' --coverage.exclude='**/*.test.ts' --coverage.exclude='**/index.ts' --coverage.thresholds.lines=95 --coverage.thresholds.functions=95 --coverage.reporter=text-summary",
+    "seed:demo-live": "tsx --conditions=react-server src/scripts/seed-demo-live.ts",
+    "daily:webhook": "tsx --env-file-if-exists=../../.env --conditions=react-server src/scripts/daily-webhook.ts"
   },
   "dependencies": {
     "@tokslearn/contract": "workspace:*",

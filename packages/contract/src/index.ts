@@ -49,6 +49,7 @@ import {
   studioDripContract,
   studioLearnersContract,
 } from './learning'
+import { liveContract, studioLiveContract } from './live'
 import { mediaContract } from './media'
 import { catalogContract, studioContract } from './studio'
 
@@ -72,6 +73,7 @@ export const contract = {
     assignments: studioAssignmentsContract,
     certificates: studioCertificatesContract,
     cohorts: studioCohortsContract,
+    live: studioLiveContract,
   },
   instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
@@ -104,6 +106,7 @@ export const contract = {
   certificates: certificatesContract,
   cohorts: cohortsContract,
   community: communityContract,
+  live: liveContract,
 }
 export type Contract = typeof contract
 
@@ -268,6 +271,15 @@ export {
   NoteDto,
   ProgressStatus,
 } from './learning'
+export {
+  AttendanceDto,
+  LiveOptionsDto,
+  LivePhase,
+  LiveSessionDetailDto,
+  LiveSessionDto,
+  LiveStatus,
+  StudioLiveSessionDto,
+} from './live'
 export { UploadPurpose } from './media'
 export { RichMark, RichNode, RichTextDoc, richMarkTypes, richNodeTypes } from './rich-text'
 export { CLIENT_HEADER, Cursor, IDEMPOTENCY_HEADER, IsoDateTime, MoneyDto, Page } from './shared'

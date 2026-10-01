@@ -48,7 +48,8 @@ export function ThreadList({
   const [page, setPage] = useState<ThreadPage | null>(null)
   const [more, setMore] = useState(0)
   const [error, setError] = useState<string | null>(null)
-  const [writing, setWriting] = useState(false)
+  /** The composer is open: with every kind offered here, or for an announcement only. */
+  const [writing, setWriting] = useState<'any' | 'announcement' | null>(null)
 
   const scopeType = scope?.type
   const scopeId = scope?.id
@@ -108,20 +109,31 @@ export function ThreadList({
         ) : (
           <span />
         )}
-        {offered.length > 0 && !writing ? (
-          <Button size="sm" onClick={() => setWriting(true)}>
-            {newLabel}
-          </Button>
+        {!writing ? (
+          <div className="flex flex-wrap gap-2">
+            {/* Instructors get their own button: announcements are emailed to every learner. */}
+            {offered.includes('announcement') ? (
+              <Button size="sm" variant="secondary" onClick={() => setWriting('announcement')}>
+                Post an announcement
+              </Button>
+            ) : null}
+            {kinds.length > 0 ? (
+              <Button size="sm" onClick={() => setWriting('any')}>
+                {newLabel}
+              </Button>
+            ) : null}
+          </div>
         ) : null}
       </div>
 
       {writing ? (
         <Composer
+          key={writing}
           scope={scope ?? { type: 'course', id: courseId }}
-          kinds={offered}
-          onCancel={() => setWriting(false)}
+          kinds={writing === 'announcement' ? ['announcement'] : kinds}
+          onCancel={() => setWriting(null)}
           onCreated={(t) => {
-            setWriting(false)
+            setWriting(null)
             router.push(`${base}/${t.id}` as Route)
           }}
         />

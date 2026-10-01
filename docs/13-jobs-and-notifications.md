@@ -22,7 +22,7 @@
 | `refund-process` | `refund.approved` | Call Paystack refund |
 | `ledger-integrity` | cron daily 03:00 WAT | Balance checks, alert |
 | `video-status` | `webhook/bunny.received` | Update asset, durations |
-| `recording-import` | `webhook/daily.recording_ready` | Import to Bunny |
+| `recording-import` | `live.recording_ready` (from the Daily webhook) | Bunny fetches Daily's recording; attach the video to the session (found by title when Bunny gives no id); check every 10 min for 2 h; delete Daily's copy when ready (ADR-039) |
 | `image-variants` | `file.uploaded` (image purposes) | Resize to WebP/AVIF |
 | `search-reindex` | `course.published`, `course.updated`, `review.*` | Update `course_search` |
 | `certificate-issue` | `course.completed`, `exam.passed`, `external_result.recorded` (pass) | Check the live criteria, issue once per learner and course (a passing grade or quiz completes its lesson, so it arrives as `course.completed`) |
@@ -33,7 +33,7 @@
 | `badges-evaluate` | learning events | Award badges |
 | `streaks-rollover` | cron daily 00:10 WAT | Apply freezes, reset broken streaks |
 | `drip-unlock-notify` | cron daily 07:00 WAT | Notify unlocked lessons |
-| `live-reminders` | `live.scheduled` (sleepUntil) | 24 h and 15 min reminders |
+| `live-reminders` | `live.scheduled` (sleepUntil) | 24 h and 15 min reminder emails to the learners the class is for, 500 per step; nothing if it was cancelled or moved |
 | `stats-aggregate` | cron hourly + nightly | Instructor/course daily stats |
 | `sitemap-refresh` | `course.published` | Revalidate sitemap tags |
 | `statement-generate` | `payout.run.completed` | Monthly PDF statements |

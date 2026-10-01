@@ -71,6 +71,10 @@ export interface DomainEvents {
   'certificate.revoked': { certificateId: string; userId: string; courseId: string }
   /** The announcement-send job emails it to the course's (or cohort's) learners. */
   'announcement.posted': { threadId: string; courseId: string }
+  /** Scheduled or moved: the live-reminders job waits for 24 h and 15 min before `startsAt`. */
+  'live.scheduled': { sessionId: string; courseId: string; startsAt: string }
+  /** Daily finished a cloud recording: the recording-import job sends it to Bunny. */
+  'live.recording_ready': { sessionId: string; recordingId: string; durationSec: number }
   'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }
   'order.failed': { orderId: string; reason: string }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */

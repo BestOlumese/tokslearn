@@ -2,6 +2,7 @@ import { isFeatureEnabled } from '@tokslearn/core/admin'
 import * as certificates from '@tokslearn/core/certificates'
 import { isDomainError } from '@tokslearn/core/kernel'
 import * as learning from '@tokslearn/core/learning'
+import * as live from '@tokslearn/core/live'
 import { buttonClasses } from '@tokslearn/ui/button'
 import { EmptyState } from '@tokslearn/ui/empty-state'
 import { Progress } from '@tokslearn/ui/progress'
@@ -21,8 +22,10 @@ import { PlayerSkeleton } from '@/components/learn/player-skeleton'
 import { QuizLesson } from '@/components/learn/quiz-lesson'
 import { ResourceList } from '@/components/learn/resource-list'
 import { VideoLesson } from '@/components/learn/video-lesson'
+import { SessionCard, upcomingFirst } from '@/components/live/session-card'
 import { RichHtml } from '@/components/rich-html'
 import { formatDayMonth, formatDuration } from '@/lib/format'
+import { sessionTime } from '@/lib/live-time'
 import { requireSignedInCtx } from '@/lib/require-user'
 
 export const metadata: Metadata = { title: 'Lesson', robots: { index: false } }
@@ -104,6 +107,18 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
     }
   }
 
+  // The viewer's live classes (their run's and the course-wide ones): a Live class lesson lists
+  // its own, and the Overview tab points to the next one wherever it's shown.
+  const liveOn = await isFeatureEnabled(ctx, 'live_classes')
+  const courseSessions = liveOn
+    ? await live.listCourseSessions(ctx, { courseId: outline.course.id })
+    : []
+  const liveSessions =
+    lesson?.type === 'live' && liveOn
+      ? courseSessions.filter((x) => x.lessonId === lesson?.id)
+      : null
+  const nextLive = courseSessions.find((x) => x.phase === 'upcoming' || x.phase === 'open') ?? null
+
   const base = `/learn/${courseSlug}`
   const previous = flat[index - 1] ?? null
   const next = flat[index + 1] ?? null
@@ -173,6 +188,7 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
               lesson={lesson}
               startAt={Number.isFinite(t) && t >= 0 ? t : null}
               next={next && nextHref ? { href: nextHref, title: next.title } : null}
+              liveSessions={liveSessions}
             />
           ) : (
             <Locked
@@ -229,6 +245,16 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
                   instructorName={outline.course.instructorName}
                   progressPct={outline.role === 'learner' ? outline.progressPct : null}
                   discussionsHref={communityOn ? (`${base}/community` as Route) : null}
+                  nextLive={
+                    nextLive
+                      ? {
+                          title: nextLive.title,
+                          when: sessionTime(nextLive.startsAt, nextLive.endsAt),
+                          open: nextLive.phase === 'open',
+                          href: `${base}/live/${nextLive.id}` as Route,
+                        }
+                      : null
+                  }
                   cohort={
                     outline.cohort
                       ? { name: outline.cohort.name, href: `${base}/cohort` as Route }
@@ -261,10 +287,13 @@ function LessonBody({
   lesson,
   startAt,
   next,
+  liveSessions,
 }: {
   lesson: learning.LearnLesson
   startAt: number | null
   next: { href: string; title: string } | null
+  /** Live class lessons: the viewer's sessions, or null when live classes are off. */
+  liveSessions: live.LiveSessionView[] | null
 }) {
   const meta = lessonMeta(lesson)
   const heading = (
@@ -351,6 +380,26 @@ function LessonBody({
       </>
     )
   }
+  if (lesson.type === 'live' && liveSessions) {
+    return (
+      <>
+        {heading}
+        {liveSessions.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {upcomingFirst(liveSessions).map((s) => (
+              <SessionCard key={s.id} session={s} />
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-card border border-border bg-surface p-6 text-body text-ink-2">
+            No class is scheduled for this lesson yet. Once there is one, you’ll get an email the
+            day before it starts.
+          </p>
+        )}
+        {files}
+      </>
+    )
+  }
   return (
     <>
       {heading}
@@ -382,6 +431,7 @@ function lessonMeta(lesson: learning.LearnLesson): string | null {
     return `${n} ${n === 1 ? 'file' : 'files'}`
   }
   if (lesson.type === 'quiz' || lesson.type === 'assignment') return null
+  if (lesson.type === 'live') return 'Live class'
   return 'Lesson'
 }
 
@@ -394,6 +444,7 @@ function Overview({
   progressPct,
   cohort,
   discussionsHref,
+  nextLive,
 }: {
   position: number
   total: number
@@ -404,6 +455,8 @@ function Overview({
   cohort: { name: string; href: Route } | null
   /** The course's discussions, when the `community` flag is on. */
   discussionsHref: Route | null
+  /** The viewer's next live class in this course, when the `live_classes` flag is on. */
+  nextLive: { title: string; when: string; open: boolean; href: Route } | null
 }) {
   return (
     <div className="flex flex-col gap-3 text-body-sm text-ink-2">
@@ -422,6 +475,15 @@ function Overview({
             Discussions
           </Link>
           .
+        </p>
+      ) : null}
+      {nextLive ? (
+        <p>
+          {nextLive.open ? 'Live now: ' : 'Next live class: '}
+          <Link href={nextLive.href} className="font-medium text-brand-ink hover:underline">
+            {nextLive.title}
+          </Link>
+          , {nextLive.when} (Lagos).
         </p>
       ) : null}
       {cohort ? (

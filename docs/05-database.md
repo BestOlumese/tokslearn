@@ -136,8 +136,8 @@ Rate-limit heartbeats per user (1 per 10 s per lesson).
 Index: `threads(scope_type, scope_id, last_activity_at desc)`, `posts(thread_id, created_at)`.
 
 ### live
-- `live_sessions`: `course_id`, `cohort_id`, `lesson_id`, `title`, `starts_at`, `ends_at`, `daily_room_name` unique, `status` enum(scheduled, live, ended, cancelled), `recording_policy`, `recording_video_asset_id`.
-- `live_attendance`: pk(session_id, user_id), `joined_at`, `left_at`, `total_sec`.
+- `live_sessions`: `course_id`, `cohort_id` (null: every learner), `lesson_id` (the Live class lesson that shows it), `created_by`, `title`, `starts_at`, `ends_at` (check: after start), `status` enum(scheduled, live, ended, cancelled), `recording_enabled`, `daily_room_name` unique, `daily_room_url`, `room_expires_at`, `started_at`, `ended_at`, `cancelled_at`, `recording_status` enum(none, importing, ready, failed), `daily_recording_id`, `recording_duration_sec`, `recording_title`, `recording_video_asset_id`. `lessons.live_session_id` is unused (ADR-039).
+- `live_attendance`: pk(session_id, user_id), `joined_at` (first join), `left_at`, `total_sec` (from Daily's participant.left), `is_host`.
 
 ### reviews
 - `reviews`: `course_id`, `user_id`, `enrollment_id`, `rating smallint 1–5`, `body`, `status` enum(visible, hidden, flagged), `instructor_reply`, `replied_at`, `deleted_at`. unique(course_id, user_id). Eligible only after ≥ 20% progress or 30 minutes of learning (configurable).

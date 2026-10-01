@@ -57,6 +57,7 @@ export const errorCatalog = {
   SECTION_NOT_FOUND: notFound('section'),
   BUNDLE_NOT_FOUND: notFound('bundle'),
   COHORT_NOT_FOUND: notFound('start date'),
+  LIVE_SESSION_NOT_FOUND: notFound('live class'),
   REVISION_NOT_FOUND: notFound('course version'),
   VIDEO_NOT_FOUND: notFound('video'),
 
@@ -318,6 +319,22 @@ export const errorCatalog = {
   LIVE_PROVIDER_UNAVAILABLE: {
     status: 'SERVICE_UNAVAILABLE',
     message: "We can't connect to the live class right now. Try again in a minute.",
+  },
+  LIVE_CANCELLED: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'This live class was cancelled.',
+  },
+  LIVE_START_IN_PAST: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: "Pick a start time that hasn't passed yet.",
+  },
+  LIVE_ALREADY_STARTED: {
+    status: 'CONFLICT',
+    message: "This class has already started, so it can't be changed.",
+  },
+  LIVE_LESSON_INVALID: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Pick a Live class lesson from this course.',
   },
 
   // Refunds and money

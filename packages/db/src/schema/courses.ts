@@ -228,9 +228,10 @@ export const lessons = pgTable(
     videoAssetId: uuid().references(() => videoAssets.id, { onDelete: 'restrict' }),
     articleDoc: jsonb().$type<Record<string, unknown>>(),
     articleHtml: text(),
-    /** Quiz and exam lessons (Phase 6). The live-session FK arrives with Phase 8. */
+    /** Quiz and exam lessons (Phase 6). Live sessions point at their lesson (ADR-039). */
     quizId: uuid().references((): AnyPgColumn => quizzes.id, { onDelete: 'restrict' }),
     assignmentId: uuid().references((): AnyPgColumn => assignments.id, { onDelete: 'restrict' }),
+    /** Unused: sessions point at their lesson (ADR-039). Dropped once no deployed code reads it. */
     liveSessionId: uuid(),
     dripOffsetDays: smallint(),
     dripDate: tstz(),

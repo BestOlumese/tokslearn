@@ -14,6 +14,7 @@ import * as emailChangedOld from './templates/email-changed-old'
 import * as enrollmentFree from './templates/enrollment-free'
 import * as kycResult from './templates/kyc-result'
 import * as lessonUnlocked from './templates/lesson-unlocked'
+import * as liveReminder from './templates/live-reminder'
 import * as mention from './templates/mention'
 import * as newSignIn from './templates/new-sign-in'
 import * as orderReceipt from './templates/order-receipt'
@@ -109,6 +110,14 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'attempt-voided': {
     subject: attemptVoided.subject,
     element: (d) => <attemptVoided.AttemptVoided {...d} />,
+  },
+  'live-reminder-24h': {
+    subject: liveReminder.subject24h,
+    element: (d) => <liveReminder.LiveReminder {...d} soon={false} />,
+  },
+  'live-reminder-15m': {
+    subject: liveReminder.subject15m,
+    element: (d) => <liveReminder.LiveReminder {...d} soon />,
   },
   'lesson-unlocked': {
     subject: lessonUnlocked.subject,

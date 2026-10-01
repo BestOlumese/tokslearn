@@ -138,6 +138,21 @@ export interface EmailData {
     body: string
     url: string
   }
+  'live-reminder-24h': {
+    name: string
+    courseTitle: string
+    cohortName: string | null
+    sessionTitle: string
+    hostName: string
+    /** "Friday 2 October at 7:00 pm" (Lagos). */
+    when: string
+    /** "7:00 pm" (Lagos), for the subject. */
+    time: string
+    /** The session page: join button and, afterwards, the recording. */
+    url: string
+    calendarUrl: string
+  }
+  'live-reminder-15m': Omit<EmailData['live-reminder-24h'], 'calendarUrl'>
   'lesson-unlocked': {
     name: string
     courseTitle: string
@@ -174,6 +189,8 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'thread-reply': 'activity',
   mention: 'activity',
   announcement: 'activity',
+  'live-reminder-24h': 'activity',
+  'live-reminder-15m': 'activity',
 }
 
 export const emailIds = Object.keys(emailCategory) as EmailId[]

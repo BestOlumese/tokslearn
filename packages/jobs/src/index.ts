@@ -15,6 +15,7 @@ import { dataExport } from './functions/data-export'
 import { emailSend } from './functions/email-send'
 import { badgesEvaluate, dripUnlocks, streakRollover } from './functions/learning'
 import { ledgerIntegrity } from './functions/ledger-integrity'
+import { liveReminders, recordingImport } from './functions/live'
 import { outboxDispatch } from './functions/outbox-dispatch'
 import { paystackCharge } from './functions/paystack-charge'
 import { videoStatus } from './functions/video-status'
@@ -41,6 +42,8 @@ export const functions = [
   certificateRender,
   certificateBackfill,
   announcementSend,
+  liveReminders,
+  recordingImport,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

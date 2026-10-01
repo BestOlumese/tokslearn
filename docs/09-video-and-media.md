@@ -50,7 +50,9 @@
 
 Daily cloud recording → `recording.ready-to-download` webhook → Inngest job fetches the recording
 link → Bunny "fetch video from URL" API → new `video_assets` row → attached to the live session and
-optionally published as a lesson. Delete the Daily copy after import (storage costs).
+shown on its class page and Live class lesson. Delete the Daily copy after import (storage costs).
+Bunny's fetch response has no video id, so the video is found by a unique title; a session keeps
+its longest recording (ADR-039).
 
 ## 7. DRM and offline (Phase 15 — design only now)
 

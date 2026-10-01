@@ -16,14 +16,18 @@ const cdnOrigin = (() => {
  * Report-only CSP for Phase 0 (docs/14 §2). Switch to an enforced, nonce-based policy once the
  * third-party list is final; allowed origins match the providers in docs/04.
  */
+// Daily rooms live on our Daily subdomain; only the live class page may hand them the camera and
+// microphone (docs/14 §2).
+const dailyOrigin = `https://${process.env.DAILY_DOMAIN || 'tokslearn.daily.co'}`
+
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://js.paystack.co https://eu-assets.i.posthog.com`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://js.paystack.co https://eu-assets.i.posthog.com https://c.daily.co`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${cdnOrigin} https://*.b-cdn.net`,
   "font-src 'self'",
   // Uploads PUT straight to R2 through presigned URLs (docs/14 §5).
-  "connect-src 'self' https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://api.paystack.co https://*.r2.cloudflarestorage.com https://video.bunnycdn.com",
+  "connect-src 'self' https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://api.paystack.co https://*.r2.cloudflarestorage.com https://video.bunnycdn.com https://*.daily.co wss://*.daily.co",
   'frame-src https://checkout.paystack.com https://iframe.mediadelivery.net https://*.daily.co',
   "media-src 'self' blob: https://*.b-cdn.net",
   "worker-src 'self' blob:",
@@ -91,6 +95,15 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value:
               'camera=(self), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()',
+          },
+        ],
+      },
+      {
+        source: '/learn/:courseSlug/live/:sessionId',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value: `camera=(self "${dailyOrigin}"), microphone=(self "${dailyOrigin}"), display-capture=(self "${dailyOrigin}"), fullscreen=(self "${dailyOrigin}"), autoplay=(self "${dailyOrigin}"), geolocation=(), browsing-topics=(), interest-cohort=()`,
           },
         ],
       },

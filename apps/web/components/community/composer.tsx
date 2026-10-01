@@ -81,6 +81,15 @@ export function Composer({
             </div>
           ))}
         </fieldset>
+      ) : kind === 'announcement' ? (
+        <div>
+          <h2 className="text-h4 text-ink">New announcement</h2>
+          <p className="mt-1 text-body-sm text-ink-2">
+            {scope.type === 'cohort'
+              ? 'Emailed to every learner in this cohort, and shown in the cohort discussion.'
+              : 'Emailed to every learner of the course, and shown under Announcements here and in each lesson.'}
+          </p>
+        </div>
       ) : null}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={`${id}-title`}>

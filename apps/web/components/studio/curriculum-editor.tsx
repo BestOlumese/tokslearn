@@ -37,6 +37,7 @@ import {
   Pencil,
   PlayCircle,
   Plus,
+  Radio,
   Trash2,
 } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
@@ -54,7 +55,7 @@ const typeIcon = {
   resource: Paperclip,
   quiz: ListChecks,
   assignment: ClipboardList,
-  live: PlayCircle,
+  live: Radio,
 }
 const newTitle = {
   video: 'New video lesson',
@@ -63,6 +64,7 @@ const newTitle = {
   quiz: 'Check your understanding',
   exam: 'Final exam',
   assignment: 'Practice task',
+  live: 'Live class',
 } as const
 type NewType = keyof typeof newTitle
 
@@ -93,7 +95,8 @@ function IconButton({
   )
 }
 
-export function CurriculumEditor() {
+/** `liveClasses`: the `live_classes` flag, which offers Live class lessons. */
+export function CurriculumEditor({ liveClasses = false }: { liveClasses?: boolean }) {
   const { course, run, locked, uploads } = useCourseEditor()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [pending, setPending] = useState<Pending>(null)
@@ -240,6 +243,7 @@ export function CurriculumEditor() {
                     })
                   }
                   onAddLesson={(type) => addLesson(section, type)}
+                  liveClasses={liveClasses}
                   onEditLesson={setEditingId}
                   onMoveLesson={(lesson, toIndex) =>
                     act((version) =>
@@ -345,6 +349,7 @@ function SectionCard(props: {
   onRename: (title: string) => Promise<unknown>
   onRemove: () => void
   onAddLesson: (type: NewType) => void
+  liveClasses: boolean
   onEditLesson: (id: string) => void
   onMoveLesson: (lesson: StudioLessonDto, toIndex: number) => void
   onRemoveLesson: (lesson: StudioLessonDto) => void
@@ -501,6 +506,12 @@ function SectionCard(props: {
             <ClipboardList aria-hidden className="size-4" />
             Assignment
           </Button>
+          {props.liveClasses ? (
+            <Button size="sm" variant="tertiary" onClick={() => props.onAddLesson('live')}>
+              <Radio aria-hidden className="size-4" />
+              Live class
+            </Button>
+          ) : null}
         </div>
       ) : null}
     </li>

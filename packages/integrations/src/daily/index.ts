@@ -1,2 +1,5 @@
+export { ProviderError } from '../shared/http'
+export { createDaily, type DailyConfig, dailyWebhookEvents, registerDailyWebhook } from './client'
 export { createFakeDaily } from './fake'
+export { dailySignature, isValidDailySignature } from './signing'
 export type { LiveProvider } from './types'
