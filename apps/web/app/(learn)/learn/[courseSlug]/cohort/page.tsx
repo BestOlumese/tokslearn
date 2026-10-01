@@ -1,6 +1,7 @@
 import { isFeatureEnabled } from '@tokslearn/core/admin'
 import * as cohorts from '@tokslearn/core/cohorts'
 import { isDomainError } from '@tokslearn/core/kernel'
+import * as live from '@tokslearn/core/live'
 import { buttonClasses } from '@tokslearn/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import type { Metadata, Route } from 'next'
@@ -8,6 +9,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { ThreadList } from '@/components/community/thread-list'
+import { SessionCard, upcomingFirst } from '@/components/live/session-card'
 import { formatDate } from '@/lib/format'
 import { requireSignedInCtx } from '@/lib/require-user'
 
@@ -51,7 +53,12 @@ async function Cohort({ params }: { params: Params }) {
   }
   const c = home.cohort
   const base = `/learn/${courseSlug}`
-  const communityOn = await isFeatureEnabled(ctx, 'community')
+  const [communityOn, liveOn] = await Promise.all([
+    isFeatureEnabled(ctx, 'community'),
+    isFeatureEnabled(ctx, 'live_classes'),
+  ])
+  // The run's live classes and the course-wide ones, upcoming first, then recordings.
+  const sessions = liveOn ? await live.listCourseSessions(ctx, { courseId: home.course.id }) : []
   return (
     <div className="mx-auto flex w-full max-w-page flex-col gap-8 px-4 py-6 sm:px-6 lg:py-10">
       <Link
@@ -74,6 +81,21 @@ async function Cohort({ params }: { params: Params }) {
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex flex-col gap-8">
+          {liveOn ? (
+            <section aria-labelledby="live" className="flex flex-col gap-3">
+              <h2 id="live" className="text-h4 text-ink">
+                Live classes
+              </h2>
+              {sessions.length === 0 ? (
+                <p className="rounded-card border border-border bg-surface p-5 text-body text-ink-2">
+                  No live classes scheduled yet. You’ll get an email the day before each one.
+                </p>
+              ) : null}
+              {upcomingFirst(sessions).map((x) => (
+                <SessionCard key={x.id} session={x} />
+              ))}
+            </section>
+          ) : null}
           {communityOn ? (
             <section aria-labelledby="cohort-talk" className="flex flex-col gap-3">
               <h2 id="cohort-talk" className="text-h4 text-ink">

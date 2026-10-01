@@ -64,6 +64,14 @@ export async function communityOn(): Promise<boolean> {
   return isFeatureEnabled(publicCtx(), 'community')
 }
 
+/** The `live_classes` flag, for navigation that links to live class pages. */
+export async function liveOn(): Promise<boolean> {
+  'use cache'
+  cacheTag(cacheTags.featureFlags)
+  cacheLife('hours')
+  return isFeatureEnabled(publicCtx(), 'live_classes')
+}
+
 export async function getDirectory(): Promise<CategoryDirectoryDto> {
   'use cache'
   cacheTag(cacheTags.catalog)

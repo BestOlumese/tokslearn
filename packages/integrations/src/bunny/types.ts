@@ -27,6 +27,13 @@ export interface VideoProvider {
   authorizeUpload(input: { videoId: string; expiresAt: Date }): UploadAuthorization
   getVideo(videoId: string): Promise<VideoInfo | null>
   deleteVideo(videoId: string): Promise<void>
+  /**
+   * Asks Bunny to download a video from a URL (live recordings, docs/09 §6). Returns the new
+   * video's id when Bunny says it; otherwise find it with `findVideoByTitle`.
+   */
+  fetchVideo(input: { url: string; title: string }): Promise<{ videoId: string | null }>
+  /** The newest video with exactly this title, if any. */
+  findVideoByTitle(title: string): Promise<string | null>
   /** Token-authenticated embed and HLS URLs (docs/09 §3). */
   playbackUrls(input: { videoId: string; expiresAt: Date }): { embedUrl: string; hlsUrl: string }
   /** `X-BunnyStream-Signature`: hex HMAC-SHA256 of the raw body with the read-only API key. */

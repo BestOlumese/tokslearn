@@ -3,7 +3,7 @@ import { type ReactNode, Suspense } from 'react'
 import { QueryProvider } from '@/components/query-provider'
 import { SideNavLinks } from '@/components/side-nav-links'
 import { StudioNav } from '@/components/studio/studio-nav'
-import { communityOn } from '@/lib/catalog-data'
+import { communityOn, liveOn } from '@/lib/catalog-data'
 import { studioNavGroups } from '@/lib/nav'
 
 export const metadata: Metadata = { robots: { index: false } }
@@ -26,5 +26,7 @@ export default function StudioLayout({ children }: { children: ReactNode }) {
 
 /** The studio nav, without the pages whose feature is switched off. */
 async function Nav() {
-  return <StudioNav hide={(await communityOn()) ? [] : ['/teach/qa']} />
+  const [community, live] = await Promise.all([communityOn(), liveOn()])
+  const hide = [...(community ? [] : ['/teach/qa']), ...(live ? [] : ['/teach/live'])]
+  return <StudioNav hide={hide} />
 }

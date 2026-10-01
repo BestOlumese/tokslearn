@@ -27,6 +27,8 @@
     "db:seed:demo-assessments": "pnpm --filter @tokslearn/core seed:demo-assessments",
     "db:seed:demo-cohorts": "pnpm --filter @tokslearn/core seed:demo-cohorts",
     "db:seed:demo-community": "pnpm --filter @tokslearn/core seed:demo-community",
+    "db:seed:demo-live": "pnpm --filter @tokslearn/core seed:demo-live",
+    "daily:webhook": "pnpm --filter @tokslearn/core daily:webhook",
     "db:reindex": "pnpm --filter @tokslearn/core reindex:catalog",
     "db:up": "docker compose up -d db"
   },

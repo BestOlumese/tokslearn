@@ -19,7 +19,7 @@ account, which environment uses which keys, and the setup order.
 | 10 | Paystack | Business account | Phase 2 (test) / Phase 11 (live) | Start business verification early — live activation takes time. Disable transfer OTP for API payouts once security measures are in place. |
 | 11 | Dojah | Sandbox → production | Phase 2 | Production needs business KYC/contract |
 | 12 | Bunny | Stream libraries per env | Phase 2 | Token auth, referrer allowlist, webhook |
-| 13 | Daily | Domain `tokslearn` | Phase 8 | Webhook endpoint |
+| 13 | Daily | Domain `tokslearn` | Phase 8 | `DAILY_API_KEY`, `DAILY_DOMAIN` (e.g. `tokslearn.daily.co`, used in the live page's Permissions-Policy), `DAILY_WEBHOOK_SECRET` (base64; set it, deploy, then `pnpm daily:webhook https://<site>`) |
 | 14 | Apple Developer / Google Play | Company accounts | Phase 14 | Apple needs a D-U-N-S number for organizations — apply months early |
 
 Store account ownership (which email owns each) and recovery codes in the company password manager,

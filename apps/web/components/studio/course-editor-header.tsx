@@ -1,7 +1,7 @@
 'use client'
 // Client component: course title, status, save state, tabs and banners for the editor.
 
-import { Button } from '@tokslearn/ui/button'
+import { Button, buttonClasses } from '@tokslearn/ui/button'
 import { cn } from '@tokslearn/ui/cn'
 import type { Route } from 'next'
 import Link from 'next/link'
@@ -25,7 +25,14 @@ const tabs = [
 
 const saveLabel = { idle: '', saving: 'Saving…', saved: 'All changes saved', error: 'Not saved' }
 
-export function CourseEditorHeader({ cohorts = false }: { cohorts?: boolean }) {
+export function CourseEditorHeader({
+  cohorts = false,
+  community = false,
+}: {
+  cohorts?: boolean
+  /** The `community` flag: links to the course's discussions (and announcements). */
+  community?: boolean
+}) {
   const { course, saveState, conflict, locked } = useCourseEditor()
   const pathname = usePathname()
   const base = `/teach/courses/${course.id}`
@@ -52,6 +59,25 @@ export function CourseEditorHeader({ cohorts = false }: { cohorts?: boolean }) {
             </output>
           </div>
         </div>
+        {/* A published course has a player and discussions; the teaching side opens them too. */}
+        {course.isPublished ? (
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Link
+              href={`/learn/${course.slug}` as Route}
+              className={buttonClasses({ variant: 'secondary', size: 'sm' })}
+            >
+              View as learner
+            </Link>
+            {community ? (
+              <Link
+                href={`/learn/${course.slug}/community` as Route}
+                className={buttonClasses({ variant: 'secondary', size: 'sm' })}
+              >
+                Discussions and announcements
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {conflict ? (

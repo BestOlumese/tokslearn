@@ -588,7 +588,8 @@ export async function addLesson(
     courseId: string
     version: number
     sectionId: string
-    type: 'video' | 'article' | 'resource' | 'quiz' | 'assignment'
+    /** `live`: a Live class lesson; its sessions are scheduled in the live module (ADR-039). */
+    type: 'video' | 'article' | 'resource' | 'quiz' | 'assignment' | 'live'
     title: string
     /**
      * Quiz and assignment lessons: creates their quiz or assignment inside the same transaction

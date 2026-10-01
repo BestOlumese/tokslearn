@@ -2,6 +2,7 @@ import { isFeatureEnabled } from '@tokslearn/core/admin'
 import * as certificates from '@tokslearn/core/certificates'
 import { isDomainError } from '@tokslearn/core/kernel'
 import * as learning from '@tokslearn/core/learning'
+import * as live from '@tokslearn/core/live'
 import { buttonClasses } from '@tokslearn/ui/button'
 import { EmptyState } from '@tokslearn/ui/empty-state'
 import { Progress } from '@tokslearn/ui/progress'
@@ -21,6 +22,7 @@ import { PlayerSkeleton } from '@/components/learn/player-skeleton'
 import { QuizLesson } from '@/components/learn/quiz-lesson'
 import { ResourceList } from '@/components/learn/resource-list'
 import { VideoLesson } from '@/components/learn/video-lesson'
+import { SessionCard, upcomingFirst } from '@/components/live/session-card'
 import { RichHtml } from '@/components/rich-html'
 import { formatDayMonth, formatDuration } from '@/lib/format'
 import { requireSignedInCtx } from '@/lib/require-user'
@@ -104,6 +106,12 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
     }
   }
 
+  // A Live class lesson lists the viewer's sessions on it (their run's and the course-wide ones).
+  const liveSessions =
+    lesson?.type === 'live' && (await isFeatureEnabled(ctx, 'live_classes'))
+      ? await live.listCourseSessions(ctx, { courseId: lesson.courseId, lessonId: lesson.id })
+      : null
+
   const base = `/learn/${courseSlug}`
   const previous = flat[index - 1] ?? null
   const next = flat[index + 1] ?? null
@@ -173,6 +181,7 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
               lesson={lesson}
               startAt={Number.isFinite(t) && t >= 0 ? t : null}
               next={next && nextHref ? { href: nextHref, title: next.title } : null}
+              liveSessions={liveSessions}
             />
           ) : (
             <Locked
@@ -261,10 +270,13 @@ function LessonBody({
   lesson,
   startAt,
   next,
+  liveSessions,
 }: {
   lesson: learning.LearnLesson
   startAt: number | null
   next: { href: string; title: string } | null
+  /** Live class lessons: the viewer's sessions, or null when live classes are off. */
+  liveSessions: live.LiveSessionView[] | null
 }) {
   const meta = lessonMeta(lesson)
   const heading = (
@@ -351,6 +363,26 @@ function LessonBody({
       </>
     )
   }
+  if (lesson.type === 'live' && liveSessions) {
+    return (
+      <>
+        {heading}
+        {liveSessions.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {upcomingFirst(liveSessions).map((s) => (
+              <SessionCard key={s.id} session={s} />
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-card border border-border bg-surface p-6 text-body text-ink-2">
+            No class is scheduled for this lesson yet. Once there is one, you’ll get an email the
+            day before it starts.
+          </p>
+        )}
+        {files}
+      </>
+    )
+  }
   return (
     <>
       {heading}
@@ -382,6 +414,7 @@ function lessonMeta(lesson: learning.LearnLesson): string | null {
     return `${n} ${n === 1 ? 'file' : 'files'}`
   }
   if (lesson.type === 'quiz' || lesson.type === 'assignment') return null
+  if (lesson.type === 'live') return 'Live class'
   return 'Lesson'
 }
 

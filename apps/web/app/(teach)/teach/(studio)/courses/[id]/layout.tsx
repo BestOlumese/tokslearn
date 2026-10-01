@@ -58,7 +58,10 @@ async function Editor({
   }
   return (
     <CourseEditorProvider initial={toStudioCourseDto(course)}>
-      <CourseEditorHeader cohorts={await isFeatureEnabled(ctx, 'cohorts')} />
+      <CourseEditorHeader
+        cohorts={await isFeatureEnabled(ctx, 'cohorts')}
+        community={await isFeatureEnabled(ctx, 'community')}
+      />
       <div className="mt-6">{children}</div>
       <UploadQueue />
     </CourseEditorProvider>

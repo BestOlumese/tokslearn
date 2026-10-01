@@ -22,7 +22,15 @@ export const RevisionStatus = z.enum(['draft', 'submitted', 'approved', 'rejecte
 export const CourseLevel = z.enum(['beginner', 'intermediate', 'advanced', 'all'])
 export const LessonType = z.enum(['video', 'article', 'quiz', 'assignment', 'live', 'resource'])
 /** `exam` creates a quiz lesson whose quiz is an exam. */
-export const NewLessonType = z.enum(['video', 'article', 'resource', 'quiz', 'exam', 'assignment'])
+export const NewLessonType = z.enum([
+  'video',
+  'article',
+  'resource',
+  'quiz',
+  'exam',
+  'assignment',
+  'live',
+])
 export const VideoStatus = z.enum(['uploading', 'processing', 'ready', 'failed'])
 export const RefundPolicyDays = z.union([z.literal(0), z.literal(3), z.literal(7), z.literal(14)])
 export const ChecklistKey = z.enum([

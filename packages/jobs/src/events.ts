@@ -85,3 +85,13 @@ export const courseUpdated = eventType('course.updated', {
 export const announcementPosted = eventType('announcement.posted', {
   schema: z.object({ threadId: z.string(), courseId: z.string() }),
 })
+
+/** A live class was scheduled or moved: reminders 24 h and 15 min before `startsAt`. */
+export const liveScheduled = eventType('live.scheduled', {
+  schema: z.object({ sessionId: z.string(), courseId: z.string(), startsAt: z.string() }),
+})
+
+/** Daily finished a cloud recording (from the Daily webhook, through the outbox). */
+export const liveRecordingReady = eventType('live.recording_ready', {
+  schema: z.object({ sessionId: z.string(), recordingId: z.string(), durationSec: z.number() }),
+})

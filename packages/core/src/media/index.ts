@@ -21,6 +21,7 @@ export {
   getVideoAssetByProviderId,
   getVideoAssets,
   refreshVideoAsset,
+  registerFetchedVideo,
   type VideoAsset,
   videoPlayback,
   videoPreviewUrl,

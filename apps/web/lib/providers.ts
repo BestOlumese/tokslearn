@@ -5,6 +5,7 @@ import {
   createFakeBunny,
   type VideoProvider,
 } from '@tokslearn/integrations/bunny'
+import { createDaily, createFakeDaily, type LiveProvider } from '@tokslearn/integrations/daily'
 import { createDojahKyc, createFakeKyc, type KycProvider } from '@tokslearn/integrations/dojah'
 import {
   createFakePayouts,
@@ -32,6 +33,7 @@ let kyc: KycProvider | undefined
 let payouts: PayoutProvider | undefined
 let video: VideoProvider | undefined
 let payments: PaymentProvider | undefined
+let live: LiveProvider | undefined
 
 /**
  * Paystack transactions. Without keys (local development) a fake that approves every payment,
@@ -85,6 +87,20 @@ function getVideo(): VideoProvider {
   return video
 }
 
+/**
+ * Daily for live classes. Without a webhook secret joins still work; webhooks are refused until
+ * `pnpm daily:webhook` has registered one (ADR-039).
+ */
+function getLive(): LiveProvider {
+  const apiKey = env.DAILY_API_KEY
+  live ??= realOrFake(
+    'Daily',
+    apiKey ? () => createDaily({ apiKey, webhookSecret: env.DAILY_WEBHOOK_SECRET ?? '' }) : null,
+    () => createFakeDaily().provider,
+  )
+  return live
+}
+
 let storage: FileStorage | undefined
 
 /** R2 when configured; an in-memory stand-in for local development without R2 keys. */
@@ -135,6 +151,9 @@ export function baseProviders(): Omit<Providers, 'sessions'> {
     },
     get video() {
       return getVideo()
+    },
+    get live() {
+      return getLive()
     },
     get payments() {
       return getPayments()

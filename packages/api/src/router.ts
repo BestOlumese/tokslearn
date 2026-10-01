@@ -49,6 +49,7 @@ import {
   studioDripRouter,
   studioLearnersRouter,
 } from './procedures/learning'
+import { liveRouter, studioLiveRouter } from './procedures/live'
 import { meRouter } from './procedures/me'
 import { mediaRouter } from './procedures/media'
 import { catalogCategoriesHandler, studioRouter } from './procedures/studio'
@@ -73,6 +74,7 @@ export const router = impl.router({
     assignments: studioAssignmentsRouter,
     certificates: studioCertificatesRouter,
     cohorts: studioCohortsRouter,
+    live: studioLiveRouter,
   },
   instructors: { ...instructorsRouter, ...instructorProfileHandlers },
   kyc: kycRouter,
@@ -105,6 +107,7 @@ export const router = impl.router({
   certificates: certificatesRouter,
   cohorts: cohortsRouter,
   community: communityRouter,
+  live: liveRouter,
 })
 
 export type Router = typeof router

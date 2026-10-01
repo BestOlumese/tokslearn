@@ -19,6 +19,7 @@ import {
   TicketPercent,
   UserRound,
   Users,
+  Video,
 } from 'lucide-react'
 import type { SideNavGroup } from '@/components/side-nav-links'
 
@@ -96,6 +97,7 @@ export const studioNavGroups: ReadonlyArray<SideNavGroup> = [
       { href: '/teach/bundles', label: 'Bundles', icon: icon(Layers) },
       { href: '/teach/grading', label: 'Grading', icon: icon(ClipboardCheck) },
       { href: '/teach/qa', label: 'Q&A', icon: icon(MessageCircleQuestion) },
+      { href: '/teach/live', label: 'Live', icon: icon(Video) },
     ],
   },
   {

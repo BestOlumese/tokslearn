@@ -61,6 +61,35 @@ export async function createVideoAsset(
   return { asset, upload }
 }
 
+/**
+ * Records a video Bunny is downloading from a URL (live recordings, docs/09 §6). It starts as
+ * processing; the Bunny webhook moves it to ready like an upload.
+ */
+export async function registerFetchedVideo(
+  ctx: Ctx,
+  input: { ownerId: string; providerVideoId: string; filename: string },
+) {
+  const [existing] = await ctx.db
+    .select()
+    .from(videoAssets)
+    .where(eq(videoAssets.providerVideoId, input.providerVideoId))
+  if (existing) return existing
+  const [asset] = await ctx.db
+    .insert(videoAssets)
+    .values({
+      id: newId(),
+      ownerId: input.ownerId,
+      libraryId: provider(ctx, 'video').libraryId,
+      providerVideoId: input.providerVideoId,
+      status: 'processing',
+      filename: input.filename.slice(0, 200),
+      sizeBytes: 0,
+    })
+    .returning()
+  if (!asset) throw new Error('video asset insert returned nothing')
+  return asset
+}
+
 export async function getVideoAssets(ctx: Ctx, ids: ReadonlyArray<string>) {
   if (ids.length === 0) return new Map<string, VideoAsset>()
   const rows = await ctx.db

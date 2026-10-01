@@ -72,6 +72,9 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   'community.createThread': { limit: 5, windowSec: 60 },
   'community.reply': { limit: 20, windowSec: 60 },
   'community.report': { limit: 10, windowSec: 60 },
+  live: { limit: 60, windowSec: 60 },
+  // Each join creates a Daily meeting token (and maybe a room).
+  'live.join': { limit: 10, windowSec: 60 },
 }
 
 export function policyFor(path: ReadonlyArray<string>): {
