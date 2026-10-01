@@ -324,6 +324,7 @@ export async function joinSession(ctx: Ctx, sessionId: string) {
   const daily = provider(ctx, 'live')
   const expiresAt = roomExpiry(s)
   let room = { name: s.dailyRoomName, url: s.dailyRoomUrl }
+  let recording = s.recordingEnabled
   if (!room.name || !room.url || s.roomExpiresAt?.getTime() !== expiresAt.getTime()) {
     const [run] = s.cohortId
       ? await ctx.db
@@ -339,11 +340,25 @@ export async function joinSession(ctx: Ctx, sessionId: string) {
         recording: s.recordingEnabled,
       }),
     )
+    // The Daily plan has no cloud recording: the class runs, and says it isn't recorded.
+    const unrecorded = s.recordingEnabled && !made.recording
+    if (unrecorded) {
+      log('warn', 'live: recording not in the Daily plan', {
+        requestId: ctx.requestId,
+        sessionId: s.id,
+      })
+    }
     await ctx.db
       .update(liveSessions)
-      .set({ dailyRoomName: made.roomName, dailyRoomUrl: made.url, roomExpiresAt: expiresAt })
+      .set({
+        dailyRoomName: made.roomName,
+        dailyRoomUrl: made.url,
+        roomExpiresAt: expiresAt,
+        ...(unrecorded ? { recordingEnabled: false } : {}),
+      })
       .where(eq(liveSessions.id, s.id))
     room = { name: made.roomName, url: made.url }
+    recording = made.recording
   }
   const roomNameNow = room.name ?? roomName(s.id)
   const token = await liveCall(async () =>
@@ -353,7 +368,7 @@ export async function joinSession(ctx: Ctx, sessionId: string) {
       userName: await displayName(ctx, a.userId, a.host),
       isOwner: a.host,
       expiresAt,
-      startRecording: s.recordingEnabled,
+      startRecording: recording,
     }),
   )
   await ctx.db

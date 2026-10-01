@@ -42,7 +42,11 @@ describe('daily', () => {
       maxParticipants: 50,
       recording: true,
     })
-    expect(room).toEqual({ roomName: 'tl-1', url: 'https://tokslearn.daily.co/tl-1' })
+    expect(room).toEqual({
+      roomName: 'tl-1',
+      url: 'https://tokslearn.daily.co/tl-1',
+      recording: true,
+    })
     expect(calls[0]?.url).toBe('https://api.daily.co/v1/rooms')
     expect(calls[0]?.body).toMatchObject({
       name: 'tl-1',
@@ -55,6 +59,31 @@ describe('daily', () => {
       },
     })
     expect(calls[1]?.url).toBe('https://api.daily.co/v1/rooms/tl-1')
+  })
+
+  it('makes the room without recording when the plan has none', async () => {
+    const sent: Array<Record<string, unknown>> = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = JSON.parse(String(init.body))
+        sent.push(body.properties)
+        return body.properties.enable_recording
+          ? json(400, {
+              error: 'invalid-request-error',
+              info: "property 'enable_recording' cannot be set to that value with your current plan",
+            })
+          : json(200, { name: 'tl-2', url: 'https://tokslearn.daily.co/tl-2' })
+      }),
+    )
+    const room = await daily.upsertRoom({
+      name: 'tl-2',
+      expiresAt: new Date('2026-10-01T12:30:00Z'),
+      maxParticipants: 50,
+      recording: true,
+    })
+    expect(room.recording).toBe(false)
+    expect(sent.map((p) => p.enable_recording)).toEqual(['cloud', undefined])
   })
 
   it('gives learners a muted guest token and hosts an owner token that starts recording', async () => {

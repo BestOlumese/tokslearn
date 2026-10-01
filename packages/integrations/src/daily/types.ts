@@ -2,14 +2,20 @@
 export interface LiveProvider {
   /**
    * Creates the private room, or updates it when one with this name exists (a rescheduled
-   * session). Everyone is ejected when the room expires.
+   * session). Everyone is ejected when the room expires. If the plan has no cloud recording,
+   * the room is made without it.
    */
   upsertRoom(input: {
     name: string
     expiresAt: Date
     maxParticipants: number
     recording: boolean
-  }): Promise<{ roomName: string; url: string }>
+  }): Promise<{
+    roomName: string
+    url: string
+    /** False when recording was asked for but the Daily plan doesn't include it. */
+    recording: boolean
+  }>
   /** A meeting token for one person in one room, valid until `expiresAt`. */
   createMeetingToken(input: {
     roomName: string
