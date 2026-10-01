@@ -25,6 +25,7 @@ import { VideoLesson } from '@/components/learn/video-lesson'
 import { SessionCard, upcomingFirst } from '@/components/live/session-card'
 import { RichHtml } from '@/components/rich-html'
 import { formatDayMonth, formatDuration } from '@/lib/format'
+import { sessionTime } from '@/lib/live-time'
 import { requireSignedInCtx } from '@/lib/require-user'
 
 export const metadata: Metadata = { title: 'Lesson', robots: { index: false } }
@@ -106,11 +107,17 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
     }
   }
 
-  // A Live class lesson lists the viewer's sessions on it (their run's and the course-wide ones).
+  // The viewer's live classes (their run's and the course-wide ones): a Live class lesson lists
+  // its own, and the Overview tab points to the next one wherever it's shown.
+  const liveOn = await isFeatureEnabled(ctx, 'live_classes')
+  const courseSessions = liveOn
+    ? await live.listCourseSessions(ctx, { courseId: outline.course.id })
+    : []
   const liveSessions =
-    lesson?.type === 'live' && (await isFeatureEnabled(ctx, 'live_classes'))
-      ? await live.listCourseSessions(ctx, { courseId: lesson.courseId, lessonId: lesson.id })
+    lesson?.type === 'live' && liveOn
+      ? courseSessions.filter((x) => x.lessonId === lesson?.id)
       : null
+  const nextLive = courseSessions.find((x) => x.phase === 'upcoming' || x.phase === 'open') ?? null
 
   const base = `/learn/${courseSlug}`
   const previous = flat[index - 1] ?? null
@@ -238,6 +245,16 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
                   instructorName={outline.course.instructorName}
                   progressPct={outline.role === 'learner' ? outline.progressPct : null}
                   discussionsHref={communityOn ? (`${base}/community` as Route) : null}
+                  nextLive={
+                    nextLive
+                      ? {
+                          title: nextLive.title,
+                          when: sessionTime(nextLive.startsAt, nextLive.endsAt),
+                          open: nextLive.phase === 'open',
+                          href: `${base}/live/${nextLive.id}` as Route,
+                        }
+                      : null
+                  }
                   cohort={
                     outline.cohort
                       ? { name: outline.cohort.name, href: `${base}/cohort` as Route }
@@ -427,6 +444,7 @@ function Overview({
   progressPct,
   cohort,
   discussionsHref,
+  nextLive,
 }: {
   position: number
   total: number
@@ -437,6 +455,8 @@ function Overview({
   cohort: { name: string; href: Route } | null
   /** The course's discussions, when the `community` flag is on. */
   discussionsHref: Route | null
+  /** The viewer's next live class in this course, when the `live_classes` flag is on. */
+  nextLive: { title: string; when: string; open: boolean; href: Route } | null
 }) {
   return (
     <div className="flex flex-col gap-3 text-body-sm text-ink-2">
@@ -455,6 +475,15 @@ function Overview({
             Discussions
           </Link>
           .
+        </p>
+      ) : null}
+      {nextLive ? (
+        <p>
+          {nextLive.open ? 'Live now: ' : 'Next live class: '}
+          <Link href={nextLive.href} className="font-medium text-brand-ink hover:underline">
+            {nextLive.title}
+          </Link>
+          , {nextLive.when} (Lagos).
         </p>
       ) : null}
       {cohort ? (
