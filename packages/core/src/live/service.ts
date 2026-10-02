@@ -1,6 +1,6 @@
 import { schema } from '@tokslearn/db'
 import { ProviderError } from '@tokslearn/integrations/daily'
-import { and, asc, desc, eq, gt, inArray, isNull, lte, ne, or, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, gt, inArray, isNotNull, isNull, lte, ne, or, sql } from 'drizzle-orm'
 import { isFeatureEnabled, markWebhookProcessed, recordWebhookEvent, writeAudit } from '../admin'
 import { track } from '../analytics'
 import { learnerDisplayName } from '../enrollments'
@@ -203,12 +203,31 @@ async function cohortNames(ctx: Ctx, ids: ReadonlyArray<string | null>) {
   return new Map(rows.map((r) => [r.id, r.name]))
 }
 
+/** Lessons the player can open: approved by a review and not deleted. */
+async function openableLessons(ctx: Ctx, ids: ReadonlyArray<string | null>) {
+  const wanted = [...new Set(ids.filter((x): x is string => x !== null))]
+  if (wanted.length === 0) return new Set<string>()
+  const rows = await ctx.db
+    .select({ id: lessons.id })
+    .from(lessons)
+    .where(
+      and(inArray(lessons.id, wanted), isNotNull(lessons.liveSince), isNull(lessons.deletedAt)),
+    )
+  return new Set(rows.map((r) => r.id))
+}
+
+/**
+ * `lessons: 'openable'` (learner pages) links a session to its lesson only once the player can
+ * open it: a Live class lesson added to a published course waits for review, and linking to it
+ * before then is a 404. The studio keeps the lesson as set, for editing.
+ */
 async function toViews(
   ctx: Ctx,
   rows: ReadonlyArray<SessionRow>,
   isHost: (s: SessionRow) => boolean,
+  lessonsShown: 'openable' | 'as_set' = 'openable',
 ): Promise<LiveSessionView[]> {
-  const [facts, runs] = await Promise.all([
+  const [facts, runs, openable] = await Promise.all([
     courseFacts(
       ctx,
       rows.map((r) => r.courseId),
@@ -217,6 +236,12 @@ async function toViews(
       ctx,
       rows.map((r) => r.cohortId),
     ),
+    lessonsShown === 'openable'
+      ? openableLessons(
+          ctx,
+          rows.map((r) => r.lessonId),
+        )
+      : Promise.resolve(null),
   ])
   return rows.flatMap((s) => {
     const c = facts.get(s.courseId)
@@ -235,7 +260,7 @@ async function toViews(
         recordingStatus: s.recordingStatus,
         course: { id: c.id, slug: c.slug, title: c.title },
         cohort: s.cohortId ? { id: s.cohortId, name: runs.get(s.cohortId) ?? '' } : null,
-        lessonId: s.lessonId,
+        lessonId: s.lessonId && (!openable || openable.has(s.lessonId)) ? s.lessonId : null,
         hostName: c.instructorName,
         isHost: host,
       },
@@ -429,6 +454,7 @@ export async function listStudioSessions(
     ctx,
     rows.map((r) => r.s),
     () => true,
+    'as_set',
   )
   return views.map((v) => ({
     ...v,

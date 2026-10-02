@@ -390,8 +390,9 @@ function ScheduleForm({
               ))}
             </Select>
             <p className="text-body-sm text-ink-3">
-              Add a Live class lesson in the curriculum to give the class a place in the course.
-              Cohort classes also show on the cohort page.
+              Add a Live class lesson in the curriculum to give the class a place in the course. On
+              a published course, a new lesson shows to learners once your update is approved;
+              until then they find the class in each lesson’s Overview and on the cohort page.
             </p>
           </div>
           <div className="flex items-center gap-3">

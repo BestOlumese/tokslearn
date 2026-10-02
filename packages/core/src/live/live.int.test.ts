@@ -255,6 +255,17 @@ describe('scheduling', () => {
       if (!liveLesson) throw new Error('no live lesson')
       const { id } = await scheduleSession(w.teach, { ...c, lessonId: liveLesson.id })
       const a = await w.person()
+      // The new lesson waits for review: learner pages mustn't link to it yet (it would 404);
+      // the studio still shows it, for editing.
+      expect((await getSession(w.env.ctx(a, T0), id)).lessonId).toBeNull()
+      expect((await listStudioSessions(w.teach, { when: 'upcoming' }))[0]?.lessonId).toBe(
+        liveLesson.id,
+      )
+      await db
+        .update(schema.lessons)
+        .set({ liveSince: T0 })
+        .where(eq(schema.lessons.id, liveLesson.id))
+      expect((await getSession(w.env.ctx(a, T0), id)).lessonId).toBe(liveLesson.id)
       expect(
         (
           await listCourseSessions(w.env.ctx(a, T0), {
