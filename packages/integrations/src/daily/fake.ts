@@ -10,11 +10,13 @@ export function createFakeDaily(
   const tokens: Array<{ roomName: string; userId: string; isOwner: boolean; expiresAt: Date }> = []
   const deletedRecordings: string[] = []
   let failing = false
+  let recordingInPlan = true
   const provider: LiveProvider = {
     async upsertRoom({ name, expiresAt, maxParticipants, recording }) {
       if (failing) throw new ProviderError('daily', null, 'unreachable')
-      rooms.set(name, { expiresAt, maxParticipants, recording })
-      return { roomName: name, url: `https://tokslearn.daily.test/${name}` }
+      const recorded = recording && recordingInPlan
+      rooms.set(name, { expiresAt, maxParticipants, recording: recorded })
+      return { roomName: name, url: `https://tokslearn.daily.test/${name}`, recording: recorded }
     },
     async createMeetingToken({ roomName, userId, isOwner, expiresAt }) {
       if (failing) throw new ProviderError('daily', null, 'unreachable')
@@ -38,6 +40,9 @@ export function createFakeDaily(
     webhookSecret,
     setFailing: (on: boolean) => {
       failing = on
+    },
+    setRecordingInPlan: (on: boolean) => {
+      recordingInPlan = on
     },
   }
 }

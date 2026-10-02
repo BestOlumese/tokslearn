@@ -184,6 +184,20 @@ describe('joining', () => {
     })
   })
 
+  it('runs the class unrecorded when the Daily plan has no recording', async () => {
+    await withRollback(async (db) => {
+      const w = await world(db)
+      await flags(db, 'live_classes')
+      const a = await w.person()
+      const { id } = await scheduleSession(w.teach, { courseId: w.course.id, ...w.fields })
+      w.env.daily.setRecordingInPlan(false)
+      await joinSession(w.env.ctx(w.owner, min(-20)), id)
+      w.env.daily.setRecordingInPlan(true)
+      expect(w.env.daily.rooms.get(`tl-${id}`)?.recording).toBe(false)
+      expect((await getSession(w.env.ctx(a, T0), id)).recordingEnabled).toBe(false)
+    })
+  })
+
   it('refuses cancelled sessions and moves the room when rescheduled', async () => {
     await withRollback(async (db) => {
       const w = await world(db)
@@ -241,6 +255,17 @@ describe('scheduling', () => {
       if (!liveLesson) throw new Error('no live lesson')
       const { id } = await scheduleSession(w.teach, { ...c, lessonId: liveLesson.id })
       const a = await w.person()
+      // The new lesson waits for review: learner pages mustn't link to it yet (it would 404);
+      // the studio still shows it, for editing.
+      expect((await getSession(w.env.ctx(a, T0), id)).lessonId).toBeNull()
+      expect((await listStudioSessions(w.teach, { when: 'upcoming' }))[0]?.lessonId).toBe(
+        liveLesson.id,
+      )
+      await db
+        .update(schema.lessons)
+        .set({ liveSince: T0 })
+        .where(eq(schema.lessons.id, liveLesson.id))
+      expect((await getSession(w.env.ctx(a, T0), id)).lessonId).toBe(liveLesson.id)
       expect(
         (
           await listCourseSessions(w.env.ctx(a, T0), {
