@@ -5,7 +5,10 @@ import { type Db, schema, seedCategories } from '@tokslearn/db'
 import { createFakeBunny } from '@tokslearn/integrations/bunny'
 import { createFakeDaily } from '@tokslearn/integrations/daily'
 import { createFakePaystack } from '@tokslearn/integrations/paystack'
-import { createFakeCertificateRenderer } from '@tokslearn/integrations/pdf'
+import {
+  createFakeCertificateRenderer,
+  createFakeStatementRenderer,
+} from '@tokslearn/integrations/pdf'
 import { createFakeStorage } from '@tokslearn/integrations/r2'
 import { eq } from 'drizzle-orm'
 import { expect, vi } from 'vitest'
@@ -47,6 +50,7 @@ export function setup(db: Db) {
   const paystack = createFakePaystack()
   const pdf = createFakeCertificateRenderer()
   const daily = createFakeDaily()
+  const statements = createFakeStatementRenderer()
   const ctx = (actor: Actor, at = new Date('2026-09-26T10:00:00Z')) =>
     createCtx({
       db,
@@ -59,6 +63,7 @@ export function setup(db: Db) {
         live: daily.provider,
         payments: paystack.provider,
         certificatePdf: pdf,
+        statementPdf: statements,
         sessions: { revokeSession: vi.fn(), revokeAllSessions: vi.fn() },
         urls: { app: 'https://tokslearn.test', cdn: 'https://cdn.tokslearn.test' },
         unsubscribe: {
@@ -68,7 +73,7 @@ export function setup(db: Db) {
         },
       },
     })
-  return { ctx, storage, bunny, paystack, pdf, daily }
+  return { ctx, storage, bunny, paystack, pdf, daily, statements }
 }
 
 export async function codeOf(p: Promise<unknown>): Promise<string> {

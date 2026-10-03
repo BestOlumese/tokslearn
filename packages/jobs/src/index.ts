@@ -13,6 +13,7 @@ import { certificateBackfill, certificateIssue, certificateRender } from './func
 import { commerceHourly } from './functions/commerce-hourly'
 import { announcementSend } from './functions/community'
 import { dataExport } from './functions/data-export'
+import { earningsRelease, monthlyStatements } from './functions/earnings'
 import { emailSend } from './functions/email-send'
 import { badgesEvaluate, dripUnlocks, streakRollover } from './functions/learning'
 import { ledgerIntegrity } from './functions/ledger-integrity'
@@ -55,6 +56,8 @@ export const functions = [
   wishlistPriceDrop,
   refundSend,
   refundSettle,
+  earningsRelease,
+  monthlyStatements,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

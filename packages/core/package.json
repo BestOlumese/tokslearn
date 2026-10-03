@@ -43,7 +43,8 @@
     "test:money": "vitest run --coverage --coverage.provider=v8 --coverage.include=src/kernel/money.ts --coverage.include='src/ledger/**' --coverage.include='src/commerce/**' --coverage.include='src/enrollments/**' --coverage.exclude='**/*.test.ts' --coverage.exclude='**/index.ts' --coverage.thresholds.lines=95 --coverage.thresholds.functions=95 --coverage.reporter=text-summary",
     "seed:demo-live": "tsx --conditions=react-server src/scripts/seed-demo-live.ts",
     "daily:webhook": "tsx --env-file-if-exists=../../.env --conditions=react-server src/scripts/daily-webhook.ts",
-    "seed:demo-reviews": "tsx --conditions=react-server src/scripts/seed-demo-reviews.ts"
+    "seed:demo-reviews": "tsx --conditions=react-server src/scripts/seed-demo-reviews.ts",
+    "seed:demo-earnings": "tsx --conditions=react-server src/scripts/seed-demo-earnings.ts"
   },
   "dependencies": {
     "@tokslearn/contract": "workspace:*",

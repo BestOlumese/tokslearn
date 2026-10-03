@@ -29,6 +29,7 @@ export const NotificationType = z.enum([
   'wishlist.price_drop',
   'refund.updated',
   'sale.refunded',
+  'earnings.statement',
   'order.receipt',
   'enrollment.welcome',
 ])

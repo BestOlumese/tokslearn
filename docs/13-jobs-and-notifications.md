@@ -16,7 +16,8 @@
 | `paystack-webhook-process` | `webhook/paystack.received` | Route charge/transfer/refund events to core |
 | `order-reconcile` | cron hourly | Verify pending orders with Paystack |
 | `order-abandon` | cron daily | Mark stale pending orders abandoned (now in `commerce-hourly`, which also re-checks refunds sent over an hour ago) |
-| `earnings-release` | cron daily 02:00 WAT | Pending → available |
+| `earnings-release` | cron daily 02:00 WAT | Pending → available once each sale's refund window has closed, 500 per step (ADR-044) |
+| `monthly-statements` | cron 1st of month 06:00 WAT | One PDF statement per instructor with activity last month, stored in R2, notice + `monthly-statement` email; once per instructor and month (ADR-044) |
 | `payout-run-draft` | cron 1st of month 06:00 WAT | Create draft payout run |
 | `payout-run-process` | cron 5th of month 09:00 WAT (next business day if needed), only runs approved runs | Bulk transfers in chunks |
 | `refund-process` | `refund.approved` | Call Paystack refund |

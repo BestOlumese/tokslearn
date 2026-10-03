@@ -57,7 +57,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `payout-sent` | transfer success | Your payout of {amount} is on its way | Amount, bank (last 4), period, statement link | transactional |
 | `payout-failed` | transfer failed | We couldn't send your payout | Reason, fix bank details button, will retry next run | transactional |
 | `payout-account-changed` | bank change | Your payout bank account was changed | New bank last 4, 72-hour hold, "not you?" | security |
-| `monthly-statement` | statement generated | Your {month} statement | Summary numbers, PDF link | transactional |
+| `monthly-statement` | statement generated (1st of the month, ADR-044) | Your {month} statement | Sales, your share, refunded, paid out, available now; link to `/teach/earnings` for the PDF | transactional |
 
 ## Staff
 

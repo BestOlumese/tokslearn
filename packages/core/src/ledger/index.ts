@@ -23,4 +23,5 @@ export {
   type JournalEntryView,
   type LedgerIntegrityReport,
   listEntries,
+  movements,
 } from './queries'

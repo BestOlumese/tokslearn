@@ -14,10 +14,10 @@ Execute Phase 10.
 - [x] Paystack refund processing job + webhook + ledger entries + enrollment revocation. PR 1 of 4 (ADR-043).
 
 ### Earnings and payouts
-- [ ] `earnings-release` job.
-- [ ] Instructor earnings page: pending (with release dates), available, in transit, paid; line items; export CSV.
+- [x] `earnings-release` job.
+- [x] Instructor earnings page: pending (with release dates), available, in transit, paid; line items; export CSV. Plus `/teach/settings` for identity and bank (ADR-044).
 - [ ] Payout runs: draft job, finance review UI with anomalies, approval with 2FA (+ super-admin co-sign above threshold), processing with bulk transfers, webhooks, failure rollover, notifications.
-- [ ] Monthly statement PDFs.
+- [x] Monthly statement PDFs. PR 2 of 4 (ADR-044).
 - [ ] First-payout hold after bank change (72 h) + alert emails.
 
 ### Admin back office

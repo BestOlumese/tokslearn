@@ -1,2 +1,7 @@
-export { createFakeCertificateRenderer } from './fake'
-export type { CertificatePdfData, CertificateRenderer } from './types'
+export { createFakeCertificateRenderer, createFakeStatementRenderer } from './fake'
+export type {
+  CertificatePdfData,
+  CertificateRenderer,
+  StatementPdfData,
+  StatementRenderer,
+} from './types'

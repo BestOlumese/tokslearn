@@ -24,6 +24,36 @@ export async function balances(
   return out
 }
 
+/**
+ * Debits and credits on some accounts in `[from, to)`, by entry kind (statements, "paid this
+ * year"). Amounts are positive; the caller knows which side means what for its account.
+ */
+export async function movements(
+  ctx: Ctx,
+  input: { codes: ReadonlyArray<string>; from: Date; to: Date },
+): Promise<Array<{ code: string; kind: JournalKind; debit: bigint; credit: bigint }>> {
+  if (input.codes.length === 0) return []
+  const rows = await ctx.db
+    .select({
+      code: ledgerAccounts.code,
+      kind: journalEntries.kind,
+      debit: sql<string>`coalesce(sum(${journalLines.amountKobo}) filter (where ${journalLines.direction} = 'debit'), 0)::text`,
+      credit: sql<string>`coalesce(sum(${journalLines.amountKobo}) filter (where ${journalLines.direction} = 'credit'), 0)::text`,
+    })
+    .from(journalLines)
+    .innerJoin(journalEntries, eq(journalEntries.id, journalLines.entryId))
+    .innerJoin(ledgerAccounts, eq(ledgerAccounts.id, journalLines.accountId))
+    .where(
+      and(
+        inArray(ledgerAccounts.code, [...input.codes]),
+        sql`${journalEntries.postedAt} >= ${input.from}`,
+        lt(journalEntries.postedAt, input.to),
+      ),
+    )
+    .groupBy(ledgerAccounts.code, journalEntries.kind)
+  return rows.map((r) => ({ ...r, debit: BigInt(r.debit), credit: BigInt(r.credit) }))
+}
+
 export async function balanceOf(ctx: Ctx, code: string): Promise<bigint> {
   return (await balances(ctx, [code])).get(code) ?? 0n
 }

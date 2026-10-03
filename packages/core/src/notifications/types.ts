@@ -103,6 +103,13 @@ export const notificationTypes = {
     email: 'none',
     inApp: true,
   },
+  'earnings.statement': {
+    group: 'teaching',
+    label: 'Monthly statements',
+    description: 'Your earnings statement on the 1st of each month.',
+    email: 'locked',
+    inApp: true,
+  },
   'course.review_decision': {
     group: 'teaching',
     label: 'Course review results',

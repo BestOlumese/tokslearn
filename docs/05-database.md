@@ -54,7 +54,7 @@ Index: `lessons(course_id, section_id, position)`, `courses(instructor_id, statu
 
 ### media
 - `video_assets`: `owner_id`, `provider` ('bunny'), `library_id`, `provider_video_id` unique, `status` enum(uploading, processing, ready, failed), `duration_sec`, `width`, `height`, `thumbnail_url`, `drm_enabled` bool, `captions jsonb`, `error`.
-- `files`: `owner_id`, `bucket`, `key` unique, `mime`, `size_bytes`, `sha256`, `purpose` enum(resource, assignment_submission, cover, avatar, certificate, exam_evidence, other), `scan_status` enum(pending, clean, infected, skipped).
+- `files`: `owner_id`, `bucket`, `key` unique, `mime`, `size_bytes`, `sha256`, `purpose` enum(resource, assignment_submission, cover, avatar, certificate, statement, exam_evidence, other), `scan_status` enum(pending, clean, infected, skipped).
 
 ### commerce
 - `carts`: `user_id` unique (one active cart), `coupon_code`.
@@ -80,7 +80,7 @@ Index: `order_items(instructor_id, earning_status)`, `order_items(refundable_unt
 ### payouts
 - `payout_runs`: `period_start`, `period_end`, `status` enum(draft, approved, processing, completed, partially_failed), `approved_by`, `provider_batch_ref`, `total_kobo`.
 - `payout_items`: `run_id`, `instructor_id`, `amount_kobo`, `payout_account_id`, `status` enum(queued, sent, success, failed, reversed), `provider_transfer_code` unique, `failure_reason`, `journal_entry_id`.
-- `statements`: `instructor_id`, `period`, `file_id` (PDF), `totals jsonb`.
+- `earning_statements`: `instructor_id`, `month` char(7) `YYYY-MM` (Lagos), `file_id` (PDF), `totals jsonb`, `emailed_at`. unique(instructor_id, month) (ADR-044).
 
 ### refunds
 - `refund_requests`: `public_id` (RF-…), `order_item_id` unique, `order_id`, `user_id`, `course_id`, `instructor_id`, `amount_kobo`, `reason_code` enum(not_as_described, quality, technical, duplicate, changed_mind, other), `reason_text`, `status` enum(under_review, approved, denied, processing, processed, failed), `decided_by`, `decided_at`, `decision_reason` (a rule's code or finance's words), `eligibility_snapshot jsonb`, `appeal_text`, `appealed_at`, `provider_refund_id`, `sent_at`, `processed_at`, `failure_reason` (ADR-043).
