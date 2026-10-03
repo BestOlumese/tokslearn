@@ -11,8 +11,11 @@ export interface NotificationTypeInfo {
   /** Shown on the preferences page. */
   label: string
   description: string
-  /** 'locked': always emailed. 'on'/'off': the default when the person hasn't chosen. */
-  email: 'locked' | 'on' | 'off'
+  /**
+   * 'locked': always emailed. 'on'/'off': the default when the person hasn't chosen. 'none': in-app
+   * only, there's no email for it.
+   */
+  email: 'locked' | 'on' | 'off' | 'none'
   /** In-app default (the bell and /account/notifications). */
   inApp: boolean
   /** Busy hours fold these emails into one digest (more than 5 in an hour). */
@@ -93,6 +96,13 @@ export const notificationTypes = {
     email: 'on',
     inApp: true,
   },
+  'sale.refunded': {
+    group: 'teaching',
+    label: 'Refunds of your courses',
+    description: 'When a learner gets their money back for one of your courses.',
+    email: 'none',
+    inApp: true,
+  },
   'course.review_decision': {
     group: 'teaching',
     label: 'Course review results',
@@ -113,6 +123,13 @@ export const notificationTypes = {
     description:
       'When a course you saved gets cheaper, or its instructor shares a coupon for it. Off until you turn it on.',
     email: 'off',
+    inApp: true,
+  },
+  'refund.updated': {
+    group: 'purchases',
+    label: 'Refunds',
+    description: 'Decisions on your refund requests, and when the money is on its way.',
+    email: 'locked',
     inApp: true,
   },
   'order.receipt': {

@@ -236,6 +236,16 @@ export const orderItemStatusEnum = pgEnum('order_item_status', [
   'active',
   'refunded',
   'non_refundable',
+  /** A refund was approved and is with Paystack; access already ended (ADR-043). */
+  'refund_pending',
+])
+/** Why a purchase can no longer be refunded (docs/08 §7), for the refund decision. */
+export const nonRefundableReasonEnum = pgEnum('non_refundable_reason', [
+  'no_refund_policy',
+  'important_download',
+  'content_consumed',
+  'exam_started',
+  'certificate_issued',
 ])
 export const earningStatusEnum = pgEnum('earning_status', [
   'pending',
@@ -280,10 +290,13 @@ export const orderItems = pgTable(
     instructorShareKobo: kobo(),
     platformShareKobo: kobo(),
     gatewayFeeShareKobo: kobo(),
+    /** VAT on this item's commission, carved out of the platform share at sale (refunds reverse it). */
+    vatKobo: kobo(),
     refundPolicyDaysSnapshot: smallint().notNull(),
     refundableUntil: tstz(),
     status: orderItemStatusEnum().notNull().default('active'),
     earningStatus: earningStatusEnum().notNull().default('pending'),
+    nonRefundableReason: nonRefundableReasonEnum(),
   },
   (t) => [
     index().on(t.orderId),

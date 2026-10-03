@@ -78,6 +78,9 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   notifications: { limit: 120, windowSec: 60 },
   // Public, by IP: a person clicks one link; a guesser tries many.
   'notifications.unsubscribe': { limit: 10, windowSec: 60 },
+  refunds: { limit: 60, windowSec: 60 },
+  'refunds.request': { limit: 5, windowSec: 60 },
+  'refunds.appeal': { limit: 5, windowSec: 60 },
   'studio.coupons.announce': { limit: 5, windowSec: 60 },
   'reviews.save': { limit: 10, windowSec: 60 },
   'reviews.vote': { limit: 30, windowSec: 60 },

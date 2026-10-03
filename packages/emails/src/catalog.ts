@@ -138,6 +138,18 @@ export interface EmailData {
     body: string
     url: string
   }
+  'refund-update': {
+    name: string
+    courseTitle: string
+    /** What happened: decided, sent to the bank, or a hold-up. */
+    outcome: 'approved' | 'denied' | 'under_review' | 'processed'
+    amountKobo: string
+    /** The decision in plain words (denials and finance decisions). */
+    reason: string | null
+    /** The refunds page; for denials it has the appeal button. */
+    url: string
+    canAppeal: boolean
+  }
   'wishlist-price-drop': {
     name: string
     courseTitle: string
@@ -225,6 +237,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'new-review': 'activity',
   'activity-digest': 'activity',
   'wishlist-price-drop': 'marketing',
+  'refund-update': 'transactional',
   'live-reminder-24h': 'activity',
   'live-reminder-15m': 'activity',
 }

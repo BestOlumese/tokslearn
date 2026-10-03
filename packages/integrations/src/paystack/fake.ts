@@ -1,6 +1,6 @@
 import { ProviderError } from '../shared/http'
 import { isValidPaystackSignature } from './signature'
-import type { PaymentProvider, PayoutProvider } from './types'
+import type { PaymentProvider, PayoutProvider, RefundStatus } from './types'
 
 type Outcome = 'success' | 'failed' | 'abandoned' | 'pending' | 'amount_mismatch' | 'unreachable'
 
@@ -22,6 +22,8 @@ export function createFakePaystack(secretKey = 'sk_test_fake') {
   const channels = new Map<string, string>()
   let verifyCalls = 0
   let initializeDown = false
+  const refunds = new Map<string, { reference: string; amountKobo: bigint; status: RefundStatus }>()
+  let refundsDown = false
 
   const provider: PaymentProvider = {
     async initializeTransaction(input) {
@@ -54,10 +56,29 @@ export function createFakePaystack(secretKey = 'sk_test_fake') {
     },
     verifyWebhookSignature: (rawBody, signature) =>
       isValidPaystackSignature(secretKey, rawBody, signature),
+    async createRefund({ reference, amountKobo }) {
+      if (refundsDown) throw new ProviderError('paystack', 503, 'responded 503')
+      const refundId = String(3_000_000 + refunds.size + 1)
+      refunds.set(refundId, { reference, amountKobo, status: 'pending' })
+      return { refundId, status: 'pending' }
+    },
+    async fetchRefund(refundId) {
+      const r = refunds.get(refundId)
+      return r ? { status: r.status, amountKobo: r.amountKobo } : null
+    },
   }
 
   return {
     provider,
+    refunds,
+    /** Moves a refund on, as Paystack would before its webhook. */
+    settleRefund: (refundId: string, status: RefundStatus) => {
+      const r = refunds.get(refundId)
+      if (r) refunds.set(refundId, { ...r, status })
+    },
+    setRefundsDown: (down: boolean) => {
+      refundsDown = down
+    },
     setOutcome: (reference: string, outcome: Outcome) => outcomes.set(reference, outcome),
     setFee: (reference: string, kobo: bigint) => fees.set(reference, kobo),
     setChannel: (reference: string, channel: string) => channels.set(reference, channel),

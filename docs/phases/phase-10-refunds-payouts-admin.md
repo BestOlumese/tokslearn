@@ -8,10 +8,10 @@ Execute Phase 10.
 ## Tasks
 
 ### Refunds
-- [ ] Eligibility engine (pure) + tests for every rule; policy text shown on course page, checkout, receipt, and important-resource download.
-- [ ] Learner refund request UI (from order page), status tracking, one appeal.
-- [ ] Finance queue for `under_review` and appeals.
-- [ ] Paystack refund processing job + webhook + ledger entries + enrollment revocation.
+- [x] Eligibility engine (pure) + tests for every rule; policy text shown on course page, checkout, receipt, and important-resource download.
+- [x] Learner refund request UI (from order page), status tracking, one appeal.
+- [x] Finance queue for `under_review` and appeals.
+- [x] Paystack refund processing job + webhook + ledger entries + enrollment revocation. PR 1 of 4 (ADR-043).
 
 ### Earnings and payouts
 - [ ] `earnings-release` job.

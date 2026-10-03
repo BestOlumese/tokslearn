@@ -56,8 +56,16 @@ export {
   NotificationPreferenceDto,
   NotificationType,
 } from './notifications'
+export {
+  RefundCheckDto,
+  RefundDto,
+  RefundReason,
+  RefundReviewDto,
+  RefundStatus,
+} from './refunds'
 
 import { notificationsContract } from './notifications'
+import { adminRefundsContract, refundsContract } from './refunds'
 
 export {
   MyReviewDto,
@@ -73,7 +81,70 @@ import { adminReviewsContract, reviewsContract, studioReviewsContract } from './
 import { catalogContract, studioContract } from './studio'
 
 /** The whole API surface. Web, Expo and the OpenAPI spec all come from this object. */
-export const contract = {
+/**
+ * Spelled out (not `typeof contract`) so the declaration build names each part instead of
+ * inlining the whole API, which outgrew TypeScript's serialization limit.
+ */
+export type Contract = {
+  health: typeof healthContract
+  me: typeof meContract
+  users: typeof usersContract
+  media: typeof mediaContract
+  catalog: typeof catalogContract & typeof catalogPublicContract
+  courses: typeof coursesContract
+  learn: typeof learnContract & typeof learnPlayerContract
+  studio: typeof studioContract & {
+    coupons: typeof studioCouponsContract
+    drip: typeof studioDripContract
+    learners: typeof studioLearnersContract
+    questionBanks: typeof studioQuestionBanksContract
+    questions: typeof studioQuestionsContract
+    quizzes: typeof studioQuizzesContract
+    assignments: typeof studioAssignmentsContract
+    certificates: typeof studioCertificatesContract
+    cohorts: typeof studioCohortsContract
+    live: typeof studioLiveContract
+    reviews: typeof studioReviewsContract
+  }
+  instructors: typeof instructorsContract & typeof instructorProfileContract
+  kyc: typeof kycContract
+  payoutAccounts: typeof payoutAccountsContract
+  admin: typeof adminContract & {
+    commission: typeof adminCommissionContract
+    orders: typeof adminOrdersContract
+    coupons: typeof adminCouponsContract
+    ledger: typeof adminLedgerContract
+    certificates: typeof adminCertificatesContract
+    moderation: typeof adminModerationContract
+    reviews: typeof adminReviewsContract
+    refunds: typeof adminRefundsContract
+  }
+  cart: typeof cartContract
+  wishlist: typeof wishlistContract
+  coupons: typeof couponsContract
+  checkout: typeof checkoutContract
+  orders: typeof ordersContract
+  enrollments: typeof enrollmentsContract
+  bundles: typeof bundlesContract
+  referrals: typeof referralsContract
+  progress: typeof progressContract
+  notes: typeof notesContract
+  bookmarks: typeof bookmarksContract
+  engagement: typeof engagementContract
+  quizzes: typeof quizzesContract
+  exams: typeof examsContract
+  assignments: typeof assignmentsContract
+  grading: typeof gradingContract
+  certificates: typeof certificatesContract
+  cohorts: typeof cohortsContract
+  community: typeof communityContract
+  live: typeof liveContract
+  reviews: typeof reviewsContract
+  notifications: typeof notificationsContract
+  refunds: typeof refundsContract
+}
+
+export const contract: Contract = {
   health: healthContract,
   me: meContract,
   users: usersContract,
@@ -107,6 +178,7 @@ export const contract = {
     certificates: adminCertificatesContract,
     moderation: adminModerationContract,
     reviews: adminReviewsContract,
+    refunds: adminRefundsContract,
   },
   cart: cartContract,
   wishlist: wishlistContract,
@@ -130,8 +202,8 @@ export const contract = {
   live: liveContract,
   reviews: reviewsContract,
   notifications: notificationsContract,
+  refunds: refundsContract,
 }
-export type Contract = typeof contract
 
 export {
   AdminUserDetail,

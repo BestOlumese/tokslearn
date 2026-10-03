@@ -339,7 +339,7 @@ async function finalizePaid(
     const splits = splitSale(items, payment.feeKobo, bearer)
     const byInstructor = new Map<string, { pending: bigint; release: bigint }>()
     let platformShare = 0n
-    let commission = 0n
+    let vat = 0n
 
     for (const [i, item] of items.entries()) {
       const split = splits[i]
@@ -348,14 +348,23 @@ async function finalizePaid(
       const refundableUntil = new Date(
         payment.paidAt.getTime() + item.refundPolicyDaysSnapshot * 86_400_000,
       )
+      // VAT on commission stays off until the accountant confirms (ADR Q6, docs/08 §10). Per item,
+      // so a refund reverses exactly what this item carried (ADR-043).
+      const commissionKobo = splitBps(item.netPriceKobo, BigInt(item.platformRateBps))[0]
+      const vatRaw = tax.vatOnCommission
+        ? percentOf(ngn(commissionKobo), BigInt(tax.vatRateBps)).amount
+        : 0n
+      const itemVat = vatRaw > split.platformShareKobo ? split.platformShareKobo : vatRaw
       await tx.db
         .update(orderItems)
         .set({
           instructorShareKobo: split.instructorShareKobo,
           platformShareKobo: split.platformShareKobo,
           gatewayFeeShareKobo: split.gatewayFeeShareKobo,
+          vatKobo: itemVat,
           refundableUntil,
           status: noRefunds ? 'non_refundable' : 'active',
+          nonRefundableReason: noRefunds ? 'no_refund_policy' : null,
           // No refund window: the earning is releasable at once (docs/08 §6 step 2).
           earningStatus: noRefunds ? 'available' : 'pending',
         })
@@ -365,7 +374,7 @@ async function finalizePaid(
       if (noRefunds) bucket.release += split.instructorShareKobo
       byInstructor.set(item.instructorId, bucket)
       platformShare += split.platformShareKobo
-      commission += splitBps(item.netPriceKobo, BigInt(item.platformRateBps))[0]
+      vat += itemVat
     }
 
     await tx.db
@@ -380,11 +389,6 @@ async function finalizePaid(
       .where(eq(orders.id, order.id))
 
     if (order.totalKobo > 0n) {
-      // VAT on commission stays off until the accountant confirms (ADR Q6, docs/08 §10).
-      const vatRaw = tax.vatOnCommission
-        ? percentOf(ngn(commission), BigInt(tax.vatRateBps)).amount
-        : 0n
-      const vat = vatRaw > platformShare ? platformShare : vatRaw
       const lines: LedgerLine[] = [
         { account: P.cashPaystack, debit: order.totalKobo - payment.feeKobo },
         { account: P.gatewayFees, debit: payment.feeKobo },
@@ -686,6 +690,7 @@ export async function markPurchaseConsumed(
       .update(orderItems)
       .set({
         status: 'non_refundable',
+        nonRefundableReason: input.reason,
         ...(pending ? { earningStatus: 'available' as const } : {}),
       })
       .where(eq(orderItems.id, item.item.id))

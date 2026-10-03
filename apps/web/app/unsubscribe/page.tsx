@@ -26,7 +26,7 @@ export default function UnsubscribePage({ searchParams }: { searchParams: Search
 async function Body({ searchParams }: { searchParams: Search }) {
   const { u, t, s } = await searchParams
   const info = t && isNotificationType(t) ? notificationTypes[t] : null
-  if (!u || !s || !info || info.email === 'locked') {
+  if (!u || !s || !info || info.email === 'locked' || info.email === 'none') {
     return (
       <>
         <h1 className="text-h2 text-ink">This link doesn’t work</h1>

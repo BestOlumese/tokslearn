@@ -62,7 +62,7 @@ describe('preferences', () => {
       for (const type of notificationTypeKeys) {
         const info: NotificationTypeInfo = notificationTypes[type]
         for (const off of ['email', 'in_app'] as const) {
-          if (off === 'email' && info.email === 'locked') {
+          if (off === 'email' && (info.email === 'locked' || info.email === 'none')) {
             expect(
               await codeOf(setPreference(me, { type, channel: 'email', enabled: false })),
             ).toBe('NOTIFICATION_LOCKED')
@@ -92,12 +92,12 @@ describe('preferences', () => {
           const shown = row?.inApp ?? false
           expect({ key, emailed, shown }).toEqual({
             key,
-            emailed: off !== 'email',
+            emailed: off !== 'email' && info.email !== 'none',
             shown: off !== 'in_app',
           })
           // Back to the defaults (both channels) for the next round.
           await setPreference(me, { type, channel: 'in_app', enabled: info.inApp })
-          if (info.email !== 'locked') {
+          if (info.email !== 'locked' && info.email !== 'none') {
             await setPreference(me, { type, channel: 'email', enabled: info.email === 'on' })
           }
         }

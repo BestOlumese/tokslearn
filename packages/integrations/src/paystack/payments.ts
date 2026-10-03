@@ -1,7 +1,7 @@
 import 'server-only'
 import { ProviderError, providerJson } from '../shared/http'
 import { isValidPaystackSignature } from './signature'
-import type { PaymentProvider, VerifiedTransaction } from './types'
+import type { PaymentProvider, RefundStatus, VerifiedTransaction } from './types'
 
 const API = 'https://api.paystack.co'
 
@@ -96,7 +96,44 @@ export function createPaystackPayments(config: { secretKey: string }): PaymentPr
       }
     },
 
+    async createRefund({ reference, amountKobo, merchantNote }) {
+      const { status, body } = await providerJson<Envelope<{ id: number; status: string }>>(
+        'paystack',
+        `${API}/refund`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            transaction: reference,
+            amount: Number(amountKobo),
+            currency: 'NGN',
+            merchant_note: merchantNote.slice(0, 200),
+          }),
+        },
+      )
+      const r = body?.data
+      if (status !== 200 || !r) {
+        throw new ProviderError('paystack', status, body?.message ?? 'refund not created')
+      }
+      return { refundId: String(r.id), status: refundStatusOf(r.status) }
+    },
+
+    async fetchRefund(refundId) {
+      const { status, body } = await providerJson<Envelope<{ status: string; amount: number }>>(
+        'paystack',
+        `${API}/refund/${encodeURIComponent(refundId)}`,
+        { headers },
+      )
+      if (status === 400 || status === 404) return null
+      const r = body?.data
+      if (status !== 200 || !r) throw new ProviderError('paystack', status, 'refund fetch failed')
+      return { status: refundStatusOf(r.status), amountKobo: BigInt(r.amount) }
+    },
+
     verifyWebhookSignature: (rawBody, signature) =>
       isValidPaystackSignature(config.secretKey, rawBody, signature),
   }
 }
+
+const refundStatusOf = (s: string): RefundStatus =>
+  s === 'processed' ? 'processed' : s === 'failed' || s === 'needs-attention' ? 'failed' : 'pending'

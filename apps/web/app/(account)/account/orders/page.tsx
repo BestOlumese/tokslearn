@@ -37,6 +37,11 @@ export default function OrdersPage({
             My learning
           </Link>
         }
+        actions={
+          <Link href="/account/refunds" className="text-body-sm text-brand-ink hover:underline">
+            Refund requests
+          </Link>
+        }
       />
       <div className="mx-auto max-w-catalog px-4 pt-8 pb-16 sm:px-6 lg:px-8">
         <Suspense fallback={<div className="h-48 animate-pulse rounded-card bg-surface-sunken" />}>

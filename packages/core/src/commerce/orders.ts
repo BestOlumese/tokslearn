@@ -50,7 +50,7 @@ export interface OrderDetail extends OrderSummary {
     netPriceKobo: bigint
     refundPolicyDays: number
     refundableUntil: Date | null
-    status: 'active' | 'refunded' | 'non_refundable'
+    status: 'active' | 'refunded' | 'non_refundable' | 'refund_pending'
   }>
 }
 

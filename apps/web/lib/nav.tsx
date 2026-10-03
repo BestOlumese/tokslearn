@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Star,
   TicketPercent,
+  Undo2,
   UserRound,
   Users,
   Video,
@@ -74,6 +75,7 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
     label: 'Money',
     items: [
       { href: '/admin/orders', label: 'Orders', icon: icon(Receipt) },
+      { href: '/admin/refunds', label: 'Refunds', icon: icon(Undo2) },
       { href: '/admin/ledger', label: 'Ledger', icon: icon(BookText) },
       { href: '/admin/coupons', label: 'Coupons', icon: icon(TicketPercent) },
       { href: '/admin/settings/commission', label: 'Commission', icon: icon(Percent) },

@@ -153,6 +153,15 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     reason: 'The exam was left for over 20 minutes, twice, in the middle of the attempt.',
     url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000003',
   },
+  'refund-update': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    outcome: 'denied',
+    amountKobo: '1500000',
+    reason: 'Refunds aren’t available after watching 30% of a course. You’ve watched 42%.',
+    url: 'https://tokslearn.com/account/refunds',
+    canAppeal: true,
+  },
   'wishlist-price-drop': {
     name: 'Amaka',
     courseTitle: 'Bookkeeping for Small Businesses',

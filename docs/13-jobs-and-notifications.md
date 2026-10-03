@@ -15,7 +15,7 @@
 | `outbox-dispatch` | after-commit call + cron every minute | Send pending outbox rows as Inngest events |
 | `paystack-webhook-process` | `webhook/paystack.received` | Route charge/transfer/refund events to core |
 | `order-reconcile` | cron hourly | Verify pending orders with Paystack |
-| `order-abandon` | cron daily | Mark stale pending orders abandoned |
+| `order-abandon` | cron daily | Mark stale pending orders abandoned (now in `commerce-hourly`, which also re-checks refunds sent over an hour ago) |
 | `earnings-release` | cron daily 02:00 WAT | Pending → available |
 | `payout-run-draft` | cron 1st of month 06:00 WAT | Create draft payout run |
 | `payout-run-process` | cron 5th of month 09:00 WAT (next business day if needed), only runs approved runs | Bulk transfers in chunks |
@@ -25,6 +25,8 @@
 | `recording-import` | `live.recording_ready` (from the Daily webhook) | Bunny fetches Daily's recording; attach the video to the session (found by title when Bunny gives no id); check every 10 min for 2 h; delete Daily's copy when ready (ADR-039) |
 | `image-variants` | `file.uploaded` (image purposes) | Resize to WebP/AVIF |
 | `search-reindex` | `course.published`, `course.updated` | Update `course_search` (inline, ADR-032) |
+| `refund-send` | `refund.approved` | Ask Paystack to refund the item (retries on outages) |
+| `refund-settle` | Paystack `refund.*` webhook | Re-fetch each in-flight refund for the transaction; finish processed ones (ledger, statuses, notices), mark failed ones |
 | `wishlist-price-drop` | `course.price_dropped`, `coupon.announced` | Notify people who saved the course(s) and aren't enrolled, 500 per step (ADR-042) |
 | `notification-digest` | `notification.digest_requested` (debounced 30 min per person, at most 60) | One email with the replies, answers and mentions that waited (ADR-041) |
 | `notifications-prune` | cron daily 03:30 WAT | Delete read notifications older than 90 days |
