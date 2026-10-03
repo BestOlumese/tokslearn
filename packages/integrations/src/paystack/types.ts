@@ -17,7 +17,22 @@ export interface PaymentProvider {
 
   /** HMAC SHA-512 of the raw body with the secret key, compared in constant time. */
   verifyWebhookSignature(rawBody: string, signature: string | null): boolean
+
+  /**
+   * Refunds part or all of a transaction (docs/08 §7). Paystack queues it; the refund.* webhook
+   * says when it's done, and `fetchRefund` confirms.
+   */
+  createRefund(input: {
+    reference: string
+    amountKobo: bigint
+    merchantNote: string
+  }): Promise<{ refundId: string; status: RefundStatus }>
+  /** The refund as Paystack sees it now, or null when it doesn't know the id. */
+  fetchRefund(refundId: string): Promise<{ status: RefundStatus; amountKobo: bigint } | null>
 }
+
+/** `pending` covers pending and processing; `failed` includes needs-attention. */
+export type RefundStatus = 'pending' | 'processed' | 'failed'
 
 export interface VerifiedTransaction {
   status: 'success' | 'failed' | 'abandoned' | 'pending'

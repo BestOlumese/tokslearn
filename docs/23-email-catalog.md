@@ -38,7 +38,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `qa-answered` | answer to my question | {instructor} answered your question | Question title, answer excerpt, view | activity |
 | `thread-reply` / `mention` | a reply to my thread or question ("has an answer" when a teacher answers), or `@username` | New reply in {course} / {name} mentioned you in {course} | Who, the thread, an excerpt, a link. At most one per person per thread per hour (ADR-038); the digest comes with Phase 9 preferences. | activity |
 | `announcement` | instructor announcement (course or cohort) | {course}: {announcement title} | Body (plain, up to 2,000 characters), instructor's name, link to the discussion. Sent by the `announcement-send` job, once per learner. | activity |
-| `refund-update` | refund status change | Your refund request for {course}: {approved/denied/processed} | Decision, reason in plain words, amount and timing ("banks usually take 5–10 working days"), appeal link if denied | transactional |
+| `refund-update` | refund approved, declined, sent to finance, or processed (ADR-043) | Your refund request for {course}: {approved/denied/processed} | Decision, reason in plain words, amount and timing ("banks usually take 5–10 working days"), appeal link if denied | transactional |
 | `streak-at-risk` | optional, 20:00 if no activity and streak ≥ 3 | Keep your {n}-day streak | One lesson suggestion | activity (off by default) |
 | `wishlist-price-drop` | a saved course gets a lower approved price, or its instructor shares a coupon (ADR-042); only if the person opted in | {course} is now {price} | Old (struck) and new price, the code and its end date for a coupon, button to the course, one-click unsubscribe link | marketing (opt-in) |
 

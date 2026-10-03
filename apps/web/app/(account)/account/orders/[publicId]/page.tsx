@@ -5,6 +5,7 @@ import type { Metadata, Route } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
+import { RefundAction } from '@/components/refunds/refund-action'
 import { AutoRefresh } from '@/components/shop/auto-refresh'
 import { PageHeader } from '@/components/site/page-header'
 import { formatDate, formatDateTime, formatNaira } from '@/lib/format'
@@ -16,7 +17,7 @@ export const metadata: Metadata = { title: 'Receipt', robots: { index: false } }
 type Params = Promise<{ publicId: string }>
 
 // docs/20 §3 `/account/orders/[publicId]`: items, prices, discount, payment method, refund rule
-// per course with its last date. Refund requests arrive with Phase 10.
+// per course with its last date, and a refund request per course (Phase 10, docs/08 §7).
 export default function ReceiptPage({ params }: { params: Params }) {
   return (
     <Suspense
@@ -49,6 +50,16 @@ async function Receipt({ params }: { params: Params }) {
     throw e
   }
   const [label, tone] = orderStatusBadge[order.status]
+  const paid = order.status === 'paid' || order.status === 'partially_refunded'
+  const checks = new Map(
+    paid
+      ? (
+          await Promise.all(
+            order.items.map((i) => commerce.checkRefundEligibility(ctx, i.id).catch(() => null)),
+          )
+        ).flatMap((c) => (c ? [[c.orderItemId, c] as const] : []))
+      : [],
+  )
 
   return (
     <>
@@ -95,12 +106,15 @@ async function Receipt({ params }: { params: Params }) {
                   <p className="mt-0.5 text-body-sm text-ink-2">
                     {item.status === 'refunded'
                       ? 'Refunded'
-                      : item.refundPolicyDays === 0 || item.status === 'non_refundable'
-                        ? 'No refunds for this course'
-                        : item.refundableUntil
-                          ? `Refunds until ${formatDate(item.refundableUntil)}, if you've watched less than 30%`
-                          : `Refunds within ${item.refundPolicyDays} days of payment`}
+                      : item.status === 'refund_pending'
+                        ? 'Refund on its way'
+                        : item.refundPolicyDays === 0 || item.status === 'non_refundable'
+                          ? 'No refunds for this course'
+                          : item.refundableUntil
+                            ? `Refunds until ${formatDate(item.refundableUntil)}, if you've watched less than 30%`
+                            : `Refunds within ${item.refundPolicyDays} days of payment`}
                   </p>
+                  <ItemRefund check={checks.get(item.id)} />
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-body text-ink">{formatNaira(item.netPriceKobo)}</p>
@@ -148,5 +162,14 @@ async function Receipt({ params }: { params: Params }) {
         </div>
       </div>
     </>
+  )
+}
+
+function ItemRefund({ check }: { check: commerce.RefundCheck | undefined }) {
+  if (!check) return null
+  return (
+    <div className="mt-1.5">
+      <RefundAction check={check} />
+    </div>
   )
 }

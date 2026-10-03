@@ -22,6 +22,7 @@ import * as newSignIn from './templates/new-sign-in'
 import * as orderReceipt from './templates/order-receipt'
 import * as passwordChanged from './templates/password-changed'
 import * as payoutAccountChanged from './templates/payout-account-changed'
+import * as refundUpdate from './templates/refund-update'
 import * as resetPassword from './templates/reset-password'
 import * as signInCode from './templates/sign-in-code'
 import * as threadReply from './templates/thread-reply'
@@ -113,6 +114,10 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'attempt-voided': {
     subject: attemptVoided.subject,
     element: (d) => <attemptVoided.AttemptVoided {...d} />,
+  },
+  'refund-update': {
+    subject: refundUpdate.subject,
+    element: (d) => <refundUpdate.RefundUpdate {...d} />,
   },
   'wishlist-price-drop': {
     subject: wishlistPriceDrop.subject,

@@ -77,7 +77,12 @@ export function NotificationSettings() {
                       <span className="block text-body-sm text-ink-2">{r.description}</span>
                     </th>
                     <td className="py-3 text-center">
-                      {r.emailLocked ? (
+                      {!r.emailAvailable ? (
+                        <span className="text-body-sm text-ink-3">
+                          <span aria-hidden>–</span>
+                          <span className="sr-only">No email for this</span>
+                        </span>
+                      ) : r.emailLocked ? (
                         <Badge>Always</Badge>
                       ) : (
                         <Switch

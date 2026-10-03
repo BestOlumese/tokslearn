@@ -297,6 +297,8 @@ export interface PreferenceRow {
   description: string
   email: boolean
   emailLocked: boolean
+  /** False for in-app-only types. */
+  emailAvailable: boolean
   inApp: boolean
 }
 
@@ -311,8 +313,11 @@ export async function getPreferences(ctx: Ctx): Promise<PreferenceRow[]> {
       group: info.group,
       label: info.label,
       description: info.description,
-      email: locked || (prefs.get(`${me.userId}|${type}|email`) ?? info.email === 'on'),
+      email:
+        locked ||
+        (info.email !== 'none' && (prefs.get(`${me.userId}|${type}|email`) ?? info.email === 'on')),
       emailLocked: locked,
+      emailAvailable: info.email !== 'none',
       inApp: prefs.get(`${me.userId}|${type}|in_app`) ?? info.inApp,
     }
   })
@@ -325,7 +330,7 @@ export async function setPreference(
 ): Promise<PreferenceRow[]> {
   const me = requireUser(ctx.actor)
   const info: (typeof notificationTypes)[NotificationType] = notificationTypes[input.type]
-  if (input.channel === 'email' && info.email === 'locked') {
+  if (input.channel === 'email' && (info.email === 'locked' || info.email === 'none')) {
     throw new ForbiddenError('NOTIFICATION_LOCKED')
   }
   const fallback = input.channel === 'email' ? info.email === 'on' : info.inApp
@@ -373,6 +378,7 @@ export async function unsubscribeByLink(
   if (
     !info ||
     info.email === 'locked' ||
+    info.email === 'none' ||
     !provider(ctx, 'unsubscribe').verify({ userId: input.userId, type, signature: input.signature })
   ) {
     throw new NotFoundError('NOTIFICATION_NOT_FOUND')

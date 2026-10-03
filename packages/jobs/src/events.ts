@@ -115,3 +115,13 @@ export const coursePriceDropped = eventType('course.price_dropped', {
 export const couponAnnounced = eventType('coupon.announced', {
   schema: z.object({ couponId: z.string() }),
 })
+
+/** A refund was approved: ask Paystack to send it. */
+export const refundApproved = eventType('refund.approved', {
+  schema: z.object({ refundId: z.string() }),
+})
+
+/** Paystack sent a refund.* webhook for this transaction (verified; body not trusted). */
+export const refundProviderUpdated = eventType('refund/provider.updated', {
+  schema: z.object({ reference: z.string(), eventId: z.string() }),
+})

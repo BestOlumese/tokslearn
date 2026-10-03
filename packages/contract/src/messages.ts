@@ -68,6 +68,7 @@ export const errorCatalog = {
   LIVE_SESSION_NOT_FOUND: notFound('live class'),
   REVIEW_NOT_FOUND: notFound('review'),
   NOTIFICATION_NOT_FOUND: notFound('notification'),
+  REFUND_NOT_FOUND: notFound('refund request'),
   REVISION_NOT_FOUND: notFound('course version'),
   VIDEO_NOT_FOUND: notFound('video'),
 
@@ -357,6 +358,18 @@ export const errorCatalog = {
   },
 
   // Refunds and money
+  NOTHING_TO_REFUND: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'You didn’t pay for this course, so there’s nothing to refund.',
+  },
+  REFUND_NOT_PENDING: {
+    status: 'CONFLICT',
+    message: 'This refund request was already decided.',
+  },
+  APPEAL_NOT_ALLOWED: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Only a declined refund request can be appealed.',
+  },
   NO_REFUND_POLICY: {
     status: 'UNPROCESSABLE_CONTENT',
     message: "This course doesn't offer refunds.",

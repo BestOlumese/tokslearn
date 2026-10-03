@@ -28,7 +28,7 @@ Format: `CODE` — oRPC status — when — user message.
 - `KYC_REQUIRED` — FORBIDDEN — "Complete identity verification to continue."
 - `STAFF_ONLY` — FORBIDDEN — "This area is for Tokslearn staff."
 - `SELF_REVIEW_NOT_ALLOWED` — FORBIDDEN — staff deciding their own application or course — "You can't decide your own application or course. Ask another reviewer."
-- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND`, `QUESTION_BANK_NOT_FOUND`, `QUESTION_NOT_FOUND`, `QUIZ_NOT_FOUND`, `ATTEMPT_NOT_FOUND`, `ASSIGNMENT_NOT_FOUND`, `SUBMISSION_NOT_FOUND`, `EXTERNAL_RESULT_NOT_FOUND`, `ENROLLMENT_NOT_FOUND` ("learner"), `COHORT_NOT_FOUND` ("start date"), `LIVE_SESSION_NOT_FOUND` ("live class"), `REVIEW_NOT_FOUND` ("review"), `NOTIFICATION_NOT_FOUND` ("notification") — "We couldn't find that {thing}."
+- `*_NOT_FOUND` — NOT_FOUND — one per resource: `COURSE_NOT_FOUND`, `LESSON_NOT_FOUND`, `ORDER_NOT_FOUND`, `USER_NOT_FOUND`, `CERTIFICATE_NOT_FOUND`, `THREAD_NOT_FOUND`, `COUPON_NOT_FOUND`, `FILE_NOT_FOUND`, `SESSION_NOT_FOUND`, `FEATURE_FLAG_NOT_FOUND`, `APPLICATION_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `COMMISSION_RULE_NOT_FOUND`, `NOTE_NOT_FOUND`, `RESOURCE_NOT_FOUND`, `SECTION_NOT_FOUND`, `BUNDLE_NOT_FOUND`, `REVISION_NOT_FOUND`, `VIDEO_NOT_FOUND`, `QUESTION_BANK_NOT_FOUND`, `QUESTION_NOT_FOUND`, `QUIZ_NOT_FOUND`, `ATTEMPT_NOT_FOUND`, `ASSIGNMENT_NOT_FOUND`, `SUBMISSION_NOT_FOUND`, `EXTERNAL_RESULT_NOT_FOUND`, `ENROLLMENT_NOT_FOUND` ("learner"), `COHORT_NOT_FOUND` ("start date"), `LIVE_SESSION_NOT_FOUND` ("live class"), `REVIEW_NOT_FOUND` ("review"), `NOTIFICATION_NOT_FOUND` ("notification"), `REFUND_NOT_FOUND` ("refund request") — "We couldn't find that {thing}."
 
 ## Instructor onboarding
 - `APPLICATION_EXISTS` — CONFLICT — "You already have an application in progress."
@@ -129,6 +129,9 @@ Format: `CODE` — oRPC status — when — user message.
 - `LIVE_LESSON_INVALID` — UNPROCESSABLE_CONTENT — the lesson isn't a Live class lesson of the course — "Pick a Live class lesson from this course."
 
 ## Refunds and money
+- `NOTHING_TO_REFUND` — UNPROCESSABLE_CONTENT — a ₦0 purchase (100% coupon) — "You didn't pay for this course, so there's nothing to refund."
+- `REFUND_NOT_PENDING` — CONFLICT — finance deciding a request that isn't under review — "This refund request was already decided."
+- `APPEAL_NOT_ALLOWED` — UNPROCESSABLE_CONTENT — appealing a request that wasn't declined — "Only a declined refund request can be appealed."
 - `NO_REFUND_POLICY` — UNPROCESSABLE_CONTENT — "This course doesn't offer refunds."
 - `REFUND_WINDOW_CLOSED` — UNPROCESSABLE_CONTENT — "The {n}-day refund window ended on {date}."
 - `CONTENT_CONSUMED` — UNPROCESSABLE_CONTENT — "Refunds aren't available after watching 30% of a course. You've watched {pct}%."

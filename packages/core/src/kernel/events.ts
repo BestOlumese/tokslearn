@@ -81,6 +81,10 @@ export interface DomainEvents {
   'course.price_dropped': { courseId: string; fromKobo: string; toKobo: string }
   /** An instructor told people who saved the course(s) about a coupon. */
   'coupon.announced': { couponId: string }
+  /** A refund was approved (by the rules or finance): the refund-send job asks Paystack. */
+  'refund.approved': { refundId: string }
+  /** Paystack sent a refund.* webhook for this transaction: the refund-settle job checks. */
+  'refund.provider_updated': { reference: string }
   /** Replies and mentions are waiting for one digest email (a busy hour). */
   'notification.digest_requested': { userId: string }
   'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }

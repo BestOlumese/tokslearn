@@ -227,7 +227,7 @@ const OrderItemShape = z.object({
   netPriceKobo: Kobo,
   refundPolicyDays: RefundDays,
   refundableUntil: IsoDateTime.nullable(),
-  status: z.enum(['active', 'refunded', 'non_refundable']),
+  status: z.enum(['active', 'refunded', 'non_refundable', 'refund_pending']),
 })
 
 const OrderDetailShape = OrderSummaryShape.extend({

@@ -64,7 +64,7 @@ Index: `lessons(course_id, section_id, position)`, `courses(instructor_id, statu
 - `referral_links`: `instructor_id`, `code` unique, `target_type`, `target_id` nullable, `clicks` (counter updated via Redis flush).
 - `attributions`: `user_id` nullable, `anonymous_id`, `source` enum(instructor_referral, instructor_coupon, platform_organic, platform_paid), `referral_link_id`, `utm jsonb`, `expires_at` (30-day window). Resolved at checkout.
 - `orders`: `public_id` unique, `user_id`, `status` enum(pending, paid, failed, abandoned, refunded, partially_refunded), `subtotal_kobo`, `discount_kobo`, `total_kobo`, `currency`, `provider` ('paystack'), `provider_reference` unique, `paid_at`, `idempotency_key` unique.
-- `order_items`: `order_id`, `item_type`, `item_id`, `course_id` (for bundles: one row per course with allocated price), `instructor_id`, `list_price_kobo`, `discount_kobo`, `net_price_kobo`, `attribution_source`, `commission_rule_id`, `platform_rate_bps` (basis points snapshot), `instructor_share_kobo`, `platform_share_kobo`, `gateway_fee_share_kobo`, `refund_policy_days_snapshot`, `refundable_until`, `status` enum(active, refunded, non_refundable), `earning_status` enum(pending, available, paid, reversed).
+- `order_items`: `order_id`, `item_type`, `item_id`, `course_id` (for bundles: one row per course with allocated price), `instructor_id`, `list_price_kobo`, `discount_kobo`, `net_price_kobo`, `attribution_source`, `commission_rule_id`, `platform_rate_bps` (basis points snapshot), `instructor_share_kobo`, `platform_share_kobo`, `gateway_fee_share_kobo`, `refund_policy_days_snapshot`, `refundable_until`, `vat_kobo`, `status` enum(active, refunded, non_refundable, refund_pending), `non_refundable_reason` enum(no_refund_policy, important_download, content_consumed, exam_started, certificate_issued), `earning_status` enum(pending, available, paid, reversed).
 - `coupon_redemptions`: `coupon_id`, `order_id`, `user_id`.
 - `payment_events`: `provider`, `event_id` unique, `type`, `payload jsonb`, `processed_at`, `error`. (Idempotency for webhooks.)
 
@@ -83,7 +83,7 @@ Index: `order_items(instructor_id, earning_status)`, `order_items(refundable_unt
 - `statements`: `instructor_id`, `period`, `file_id` (PDF), `totals jsonb`.
 
 ### refunds
-- `refund_requests`: `order_item_id`, `user_id`, `reason_code`, `reason_text`, `status` enum(requested, auto_approved, auto_denied, under_review, approved, denied, processed, failed), `decision_by`, `decision_reason`, `eligibility_snapshot jsonb`, `provider_refund_id`, `processed_at`.
+- `refund_requests`: `public_id` (RF-…), `order_item_id` unique, `order_id`, `user_id`, `course_id`, `instructor_id`, `amount_kobo`, `reason_code` enum(not_as_described, quality, technical, duplicate, changed_mind, other), `reason_text`, `status` enum(under_review, approved, denied, processing, processed, failed), `decided_by`, `decided_at`, `decision_reason` (a rule's code or finance's words), `eligibility_snapshot jsonb`, `appeal_text`, `appealed_at`, `provider_refund_id`, `sent_at`, `processed_at`, `failure_reason` (ADR-043).
 - `consumption_events`: `user_id`, `course_id`, `order_item_id` nullable, `kind` enum(video_progress, resource_download, certificate_issued, exam_started, assignment_submitted), `ref_id`, `value numeric`, `occurred_at`, `ip_hash`, `user_agent_hash`. Append-only evidence. Partition by month when > 50M rows.
 
 ### enrollments

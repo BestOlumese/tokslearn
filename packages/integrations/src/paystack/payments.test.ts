@@ -132,4 +132,30 @@ describe('paystackFee (fake)', () => {
     expect(paystackFee(1_000_000n)).toBe(25_000n)
     expect(paystackFee(50_000_000n)).toBe(200_000n)
   })
+
+  it('refunds part of a transaction in kobo and maps refund states', async () => {
+    const fetchMock = vi.fn(async (url: string, _init?: RequestInit) =>
+      url.endsWith('/refund')
+        ? Response.json({ status: true, data: { id: 3018284, status: 'pending' } })
+        : Response.json({ status: true, data: { status: 'processed', amount: 1_000_000 } }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const r = await payments.createRefund({
+      reference: 'TL-7K3M9Q2A',
+      amountKobo: 1_000_000n,
+      merchantNote: 'Refund RF-1',
+    })
+    expect(r).toEqual({ refundId: '3018284', status: 'pending' })
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+      transaction: 'TL-7K3M9Q2A',
+      amount: 1_000_000,
+      currency: 'NGN',
+      merchant_note: 'Refund RF-1',
+    })
+    expect(await payments.fetchRefund('3018284')).toEqual({
+      status: 'processed',
+      amountKobo: 1_000_000n,
+    })
+    expect(fetchMock.mock.calls[1]?.[0]).toBe('https://api.paystack.co/refund/3018284')
+  })
 })

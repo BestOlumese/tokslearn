@@ -27,6 +27,8 @@ export const NotificationType = z.enum([
   'course.review_decision',
   'application.decision',
   'wishlist.price_drop',
+  'refund.updated',
+  'sale.refunded',
   'order.receipt',
   'enrollment.welcome',
 ])
@@ -53,6 +55,8 @@ const PreferenceShape = z.object({
   email: z.boolean(),
   /** Always emailed; can't be turned off. */
   emailLocked: z.boolean(),
+  /** False for in-app-only kinds. */
+  emailAvailable: z.boolean(),
   inApp: z.boolean(),
 })
 export type NotificationPreferenceDto = z.infer<typeof PreferenceShape>

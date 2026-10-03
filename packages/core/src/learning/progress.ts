@@ -135,7 +135,8 @@ async function checkConsumption(tx: Ctx, userId: string, courseId: string) {
   const [row] = await tx.db
     .select({
       total: sql<number>`coalesce(sum(${lessons.durationSec}), 0)::int`,
-      watched: sql<number>`coalesce(sum(least(${lessonProgress.watchedSec}, ${lessons.durationSec})), 0)::int`,
+      // coalesce first: least() ignores NULLs, so an unwatched lesson would count as watched.
+      watched: sql<number>`coalesce(sum(least(coalesce(${lessonProgress.watchedSec}, 0), ${lessons.durationSec})), 0)::int`,
     })
     .from(lessons)
     .leftJoin(
