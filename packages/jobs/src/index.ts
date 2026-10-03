@@ -18,6 +18,7 @@ import { ledgerIntegrity } from './functions/ledger-integrity'
 import { liveReminders, recordingImport } from './functions/live'
 import { outboxDispatch } from './functions/outbox-dispatch'
 import { paystackCharge } from './functions/paystack-charge'
+import { ratingStats } from './functions/reviews'
 import { videoStatus } from './functions/video-status'
 
 export { inngest } from './client'
@@ -44,6 +45,7 @@ export const functions = [
   announcementSend,
   liveReminders,
   recordingImport,
+  ratingStats,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

@@ -122,6 +122,12 @@ describe('checkout edges', () => {
         anonymousId: null,
       })
       env.paystack.setOutcome(started.publicId, 'unreachable')
+      // created_at comes from the database's clock; put it on the test's clock, or "next week"
+      // stops being a week later once the real date passes it.
+      await db
+        .update(schema.orders)
+        .set({ createdAt: new Date('2026-09-26T10:00:00Z') })
+        .where(eq(schema.orders.id, started.orderId))
       const later = env.ctx({ kind: 'system', reason: 'cron' }, new Date('2026-09-26T10:30:00Z'))
       expect(await reconcilePendingOrders(later)).toEqual({ checked: 1, paid: 0 })
       const nextWeek = env.ctx({ kind: 'system', reason: 'cron' }, new Date('2026-10-03T10:00:00Z'))

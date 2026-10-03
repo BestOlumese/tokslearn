@@ -245,6 +245,7 @@ async function Player({ params, searchParams }: { params: Params; searchParams: 
                   instructorName={outline.course.instructorName}
                   progressPct={outline.role === 'learner' ? outline.progressPct : null}
                   discussionsHref={communityOn ? (`${base}/community` as Route) : null}
+                  reviewHref={outline.role === 'learner' ? (`${base}/review` as Route) : null}
                   nextLive={
                     nextLive
                       ? {
@@ -444,6 +445,7 @@ function Overview({
   progressPct,
   cohort,
   discussionsHref,
+  reviewHref,
   nextLive,
 }: {
   position: number
@@ -455,6 +457,8 @@ function Overview({
   cohort: { name: string; href: Route } | null
   /** The course's discussions, when the `community` flag is on. */
   discussionsHref: Route | null
+  /** Learners: where to rate and review the course. */
+  reviewHref: Route | null
   /** The viewer's next live class in this course, when the `live_classes` flag is on. */
   nextLive: { title: string; when: string; open: boolean; href: Route } | null
 }) {
@@ -467,6 +471,14 @@ function Overview({
         </Link>{' '}
         by {instructorName}.
         {progressPct !== null ? ` You’ve finished ${progressPct}% of the course.` : ''}
+        {reviewHref ? (
+          <>
+            {' '}
+            <Link href={reviewHref} className="font-medium text-brand-ink hover:underline">
+              Review this course
+            </Link>
+          </>
+        ) : null}
       </p>
       {discussionsHref ? (
         <p>

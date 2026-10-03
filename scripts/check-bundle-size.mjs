@@ -19,6 +19,7 @@ const routes = {
   // Fallback shells: the same scripts as every prerendered course or profile, even on an empty DB.
   '/courses/[slug]': 'courses/[slug]',
   '/courses/[slug]/preview/[lessonId]': 'courses/[slug]/preview/[lessonId]',
+  '/courses/[slug]/reviews': 'courses/[slug]/reviews',
   '/instructors/[slug]': 'instructors/[slug]',
   '/verify': 'verify',
   '/verify/[code]': 'verify/[code]',

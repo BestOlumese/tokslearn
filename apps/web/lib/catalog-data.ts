@@ -1,10 +1,12 @@
 import 'server-only'
-import { toCardDto, toPublicCourseDto } from '@tokslearn/api'
+import { toCardDto, toPublicCourseDto, toReviewPageDto } from '@tokslearn/api'
 import type {
   CategoryDirectoryDto,
   CourseCardDto,
   PublicCohortDto,
   PublicCourseDto,
+  ReviewPageDto,
+  ReviewSort,
 } from '@tokslearn/contract'
 import { isFeatureEnabled } from '@tokslearn/core/admin'
 import * as catalog from '@tokslearn/core/catalog'
@@ -12,6 +14,7 @@ import * as cohorts from '@tokslearn/core/cohorts'
 import * as commerce from '@tokslearn/core/commerce'
 import { anonymousActor, type Ctx, cacheTags, createCtx, DomainError } from '@tokslearn/core/kernel'
 import { publicFileUrl } from '@tokslearn/core/media'
+import * as reviews from '@tokslearn/core/reviews'
 import { getDb } from '@tokslearn/db'
 import { cacheLife, cacheTag } from 'next/cache'
 import { baseProviders } from './providers'
@@ -158,6 +161,25 @@ export async function getCourseCohorts(courseId: string): Promise<PublicCohortDt
     closesAt: c.closesAt.toISOString(),
     opensAt: c.opensAt?.toISOString() ?? null,
   }))
+}
+
+/**
+ * A course's visible reviews for the course and reviews pages (docs/10 §12). Same for every
+ * visitor; tagged with the course (the rating-stats job expires it) and refreshed every few
+ * minutes for helpful counts.
+ */
+export async function getCourseReviews(
+  courseId: string,
+  sort: ReviewSort,
+  page: number,
+  pageSize = 10,
+): Promise<ReviewPageDto> {
+  'use cache'
+  cacheTag(cacheTags.course(courseId))
+  cacheLife('minutes')
+  return toReviewPageDto(
+    await reviews.listCourseReviews(publicCtx(), { courseId, sort, page, pageSize }),
+  )
 }
 
 export type CategoryPageData =

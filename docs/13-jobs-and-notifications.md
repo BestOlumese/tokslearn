@@ -24,7 +24,8 @@
 | `video-status` | `webhook/bunny.received` | Update asset, durations |
 | `recording-import` | `live.recording_ready` (from the Daily webhook) | Bunny fetches Daily's recording; attach the video to the session (found by title when Bunny gives no id); check every 10 min for 2 h; delete Daily's copy when ready (ADR-039) |
 | `image-variants` | `file.uploaded` (image purposes) | Resize to WebP/AVIF |
-| `search-reindex` | `course.published`, `course.updated`, `review.*` | Update `course_search` |
+| `search-reindex` | `course.published`, `course.updated` | Update `course_search` (inline, ADR-032) |
+| `rating-stats` | `review.changed` (debounced 10 s per course) | Recompute `course_rating_stats`, copy the rating into `course_search`, expire course/instructor/listing caches (ADR-040) |
 | `certificate-issue` | `course.completed`, `exam.passed`, `external_result.recorded` (pass) | Check the live criteria, issue once per learner and course (a passing grade or quiz completes its lesson, so it arrives as `course.completed`) |
 | `certificate-render` | `certificate.issued`, `certificate.name_corrected` | Make the PDF, store it in R2; email `certificate-issued` on first issue only |
 | `certificate-backfill` | `course.published`, `course.updated` | Issue certificates to learners who already meet newly live rules, 200 at a time |

@@ -75,6 +75,8 @@ export interface DomainEvents {
   'live.scheduled': { sessionId: string; courseId: string; startsAt: string }
   /** Daily finished a cloud recording: the recording-import job sends it to Bunny. */
   'live.recording_ready': { sessionId: string; recordingId: string; durationSec: number }
+  /** A review was written, edited, deleted, hidden, shown or replied to: the rating-stats job. */
+  'review.changed': { reviewId: string; courseId: string }
   'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }
   'order.failed': { orderId: string; reason: string }
   /** Queued email; the `email-send` job renders and sends it (docs/13 §3). */

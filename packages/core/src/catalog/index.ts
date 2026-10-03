@@ -39,6 +39,7 @@ export {
   SEARCH_MAX_RESULTS,
   searchCourses,
   searchInstructors,
+  setCourseRating,
 } from './search'
 export {
   type CategoryNode,

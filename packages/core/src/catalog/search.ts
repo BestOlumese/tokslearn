@@ -143,6 +143,20 @@ export async function reindexCourse(ctx: Ctx, courseId: string): Promise<'indexe
   return 'indexed'
 }
 
+/**
+ * Copies a course's review totals into its search row (cards, sorting, the rating filter). The
+ * reviews module computes them (`course_rating_stats`); a course not in the index is skipped.
+ */
+export async function setCourseRating(
+  ctx: Ctx,
+  input: { courseId: string; avg: number | null; count: number },
+): Promise<void> {
+  await ctx.db
+    .update(cs)
+    .set({ ratingAvg: input.avg === null ? null : input.avg.toFixed(2), ratingCount: input.count })
+    .where(eq(cs.courseId, input.courseId))
+}
+
 /** Rebuilds every listed course's row (after schema changes or a data fix). */
 export async function reindexAll(ctx: Ctx): Promise<number> {
   const ids = await ctx.db

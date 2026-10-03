@@ -1,4 +1,5 @@
 import * as community from '@tokslearn/core/community'
+import * as reviews from '@tokslearn/core/reviews'
 import { Badge } from '@tokslearn/ui/badge'
 import { EmptyState } from '@tokslearn/ui/empty-state'
 import { Skeleton } from '@tokslearn/ui/skeleton'
@@ -14,16 +15,21 @@ import { requireSignedInCtx } from '@/lib/require-user'
 export const metadata: Metadata = { title: 'Moderation' }
 
 // docs/20 §6 `/admin/moderation` (support+): reported discussions and replies, oldest first.
-// Reviews join in Phase 9.
+// Reported reviews (Phase 9) below.
 export default function ModerationPage() {
   return (
     <div>
       <AdminPageHeader
         title="Moderation"
-        description="Posts learners reported. Hiding one takes it off the course for learners; the course's teachers still see it."
+        description="Posts and reviews people reported. Hiding a post takes it off the course for learners (its teachers still see it); hiding a review takes it off the course page and out of the rating."
       />
-      <Suspense fallback={<Skeleton className="mt-6 h-72 w-full rounded-card" />}>
+      <h2 className="mt-8 text-h4 text-ink">Discussions</h2>
+      <Suspense fallback={<Skeleton className="mt-3 h-72 w-full rounded-card" />}>
         <Queue />
+      </Suspense>
+      <h2 className="mt-10 text-h4 text-ink">Reviews</h2>
+      <Suspense fallback={<Skeleton className="mt-3 h-40 w-full rounded-card" />}>
+        <ReviewQueue />
       </Suspense>
     </div>
   )
@@ -36,17 +42,17 @@ async function Queue() {
   try {
     items = await community.listOpenReports(ctx)
   } catch (error) {
-    return <div className="mt-6">{staffErrorState(error, path)}</div>
+    return <div className="mt-3">{staffErrorState(error, path)}</div>
   }
   if (items.length === 0) {
     return (
-      <div className="mt-6">
+      <div className="mt-3">
         <EmptyState title="Nothing reported" description="New reports show up here." />
       </div>
     )
   }
   return (
-    <ul className="mt-6 flex flex-col gap-3">
+    <ul className="mt-3 flex flex-col gap-3">
       {items.map((r) => (
         <li
           key={r.id}
@@ -70,6 +76,55 @@ async function Queue() {
             </Link>
           </div>
           <ReportActions reportId={r.id} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+async function ReviewQueue() {
+  const path = '/admin/moderation'
+  const ctx = await requireSignedInCtx(path)
+  let items: reviews.ReviewReportView[]
+  try {
+    items = await reviews.listReviewReports(ctx)
+  } catch (error) {
+    return <div className="mt-3">{staffErrorState(error, path)}</div>
+  }
+  if (items.length === 0) {
+    return (
+      <div className="mt-3">
+        <EmptyState title="No reported reviews" description="Reported reviews show up here." />
+      </div>
+    )
+  }
+  return (
+    <ul className="mt-3 flex flex-col gap-3">
+      {items.map((r) => (
+        <li
+          key={r.reviewId}
+          className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 sm:flex-row sm:items-start"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="flex flex-wrap items-center gap-2 text-body-sm text-ink-2">
+              <Badge tone="warning">
+                {r.reports} {r.reports === 1 ? 'report' : 'reports'}
+              </Badge>
+              {r.rating}-star review by {r.authorName} of {r.courseTitle} ·{' '}
+              {formatDateTime(r.createdAt)}
+            </p>
+            <p className="mt-2 whitespace-pre-line text-body text-ink">
+              {r.body ?? 'A rating without a written review.'}
+            </p>
+            <p className="mt-2 text-body-sm text-ink-2">Reason given: {r.reason}</p>
+            <Link
+              href={`/courses/${r.courseSlug}/reviews` as Route}
+              className="mt-1 inline-block text-body-sm text-brand-ink hover:underline"
+            >
+              Open the course’s reviews
+            </Link>
+          </div>
+          <ReportActions reviewId={r.reviewId} />
         </li>
       ))}
     </ul>

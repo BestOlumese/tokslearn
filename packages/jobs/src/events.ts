@@ -95,3 +95,8 @@ export const liveScheduled = eventType('live.scheduled', {
 export const liveRecordingReady = eventType('live.recording_ready', {
   schema: z.object({ sessionId: z.string(), recordingId: z.string(), durationSec: z.number() }),
 })
+
+/** A review changed: the rating-stats job recomputes the course's rating. */
+export const reviewChanged = eventType('review.changed', {
+  schema: z.object({ reviewId: z.string(), courseId: z.string() }),
+})

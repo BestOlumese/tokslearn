@@ -50,7 +50,18 @@ import {
   studioLearnersContract,
 } from './learning'
 import { liveContract, studioLiveContract } from './live'
+
+export {
+  MyReviewDto,
+  MyReviewPageDto,
+  ReviewPageDto,
+  ReviewReportDto,
+  ReviewSort,
+  StudioReviewDto,
+} from './reviews'
+
 import { mediaContract } from './media'
+import { adminReviewsContract, reviewsContract, studioReviewsContract } from './reviews'
 import { catalogContract, studioContract } from './studio'
 
 /** The whole API surface. Web, Expo and the OpenAPI spec all come from this object. */
@@ -74,6 +85,7 @@ export const contract = {
     certificates: studioCertificatesContract,
     cohorts: studioCohortsContract,
     live: studioLiveContract,
+    reviews: studioReviewsContract,
   },
   instructors: { ...instructorsContract, ...instructorProfileContract },
   kyc: kycContract,
@@ -86,6 +98,7 @@ export const contract = {
     ledger: adminLedgerContract,
     certificates: adminCertificatesContract,
     moderation: adminModerationContract,
+    reviews: adminReviewsContract,
   },
   cart: cartContract,
   wishlist: wishlistContract,
@@ -107,6 +120,7 @@ export const contract = {
   cohorts: cohortsContract,
   community: communityContract,
   live: liveContract,
+  reviews: reviewsContract,
 }
 export type Contract = typeof contract
 
