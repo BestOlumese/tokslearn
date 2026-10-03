@@ -9,7 +9,7 @@ import { hasRole } from '../kernel/actor'
 import { type Ctx, inTransaction, provider } from '../kernel/ctx'
 import { ForbiddenError, NotFoundError, RuleViolationError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
-import { sendEmail } from '../notifications'
+import { notifyMany } from '../notifications'
 import {
   BODY_MAX,
   contentProblem,
@@ -895,12 +895,13 @@ async function courseFacts(ctx: Ctx, courseId: string) {
   return c ?? null
 }
 
+const threadPath = (slug: string, threadId: string) => `/learn/${slug}/community/${threadId}`
 const threadUrl = (ctx: Ctx, slug: string, threadId: string) =>
-  `${provider(ctx, 'urls').app.replace(/\/$/, '')}/learn/${slug}/community/${threadId}`
+  `${provider(ctx, 'urls').app.replace(/\/$/, '')}${threadPath(slug, threadId)}`
 
 /**
- * Replies to people's threads: at most one email per person per thread per hour (the idempotency
- * key carries the hour). The full digest comes with notification preferences (Phase 9).
+ * Replies to people's threads: an in-app notification each, and at most one email per person per
+ * thread per hour (the idempotency key carries the hour); busy hours fold into the digest.
  * Returns who was emailed, so a mention doesn't email them twice.
  */
 async function notifyReply(
@@ -926,22 +927,32 @@ async function notifyReply(
       .where(inArray(user.id, to)),
     authorNames(tx, input.courseId, [input.replierId]),
   ])
-  for (const p of people) {
-    await sendEmail(tx, {
-      id: 'thread-reply',
-      to: p.email,
-      businessKey: `${input.threadId}:${p.id}:${hourKey(tx)}`,
-      data: {
-        name: p.name.split(/\s+/)[0] ?? p.name,
-        courseTitle: course.title,
-        threadTitle: input.threadTitle,
-        replierName: names.get(input.replierId)?.name ?? 'Someone',
-        excerpt: excerpt(input.text, 200),
-        isAnswer: input.isAnswer,
-        url: threadUrl(tx, course.slug, input.threadId),
+  const replier = names.get(input.replierId)?.name ?? 'Someone'
+  await notifyMany(
+    tx,
+    people.map((p) => ({
+      userId: p.id,
+      type: input.isAnswer ? 'qa.answered' : 'thread.reply',
+      title: input.isAnswer
+        ? `${replier} answered “${input.threadTitle}”`
+        : `${replier} replied to “${input.threadTitle}”`,
+      body: excerpt(input.text, 140),
+      link: threadPath(course.slug, input.threadId),
+      email: {
+        id: 'thread-reply',
+        businessKey: `${input.threadId}:${p.id}:${hourKey(tx)}`,
+        data: {
+          name: p.name.split(/\s+/)[0] ?? p.name,
+          courseTitle: course.title,
+          threadTitle: input.threadTitle,
+          replierName: replier,
+          excerpt: excerpt(input.text, 200),
+          isAnswer: input.isAnswer,
+          url: threadUrl(tx, course.slug, input.threadId),
+        },
       },
-    })
-  }
+    })),
+  )
   return new Set(people.map((p) => p.id))
 }
 
@@ -980,22 +991,31 @@ async function notifyMentions(
   const course = await courseFacts(tx, input.courseId)
   if (!course) return
   const names = await authorNames(tx, input.courseId, [input.authorId])
-  for (const p of found) {
-    if (p.id === input.authorId || input.skip?.has(p.id)) continue
-    await sendEmail(tx, {
-      id: 'mention',
-      to: p.email,
-      businessKey: `${input.threadId}:${p.id}:${hourKey(tx)}`,
-      data: {
-        name: p.name.split(/\s+/)[0] ?? p.name,
-        courseTitle: course.title,
-        threadTitle: input.threadTitle,
-        authorName: names.get(input.authorId)?.name ?? 'Someone',
-        excerpt: excerpt(input.text, 200),
-        url: threadUrl(tx, course.slug, input.threadId),
-      },
-    })
-  }
+  const author = names.get(input.authorId)?.name ?? 'Someone'
+  await notifyMany(
+    tx,
+    found
+      .filter((p) => p.id !== input.authorId && !input.skip?.has(p.id))
+      .map((p) => ({
+        userId: p.id,
+        type: 'mention' as const,
+        title: `${author} mentioned you in “${input.threadTitle}”`,
+        body: excerpt(input.text, 140),
+        link: threadPath(course.slug, input.threadId),
+        email: {
+          id: 'mention' as const,
+          businessKey: `${input.threadId}:${p.id}:${hourKey(tx)}`,
+          data: {
+            name: p.name.split(/\s+/)[0] ?? p.name,
+            courseTitle: course.title,
+            threadTitle: input.threadTitle,
+            authorName: author,
+            excerpt: excerpt(input.text, 200),
+            url: threadUrl(tx, course.slug, input.threadId),
+          },
+        },
+      })),
+  )
 }
 
 const ANNOUNCE_PAGE = 500
@@ -1036,21 +1056,30 @@ export async function sendAnnouncementEmails(
     .orderBy(asc(user.id))
     .limit(ANNOUNCE_PAGE)
   const body = richTextToPlain(t.bodyDoc as RichTextDoc).slice(0, 2000)
-  for (const l of learners) {
-    await sendEmail(ctx, {
-      id: 'announcement',
-      to: l.email,
-      businessKey: `${t.id}:${l.id}`,
-      data: {
-        courseTitle: course.title,
-        instructorName: author.get(t.authorId)?.name ?? course.title,
-        cohortName: cohort[0]?.name ?? null,
-        title: t.title,
-        body,
-        url: threadUrl(ctx, course.slug, t.id),
+  const instructorName = author.get(t.authorId)?.name ?? course.title
+  await notifyMany(
+    ctx,
+    learners.map((l) => ({
+      userId: l.id,
+      type: 'announcement' as const,
+      title: `${course.title}: ${t.title}`,
+      body: excerpt(body, 140),
+      link: threadPath(course.slug, t.id),
+      dedupeKey: `announcement:${t.id}`,
+      email: {
+        id: 'announcement' as const,
+        businessKey: `${t.id}:${l.id}`,
+        data: {
+          courseTitle: course.title,
+          instructorName,
+          cohortName: cohort[0]?.name ?? null,
+          title: t.title,
+          body,
+          url: threadUrl(ctx, course.slug, t.id),
+        },
       },
-    })
-  }
+    })),
+  )
   return {
     sent: learners.length,
     lastUserId: learners[learners.length - 1]?.id ?? null,

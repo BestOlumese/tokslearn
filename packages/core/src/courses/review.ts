@@ -8,7 +8,7 @@ import { type Ctx, inTransaction, provider } from '../kernel/ctx'
 import { ConflictError, ForbiddenError, NotFoundError, RuleViolationError } from '../kernel/errors'
 import { requireStaff, requireUser } from '../kernel/guards'
 import { getFiles, getVideoAssets, privateFileUrl, publicFileUrl, videoPreviewUrl } from '../media'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 import * as repo from './repo'
 import { richTextToPlain } from './rich-text'
 import {
@@ -519,19 +519,24 @@ export async function decideReview(
     })
     const contact = await getUserContact(tx, course.instructorId)
     const urls = provider(tx, 'urls')
-    await sendEmail(tx, {
-      id: 'course-review-decision',
-      to: contact.email,
-      data: {
-        name: contact.name,
-        courseTitle: revision.title,
-        approved: approve,
-        notes: approve ? null : input.notes,
-        url: approve
-          ? `${urls.app}/courses/${course.slug}`
-          : `${urls.app}/teach/courses/${course.id}/publish`,
+    await notify(tx, {
+      userId: course.instructorId,
+      type: 'course.review_decision',
+      title: approve ? `${revision.title} is live` : `${revision.title} needs changes`,
+      link: approve ? `/courses/${course.slug}` : `/teach/courses/${course.id}/publish`,
+      email: {
+        id: 'course-review-decision',
+        data: {
+          name: contact.name,
+          courseTitle: revision.title,
+          approved: approve,
+          notes: approve ? null : input.notes,
+          url: approve
+            ? `${urls.app}/courses/${course.slug}`
+            : `${urls.app}/teach/courses/${course.id}/publish`,
+        },
+        businessKey: revision.id,
       },
-      businessKey: revision.id,
     })
     return { courseId: course.id, instructorId: course.instructorId, firstPublish }
   })

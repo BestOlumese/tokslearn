@@ -152,8 +152,8 @@ Index: `threads(scope_type, scope_id, last_activity_at desc)`, `posts(thread_id,
 - `user_badges`: pk(user_id, badge_id), `awarded_at`.
 
 ### notifications
-- `notifications`: `user_id`, `type`, `title`, `body`, `link`, `data jsonb`, `read_at`. Index `(user_id, read_at, created_at desc)`.
-- `notification_preferences`: `user_id`, `channel` enum(email, push, in_app), `type`, `enabled`.
+- `notifications`: `user_id`, `type` (core registry key), `title`, `body`, `link` (path), `data jsonb`, `in_app`, `email` enum(none, sent, digest_pending, digested), `read_at`, `dedupe_key`. Partial indexes: list `(user_id, created_at desc) where in_app`; unread `(user_id) where in_app and read_at is null`; digest `(user_id, created_at) where email in (sent, digest_pending)`; unique `(user_id, dedupe_key) where dedupe_key is not null`.
+- `notification_preferences`: pk(`user_id`, `type`, `channel` enum(email, in_app, push)), `enabled`; only choices that differ from the type's default.
 - `push_tokens` (Phase 14): `user_id`, `expo_token` unique, `platform`, `last_seen_at`.
 
 ### admin / platform

@@ -51,6 +51,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `kyc-result` | KYC complete | Identity verification {complete/needs attention} | What to do if manual review | transactional |
 | `course-review-decision` | review done | {course} is {live / needs changes} | Live: link + share referral link. Changes: reviewer notes, edit button | transactional |
 | `new-sale` | sale (digest daily by default, instant optional) | You made {n} sales today | Totals, pending release dates | activity |
+| `activity-digest` | more than 5 replies, answers or mentions in an hour (`notification-digest`) | {n} new replies and mentions on Tokslearn | Up to 20 lines, each linked; "and {n} more"; button to `/account/notifications` (ADR-041) | activity |
 | `new-review` | a learner's first review of a course (not edits) | New {rating}-star review on {course} | Stars, excerpt (280 characters) or "without writing a review", button to `/teach/reviews?course=` | activity |
 | `grading-backlog` | weekly if queue > 0 | {n} submissions waiting for grading | Oldest age, queue link | activity |
 | `payout-sent` | transfer success | Your payout of {amount} is on its way | Amount, bank (last 4), period, statement link | transactional |

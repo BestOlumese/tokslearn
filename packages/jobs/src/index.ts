@@ -16,6 +16,7 @@ import { emailSend } from './functions/email-send'
 import { badgesEvaluate, dripUnlocks, streakRollover } from './functions/learning'
 import { ledgerIntegrity } from './functions/ledger-integrity'
 import { liveReminders, recordingImport } from './functions/live'
+import { notificationDigest, notificationsPrune } from './functions/notifications'
 import { outboxDispatch } from './functions/outbox-dispatch'
 import { paystackCharge } from './functions/paystack-charge'
 import { ratingStats } from './functions/reviews'
@@ -46,6 +47,8 @@ export const functions = [
   liveReminders,
   recordingImport,
   ratingStats,
+  notificationDigest,
+  notificationsPrune,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

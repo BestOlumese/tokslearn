@@ -100,3 +100,8 @@ export const liveRecordingReady = eventType('live.recording_ready', {
 export const reviewChanged = eventType('review.changed', {
   schema: z.object({ reviewId: z.string(), courseId: z.string() }),
 })
+
+/** Replies and mentions waiting for one digest email (more than 5 in an hour). */
+export const digestRequested = eventType('notification.digest_requested', {
+  schema: z.object({ userId: z.string() }),
+})

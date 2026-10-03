@@ -17,7 +17,7 @@ import {
 import { requireUser } from '../kernel/guards'
 import { log } from '../kernel/logger'
 import { getVideoAssets, refreshVideoAsset, registerFetchedVideo, videoPlayback } from '../media'
-import { sendEmail } from '../notifications'
+import { notifyMany } from '../notifications'
 import {
   endsAtFor,
   googleCalendarUrl,
@@ -1012,34 +1012,38 @@ export async function sendLiveReminders(
     time: lagosTime(s.startsAt),
     url,
   }
-  for (const l of learners) {
-    const name = l.name.split(/\s+/)[0] ?? l.name
-    const businessKey = `${s.id}:${s.startsAt.getTime()}:${l.id}`
-    if (input.kind === '24h') {
-      await sendEmail(ctx, {
-        id: 'live-reminder-24h',
-        to: l.email,
-        businessKey,
-        data: {
-          ...base,
-          name,
-          calendarUrl: googleCalendarUrl({
-            title: `${s.title} (${facts.title})`,
-            startsAt: s.startsAt,
-            endsAt: s.endsAt,
-            details: `Join on Tokslearn: ${url}`,
-          }),
-        },
-      })
-    } else {
-      await sendEmail(ctx, {
-        id: 'live-reminder-15m',
-        to: l.email,
-        businessKey,
-        data: { ...base, name },
-      })
-    }
-  }
+  const calendarUrl = googleCalendarUrl({
+    title: `${s.title} (${facts.title})`,
+    startsAt: s.startsAt,
+    endsAt: s.endsAt,
+    details: `Join on Tokslearn: ${url}`,
+  })
+  const path = new URL(url).pathname
+  await notifyMany(
+    ctx,
+    learners.map((l) => {
+      const name = l.name.split(/\s+/)[0] ?? l.name
+      const businessKey = `${s.id}:${s.startsAt.getTime()}:${l.id}`
+      return {
+        userId: l.id,
+        type: 'live.reminder' as const,
+        title:
+          input.kind === '24h'
+            ? `${s.title} is tomorrow at ${base.time}`
+            : `${s.title} starts in 15 minutes`,
+        link: path,
+        dedupeKey: `live.reminder:${input.kind}:${businessKey}`,
+        email:
+          input.kind === '24h'
+            ? {
+                id: 'live-reminder-24h' as const,
+                businessKey,
+                data: { ...base, name, calendarUrl },
+              }
+            : { id: 'live-reminder-15m' as const, businessKey, data: { ...base, name } },
+      }
+    }),
+  )
   return {
     sent: learners.length,
     lastUserId: learners[learners.length - 1]?.id ?? null,

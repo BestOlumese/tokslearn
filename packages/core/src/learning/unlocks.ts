@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
 import { type Ctx, provider } from '../kernel/ctx'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 
 // Drip unlock email (docs/23 `lesson-unlocked`), sent by the daily `drip-unlocks` job. One email
 // per learner per course per run, listing the lessons that opened in the window. Lessons the
@@ -57,16 +57,25 @@ export async function sendUnlockEmails(
   for (const rows of groups.values()) {
     const [first] = rows
     if (!first) continue
-    await sendEmail(ctx, {
-      id: 'lesson-unlocked',
-      to: first.email,
-      // The first lesson in the group names the unlock, so a re-run of the same window is a no-op.
-      businessKey: `${first.user_id}:${first.lesson_id}`,
-      data: {
-        name: first.name.split(/\s+/)[0] ?? first.name,
-        courseTitle: first.course_title,
-        lessons: rows.map((r) => r.lesson_title),
-        url: `${app}/learn/${first.course_slug}/${first.lesson_id}`,
+    await notify(ctx, {
+      userId: first.user_id,
+      type: 'lesson.unlocked',
+      title:
+        rows.length === 1
+          ? `“${first.lesson_title}” is open in ${first.course_title}`
+          : `${rows.length} lessons opened in ${first.course_title}`,
+      link: `/learn/${first.course_slug}/${first.lesson_id}`,
+      dedupeKey: `lesson.unlocked:${first.lesson_id}`,
+      email: {
+        id: 'lesson-unlocked',
+        // The first lesson in the group names the unlock, so a re-run of the same window is a no-op.
+        businessKey: `${first.user_id}:${first.lesson_id}`,
+        data: {
+          name: first.name.split(/\s+/)[0] ?? first.name,
+          courseTitle: first.course_title,
+          lessons: rows.map((r) => r.lesson_title),
+          url: `${app}/learn/${first.course_slug}/${first.lesson_id}`,
+        },
       },
     })
   }

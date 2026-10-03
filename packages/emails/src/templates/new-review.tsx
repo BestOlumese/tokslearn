@@ -2,6 +2,15 @@ import { Text } from '@react-email/components'
 import type { EmailData } from '../catalog'
 import { EmailLayout, FallbackLink, Heading, PrimaryButton, text } from '../layout'
 
+/** Rating stars are golden yellow everywhere (docs/11 §1 `star`). */
+const starStyle = {
+  ...text,
+  fontSize: '24px',
+  letterSpacing: '2px',
+  color: '#f2a900',
+  margin: '0 0 8px',
+}
+
 type Data = EmailData['new-review']
 
 const clip = (s: string) => (s.length <= 60 ? s : `${s.slice(0, 57).trimEnd()}…`)
@@ -16,7 +25,11 @@ export function NewReview({ name, courseTitle, rating, excerpt, url }: Data) {
       preview={excerpt ?? `A learner rated ${courseTitle} ${rating} out of 5.`}
       why={`You're getting this because you teach ${courseTitle}.`}
     >
-      <Heading>{`${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} on ${courseTitle}`}</Heading>
+      <Text style={starStyle} aria-label={`${rating} out of 5`}>
+        {'★'.repeat(rating)}
+        <span style={{ color: '#c7cdca' }}>{'★'.repeat(5 - rating)}</span>
+      </Text>
+      <Heading>{`New review on ${courseTitle}`}</Heading>
       <Text style={text}>
         Hi {name}, a learner rated your course {rating} out of 5
         {excerpt ? ' and wrote:' : ' without writing a review.'}

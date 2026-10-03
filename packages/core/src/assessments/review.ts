@@ -6,7 +6,7 @@ import { hasRole } from '../kernel/actor'
 import { type Ctx, inTransaction, provider } from '../kernel/ctx'
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 import type { FlagReason, Integrity } from './integrity'
 
 // Reviewing flagged exam attempts (docs/20 `/teach/grading`, flagged tab; docs/10 §6). A person
@@ -248,16 +248,21 @@ export async function voidAttempt(
       .leftJoin(lessons, eq(lessons.quizId, quiz.id))
       .where(eq(courses.id, quiz.courseId))
     if (learner && where) {
-      await sendEmail(tx, {
-        id: 'attempt-voided',
-        to: learner.email,
-        businessKey: a.id,
-        data: {
-          name: learner.name.split(/\s+/)[0] ?? learner.name,
-          courseTitle: where.courseTitle,
-          examTitle: where.lessonTitle ?? quiz.title,
-          reason,
-          url: `${provider(tx, 'urls').app}/learn/${where.slug}${where.lessonId ? `/${where.lessonId}` : ''}`,
+      await notify(tx, {
+        userId: a.userId,
+        type: 'attempt.voided',
+        title: `Your attempt at ${where.lessonTitle ?? quiz.title} was voided`,
+        link: `/learn/${where.slug}${where.lessonId ? `/${where.lessonId}` : ''}`,
+        email: {
+          id: 'attempt-voided',
+          businessKey: a.id,
+          data: {
+            name: learner.name.split(/\s+/)[0] ?? learner.name,
+            courseTitle: where.courseTitle,
+            examTitle: where.lessonTitle ?? quiz.title,
+            reason,
+            url: `${provider(tx, 'urls').app}/learn/${where.slug}${where.lessonId ? `/${where.lessonId}` : ''}`,
+          },
         },
       })
     }

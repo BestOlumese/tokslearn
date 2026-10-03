@@ -138,6 +138,14 @@ export interface EmailData {
     body: string
     url: string
   }
+  'activity-digest': {
+    name: string
+    /** How many updates waited (the list shows at most 20). */
+    count: number
+    items: Array<{ title: string; url: string | null }>
+    /** /account/notifications */
+    url: string
+  }
   'new-review': {
     /** The instructor's first name. */
     name: string
@@ -200,6 +208,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   mention: 'activity',
   announcement: 'activity',
   'new-review': 'activity',
+  'activity-digest': 'activity',
   'live-reminder-24h': 'activity',
   'live-reminder-15m': 'activity',
 }

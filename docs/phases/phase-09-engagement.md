@@ -6,12 +6,12 @@
 
 ## Tasks
 - [x] Reviews: eligibility, create/edit, instructor reply, reporting, stats job, display rules (≥ 3 reviews to show rating), course page + instructor page integration, JSON-LD aggregateRating. PR 1 of 3 (ADR-040).
-- [ ] Notifications centre: bell, list, mark read/all read, preferences page (per type × channel), digest batching.
+- [x] Notifications centre: bell, list, mark read/all read, preferences page (per type × channel), digest batching. PR 2 of 3 (ADR-041).
 - [ ] Wishlist polish: price-drop notification (when an instructor lowers price or runs a coupon on a wishlisted course; opt-in).
 - [ ] Badge showcase on learner profile (opt-in public).
-- [ ] Procedures: `reviews.*` ✓, `studio.reviews.reply` ✓ (PR 1), `notifications.list`, `notifications.unreadCount`, `notifications.markRead`, `notifications.preferences.*`.
+- [x] Procedures: `reviews.*` ✓, `studio.reviews.reply` ✓ (PR 1), `notifications.list`, `notifications.unreadCount`, `notifications.markRead`, `notifications.preferences.*` ✓ (PR 2).
 
 ## Acceptance
 - [x] Ineligible learners cannot review (test). One review per learner per course. `reviews.int.test.ts`: under 20% and 30 minutes → REVIEW_NOT_ELIGIBLE; writing again edits the one row.
-- [ ] Unread count query uses the index (EXPLAIN in PR).
-- [ ] Preferences respected for every non-security notification type (test matrix).
+- [x] Unread count query uses the index (EXPLAIN in PR). `notifications.int.test.ts` runs EXPLAIN over 20,000 rows: index scan on `notifications_unread_idx`, no sequential scan.
+- [x] Preferences respected for every non-security notification type (test matrix). `notifications.int.test.ts`: every type × channel turned off in turn; locked emails refuse with NOTIFICATION_LOCKED.

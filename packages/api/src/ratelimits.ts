@@ -74,6 +74,8 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   'community.report': { limit: 10, windowSec: 60 },
   live: { limit: 60, windowSec: 60 },
   reviews: { limit: 120, windowSec: 60 },
+  // The bell polls once a minute per open tab.
+  notifications: { limit: 120, windowSec: 60 },
   'reviews.save': { limit: 10, windowSec: 60 },
   'reviews.vote': { limit: 30, windowSec: 60 },
   'reviews.report': { limit: 10, windowSec: 60 },

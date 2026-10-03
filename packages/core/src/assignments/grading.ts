@@ -10,7 +10,7 @@ import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '.
 import { requireUser } from '../kernel/guards'
 import { completeLessonFor } from '../learning'
 import { privateFileUrl } from '../media'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 import { maxScoreOf, readAssignmentSettings } from './authoring'
 import { afterPenalty, passes, scoreRubric } from './rules'
 import { type FileRef, fileRefs, type SubmissionView, toSubmissionView } from './submissions'
@@ -346,23 +346,31 @@ export async function gradeSubmission(ctx: Ctx, input: GradeInput): Promise<Grad
       .from(courses)
       .where(eq(courses.id, a.courseId))
     if (learner && c) {
-      await sendEmail(tx, {
-        id: 'assignment-graded',
-        to: learner.email,
-        businessKey: s.id,
-        data: {
-          name: learner.name.split(/\s+/)[0] ?? learner.name,
-          courseTitle,
-          assignmentTitle: lessonTitle,
-          decision: input.decision,
-          score: score === null || maxScore === null ? null : `${score} / ${maxScore}`,
-          passed,
-          feedbackExcerpt: feedbackText
-            ? feedbackText.length > 200
-              ? `${feedbackText.slice(0, 197).trimEnd()}…`
-              : feedbackText
-            : null,
-          url: `${provider(tx, 'urls').app}/learn/${c.slug}/${lessonId}`,
+      await notify(tx, {
+        userId: s.userId,
+        type: 'assignment.graded',
+        title:
+          input.decision === 'returned'
+            ? `“${lessonTitle}” came back with feedback`
+            : `“${lessonTitle}” was graded`,
+        link: `/learn/${c.slug}/${lessonId}`,
+        email: {
+          id: 'assignment-graded',
+          businessKey: s.id,
+          data: {
+            name: learner.name.split(/\s+/)[0] ?? learner.name,
+            courseTitle,
+            assignmentTitle: lessonTitle,
+            decision: input.decision,
+            score: score === null || maxScore === null ? null : `${score} / ${maxScore}`,
+            passed,
+            feedbackExcerpt: feedbackText
+              ? feedbackText.length > 200
+                ? `${feedbackText.slice(0, 197).trimEnd()}…`
+                : feedbackText
+              : null,
+            url: `${provider(tx, 'urls').app}/learn/${c.slug}/${lessonId}`,
+          },
         },
       })
     }

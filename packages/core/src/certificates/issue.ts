@@ -6,7 +6,7 @@ import { markPurchaseConsumed } from '../commerce'
 import { type Ctx, inTransaction, provider } from '../kernel/ctx'
 import { NotFoundError } from '../kernel/errors'
 import { removeGeneratedFile, storeGeneratedFile } from '../media'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 import {
   type CertificateMode,
   type CertificateSettings,
@@ -248,23 +248,29 @@ export async function renderCertificateFile(
   if (c.fileId) await removeGeneratedFile(ctx, c.fileId)
 
   if (options.notify && c.status === 'active') {
-    await sendEmail(ctx, {
-      id: 'certificate-issued',
-      to: cert.email,
-      businessKey: c.id,
-      data: {
-        name: cert.name.split(/\s+/)[0] ?? cert.name,
-        courseTitle: c.courseTitleSnapshot,
-        basisText: learnerBasisText(c.basis, c.providerNameSnapshot),
-        code: c.publicCode,
-        url: `${provider(ctx, 'urls').app.replace(/\/$/, '')}/account/certificates`,
-        verifyUrl,
-        linkedInUrl: linkedInAddUrl({
+    await notify(ctx, {
+      userId: c.userId,
+      type: 'certificate.issued',
+      title: `Your certificate for ${c.courseTitleSnapshot} is ready`,
+      link: '/account/certificates',
+      dedupeKey: `certificate.issued:${c.id}`,
+      email: {
+        id: 'certificate-issued',
+        businessKey: c.id,
+        data: {
+          name: cert.name.split(/\s+/)[0] ?? cert.name,
           courseTitle: c.courseTitleSnapshot,
-          issuedAt: c.issuedAt,
-          verifyUrl,
+          basisText: learnerBasisText(c.basis, c.providerNameSnapshot),
           code: c.publicCode,
-        }),
+          url: `${provider(ctx, 'urls').app.replace(/\/$/, '')}/account/certificates`,
+          verifyUrl,
+          linkedInUrl: linkedInAddUrl({
+            courseTitle: c.courseTitleSnapshot,
+            issuedAt: c.issuedAt,
+            verifyUrl,
+            code: c.publicCode,
+          }),
+        },
       },
     })
   }

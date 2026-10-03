@@ -2,7 +2,7 @@
 export function Stars({ rating, className = '' }: { rating: number; className?: string }) {
   const full = Math.round(rating)
   return (
-    <span className={`inline-flex text-ink ${className}`}>
+    <span className={`inline-flex text-star ${className}`}>
       <span aria-hidden>
         {'★'.repeat(full)}
         <span className="text-border-strong">{'★'.repeat(5 - full)}</span>

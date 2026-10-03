@@ -34,6 +34,9 @@
   --color-accent-soft: #fcf1df;
   --color-accent-ink: #7a4905;
 
+  /* Rating stars only (owner's choice, docs/11 §1): golden yellow, never for anything else */
+  --color-star: #f2a900;
+
   /* Status */
   --color-info: #1d5da8;
   --color-info-soft: #e7f0fa;

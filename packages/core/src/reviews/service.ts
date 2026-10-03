@@ -15,7 +15,7 @@ import {
   ValidationError,
 } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 import {
   BODY_MAX,
   DEFAULT_MIN_LEARNING_MIN,
@@ -277,20 +277,26 @@ async function notifyInstructor(
     .leftJoin(instructorProfiles, eq(instructorProfiles.userId, user.id))
     .where(eq(user.id, c.instructorId))
   if (!to) return
-  await sendEmail(ctx, {
-    id: 'new-review',
-    to: to.email,
-    businessKey: `${r.id}:${r.createdAt.getTime()}`,
-    data: {
-      name: (to.displayName ?? to.name).split(/\s+/)[0] ?? to.name,
-      courseTitle: c.title,
-      rating: r.rating,
-      excerpt: r.body
-        ? r.body.length > 280
-          ? `${r.body.slice(0, 277).trimEnd()}…`
-          : r.body
-        : null,
-      url: `${provider(ctx, 'urls').app.replace(/\/$/, '')}/teach/reviews?course=${c.id}`,
+  await notify(ctx, {
+    userId: c.instructorId,
+    type: 'review.received',
+    title: `New ${r.rating}-star review on ${c.title}`,
+    body: r.body ? (r.body.length > 140 ? `${r.body.slice(0, 137).trimEnd()}…` : r.body) : null,
+    link: `/teach/reviews?course=${c.id}`,
+    email: {
+      id: 'new-review',
+      businessKey: `${r.id}:${r.createdAt.getTime()}`,
+      data: {
+        name: (to.displayName ?? to.name).split(/\s+/)[0] ?? to.name,
+        courseTitle: c.title,
+        rating: r.rating,
+        excerpt: r.body
+          ? r.body.length > 280
+            ? `${r.body.slice(0, 277).trimEnd()}…`
+            : r.body
+          : null,
+        url: `${provider(ctx, 'urls').app.replace(/\/$/, '')}/teach/reviews?course=${c.id}`,
+      },
     },
   })
 }

@@ -68,7 +68,7 @@ export function ReviewForm({
                 aria-hidden
                 className={cn(
                   'block px-0.5 text-[32px] leading-none peer-focus-visible:outline-2 peer-focus-visible:outline-focus',
-                  n <= rating ? 'text-ink' : 'text-border-strong hover:text-ink-3',
+                  n <= rating ? 'text-star' : 'text-border-strong hover:text-star',
                 )}
               >
                 ★
