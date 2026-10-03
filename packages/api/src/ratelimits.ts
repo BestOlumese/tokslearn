@@ -76,6 +76,9 @@ export const rateLimits: Readonly<Record<string, RateLimitPolicy>> = {
   reviews: { limit: 120, windowSec: 60 },
   // The bell polls once a minute per open tab.
   notifications: { limit: 120, windowSec: 60 },
+  // Public, by IP: a person clicks one link; a guesser tries many.
+  'notifications.unsubscribe': { limit: 10, windowSec: 60 },
+  'studio.coupons.announce': { limit: 5, windowSec: 60 },
   'reviews.save': { limit: 10, windowSec: 60 },
   'reviews.vote': { limit: 30, windowSec: 60 },
   'reviews.report': { limit: 10, windowSec: 60 },

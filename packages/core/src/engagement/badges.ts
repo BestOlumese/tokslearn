@@ -1,5 +1,5 @@
 import { schema } from '@tokslearn/db'
-import { and, asc, count, eq, sql } from 'drizzle-orm'
+import { and, asc, count, eq, isNull, sql } from 'drizzle-orm'
 import { track } from '../analytics'
 import type { Ctx } from '../kernel/ctx'
 import { requireUser } from '../kernel/guards'
@@ -8,9 +8,9 @@ import { requireUser } from '../kernel/guards'
 // runs from events (lesson and course completed, streak extended). Kinds this phase can judge:
 // lessons_completed, courses_completed, streak. Certificates, quiz scores and accepted answers
 // start counting in Phases 6–8.
-// Foreign reads (docs/03 §3): lesson_progress, enrollments.
+// Foreign reads (docs/03 §3): lesson_progress, enrollments, user (the badges_public choice).
 
-const { badges, userBadges, streaks, lessonProgress, enrollments } = schema
+const { badges, userBadges, streaks, lessonProgress, enrollments, user } = schema
 
 type Criteria =
   | { kind: 'lessons_completed'; count: number }
@@ -86,4 +86,30 @@ export async function listBadges(ctx: Ctx): Promise<BadgeView[]> {
     .from(badges)
     .orderBy(asc(badges.position))
   return rows.map((r) => ({ ...r, awardedAt: r.awardedAt ? new Date(r.awardedAt) : null }))
+}
+
+/**
+ * Earned badges for the public profile (docs/10 §4, ADR-042): empty unless the person chose to
+ * show them (`user.badges_public`, identity's column, read here). Public: no viewer needed.
+ */
+export async function publicBadges(
+  ctx: Ctx,
+  username: string,
+): Promise<Array<{ code: string; name: string; description: string; awardedAt: Date }>> {
+  const [person] = await ctx.db
+    .select({ id: user.id, show: user.badgesPublic })
+    .from(user)
+    .where(and(eq(user.username, username.toLowerCase()), isNull(user.deletedAt)))
+  if (!person?.show) return []
+  return ctx.db
+    .select({
+      code: badges.code,
+      name: badges.name,
+      description: badges.description,
+      awardedAt: userBadges.awardedAt,
+    })
+    .from(userBadges)
+    .innerJoin(badges, eq(badges.id, userBadges.badgeId))
+    .where(eq(userBadges.userId, person.id))
+    .orderBy(asc(badges.position))
 }

@@ -45,4 +45,4 @@ export {
   subtractMoney,
   toMoneyDto,
 } from './money'
-export type { ClickCounter, Providers, SessionAdmin, Urls } from './ports'
+export type { ClickCounter, Providers, SessionAdmin, UnsubscribeLinks, Urls } from './ports'

@@ -75,6 +75,7 @@ const toCoupon = (c: commerce.CouponView): CouponDto => ({
   discountGivenKobo: k(c.discountGivenKobo),
   startsAt: isoN(c.startsAt),
   endsAt: isoN(c.endsAt),
+  announcedAt: isoN(c.announcedAt),
   createdAt: iso(c.createdAt),
 })
 
@@ -244,6 +245,10 @@ export const studioCouponsRouter = {
   setActive: authed.studio.coupons.setActive.handler(async ({ context, input }) => {
     await commerce.setCouponActive(context.ctx, input)
     return ok
+  }),
+  announce: authed.studio.coupons.announce.handler(async ({ context, input }) => {
+    const r = await commerce.announceCoupon(context.ctx, input.couponId)
+    return { announcedAt: iso(r.announcedAt) }
   }),
 }
 

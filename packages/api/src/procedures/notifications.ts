@@ -1,5 +1,5 @@
 import * as notifications from '@tokslearn/core/notifications'
-import { authed } from '../base'
+import { authed, pub } from '../base'
 
 // Notification centre (docs/06 §5, docs/13 §3). Thin: auth → core → DTO.
 
@@ -17,6 +17,9 @@ export const notificationsRouter = {
   markRead: authed.notifications.markRead.handler(async ({ context, input }) => ({
     updated: await notifications.markRead(context.ctx, input),
   })),
+  unsubscribe: pub.notifications.unsubscribe.handler(({ context, input }) =>
+    notifications.unsubscribeByLink(context.ctx, input),
+  ),
   preferences: {
     get: authed.notifications.preferences.get.handler(async ({ context }) => ({
       items: await notifications.getPreferences(context.ctx),

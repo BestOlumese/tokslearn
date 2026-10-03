@@ -75,4 +75,9 @@ export {
   searchOrders,
 } from './orders'
 export { markPaymentEventProcessed, paystackEventId, recordPaymentEvent } from './payment-events'
+export {
+  announceCoupon,
+  type PriceDropInput,
+  sendPriceDropNotices,
+} from './price-drops'
 export * from './pricing'

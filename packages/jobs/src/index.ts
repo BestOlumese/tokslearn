@@ -21,6 +21,7 @@ import { outboxDispatch } from './functions/outbox-dispatch'
 import { paystackCharge } from './functions/paystack-charge'
 import { ratingStats } from './functions/reviews'
 import { videoStatus } from './functions/video-status'
+import { wishlistPriceDrop } from './functions/wishlist'
 
 export { inngest } from './client'
 export { bunnyVideoChanged, featureFlagUpdated, outboxDispatchRequested } from './events'
@@ -49,6 +50,7 @@ export const functions = [
   ratingStats,
   notificationDigest,
   notificationsPrune,
+  wishlistPriceDrop,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */

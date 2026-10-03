@@ -21,7 +21,7 @@ matter for scale. Implement schema files per module in `packages/db/src/schema/<
 Column lists show the important fields; add `id`, `created_at`, `updated_at` to all.
 
 ### identity (Better Auth owns `user`, `session`, `account`, `verification`, `two_factor`)
-- `user` (Better Auth) + extra fields: `username` unique (lowercase), `headline`, `bio`, `avatar_key`, `timezone` default `Africa/Lagos`, `banned`, `ban_reason`, `ban_expires`, `role` (Better Auth admin plugin, mirrors the highest staff role), `two_factor_enabled`, `deletion_requested_at` (14-day grace, docs/07 §6), `deleted_at` (set when anonymized).
+- `user` (Better Auth) + extra fields: `username` unique (lowercase), `headline`, `bio`, `avatar_key`, `badges_public` (default false, ADR-042), `timezone` default `Africa/Lagos`, `banned`, `ban_reason`, `ban_expires`, `role` (Better Auth admin plugin, mirrors the highest staff role), `two_factor_enabled`, `deletion_requested_at` (14-day grace, docs/07 §6), `deleted_at` (set when anonymized).
 - `session` (Better Auth) + `two_factor_verified_at` (set by a successful TOTP/backup-code check; staff and step-up checks read it), `impersonated_by`. Sessions live in Postgres and are cached in Redis (secondary storage).
 - `two_factor` (Better Auth): encrypted `secret`, `backup_codes`, `verified`, `failed_verification_count`, `locked_until`.
 - `user_roles`: `user_id`, `role` enum(learner, instructor, reviewer, finance, support, admin, super_admin), unique(user_id, role).
@@ -59,8 +59,8 @@ Index: `lessons(course_id, section_id, position)`, `courses(instructor_id, statu
 ### commerce
 - `carts`: `user_id` unique (one active cart), `coupon_code`.
 - `cart_items`: `cart_id`, `item_type` enum(course, bundle), `item_id`, unique(cart_id, item_type, item_id).
-- `wishlist_items`: `user_id`, `course_id` unique pair.
-- `coupons`: `instructor_id` nullable (null = platform coupon), `code` unique (case-insensitive, store upper), `kind` enum(percent, fixed), `value`, `applies_to` enum(course, bundle, instructor_all), `target_id`, `max_redemptions`, `per_user_limit`, `starts_at`, `ends_at`, `active`.
+- `wishlist_items`: `user_id`, `course_id` unique pair. Price-drop notices go to these people (ADR-042).
+- `coupons`: `instructor_id` nullable (null = platform coupon), `code` unique (case-insensitive, store upper), `kind` enum(percent, fixed), `value`, `applies_to` enum(course, bundle, instructor_all), `target_id`, `max_redemptions`, `per_user_limit`, `starts_at`, `ends_at`, `active`, `announced_at` (shared with wishlisters, once; ADR-042).
 - `referral_links`: `instructor_id`, `code` unique, `target_type`, `target_id` nullable, `clicks` (counter updated via Redis flush).
 - `attributions`: `user_id` nullable, `anonymous_id`, `source` enum(instructor_referral, instructor_coupon, platform_organic, platform_paid), `referral_link_id`, `utm jsonb`, `expires_at` (30-day window). Resolved at checkout.
 - `orders`: `public_id` unique, `user_id`, `status` enum(pending, paid, failed, abandoned, refunded, partially_refunded), `subtotal_kobo`, `discount_kobo`, `total_kobo`, `currency`, `provider` ('paystack'), `provider_reference` unique, `paid_at`, `idempotency_key` unique.

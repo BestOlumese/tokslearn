@@ -138,6 +138,21 @@ export interface EmailData {
     body: string
     url: string
   }
+  'wishlist-price-drop': {
+    name: string
+    courseTitle: string
+    instructorName: string
+    /** Kobo as strings (the outbox stores JSON). */
+    oldKobo: string
+    newKobo: string
+    /** Set when a coupon makes it cheaper; null for a price change. */
+    couponCode: string | null
+    /** ISO date the coupon ends, if it does. */
+    endsAt: string | null
+    url: string
+    /** One click, no sign-in (marketing email, NDPA). */
+    unsubscribeUrl: string
+  }
   'activity-digest': {
     name: string
     /** How many updates waited (the list shows at most 20). */
@@ -209,6 +224,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   announcement: 'activity',
   'new-review': 'activity',
   'activity-digest': 'activity',
+  'wishlist-price-drop': 'marketing',
   'live-reminder-24h': 'activity',
   'live-reminder-15m': 'activity',
 }

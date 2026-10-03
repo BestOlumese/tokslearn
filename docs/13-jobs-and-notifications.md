@@ -25,6 +25,7 @@
 | `recording-import` | `live.recording_ready` (from the Daily webhook) | Bunny fetches Daily's recording; attach the video to the session (found by title when Bunny gives no id); check every 10 min for 2 h; delete Daily's copy when ready (ADR-039) |
 | `image-variants` | `file.uploaded` (image purposes) | Resize to WebP/AVIF |
 | `search-reindex` | `course.published`, `course.updated` | Update `course_search` (inline, ADR-032) |
+| `wishlist-price-drop` | `course.price_dropped`, `coupon.announced` | Notify people who saved the course(s) and aren't enrolled, 500 per step (ADR-042) |
 | `notification-digest` | `notification.digest_requested` (debounced 30 min per person, at most 60) | One email with the replies, answers and mentions that waited (ADR-041) |
 | `notifications-prune` | cron daily 03:30 WAT | Delete read notifications older than 90 days |
 | `rating-stats` | `review.changed` (debounced 10 s per course) | Recompute `course_rating_stats`, copy the rating into `course_search`, expire course/instructor/listing caches (ADR-040) |
@@ -56,7 +57,7 @@ Types (v1): `order.receipt`, `enrollment.welcome`, `lesson.unlocked`, `live.remi
 (new sign-in, password changed — cannot be disabled).
 
 Rules:
-- Transactional + security emails always send. Marketing emails require opt-in (NDPA) and have one-click unsubscribe.
+- Transactional + security emails always send. Marketing emails require opt-in (NDPA) and have one-click unsubscribe (signed `/unsubscribe` link, ADR-042).
 - Batch noisy notifications (thread replies) into a digest if > 5 in an hour.
 - Email templates: plain, readable, same voice rules as `11 §7`. Include text version. From `Tokslearn <hello@mail.tokslearn.com>` (dedicated sending subdomain with SPF, DKIM, DMARC).
 - In-app notification bell: unread count via `notifications.unreadCount` (cheap indexed query), refetch on window focus + every 60 s while visible.

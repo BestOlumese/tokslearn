@@ -105,3 +105,13 @@ export const reviewChanged = eventType('review.changed', {
 export const digestRequested = eventType('notification.digest_requested', {
   schema: z.object({ userId: z.string() }),
 })
+
+/** A published course got cheaper: tell the people who saved it (opt-in email). */
+export const coursePriceDropped = eventType('course.price_dropped', {
+  schema: z.object({ courseId: z.string(), fromKobo: z.string(), toKobo: z.string() }),
+})
+
+/** An instructor shared a coupon with the people who saved their course(s). */
+export const couponAnnounced = eventType('coupon.announced', {
+  schema: z.object({ couponId: z.string() }),
+})

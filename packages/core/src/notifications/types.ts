@@ -107,6 +107,14 @@ export const notificationTypes = {
     email: 'locked',
     inApp: true,
   },
+  'wishlist.price_drop': {
+    group: 'purchases',
+    label: 'Wishlist price drops',
+    description:
+      'When a course you saved gets cheaper, or its instructor shares a coupon for it. Off until you turn it on.',
+    email: 'off',
+    inApp: true,
+  },
   'order.receipt': {
     group: 'purchases',
     label: 'Receipts',

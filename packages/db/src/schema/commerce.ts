@@ -98,6 +98,8 @@ export const coupons = pgTable(
     startsAt: tstz(),
     endsAt: tstz(),
     active: boolean().notNull().default(true),
+    /** When people who saved the course(s) were told about it (once per coupon, ADR-042). */
+    announcedAt: tstz(),
     createdBy: uuid().references(() => user.id, { onDelete: 'restrict' }),
   },
   (t) => [

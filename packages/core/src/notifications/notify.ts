@@ -57,7 +57,27 @@ async function preferenceMap(ctx: Ctx, userIds: string[], types: string[]) {
 }
 
 /** Several notifications at once (announcements, reminders): two lookups for the whole batch. */
-export async function notifyMany(ctx: Ctx, inputs: ReadonlyArray<NotifyInput>): Promise<void> {
+export async function notifyMany(ctx: Ctx, all: ReadonlyArray<NotifyInput>): Promise<void> {
+  if (all.length === 0) return
+  // A retried job: anything already written (same person, same dedupe key) is skipped entirely,
+  // email included.
+  const keyed = all.filter((i) => i.dedupeKey)
+  const done = keyed.length
+    ? new Set(
+        (
+          await ctx.db
+            .select({ userId: notifications.userId, key: notifications.dedupeKey })
+            .from(notifications)
+            .where(
+              and(
+                inArray(notifications.userId, [...new Set(keyed.map((i) => i.userId))]),
+                inArray(notifications.dedupeKey, [...new Set(keyed.map((i) => i.dedupeKey ?? ''))]),
+              ),
+            )
+        ).map((r) => `${r.userId}|${r.key}`),
+      )
+    : new Set<string>()
+  const inputs = all.filter((i) => !i.dedupeKey || !done.has(`${i.userId}|${i.dedupeKey}`))
   if (inputs.length === 0) return
   const userIds = [...new Set(inputs.map((i) => i.userId))]
   const types = [...new Set(inputs.map((i) => i.type))]
@@ -338,6 +358,37 @@ export async function setPreference(
       })
   }
   return getPreferences(ctx)
+}
+
+/**
+ * One-click unsubscribe from an email link (no sign-in): the signature is the authorization.
+ * Only opt-in emails can be stopped this way. Returns the type's label for the page.
+ */
+export async function unsubscribeByLink(
+  ctx: Ctx,
+  input: { userId: string; type: string; signature: string },
+): Promise<{ label: string }> {
+  const type = input.type as NotificationType
+  const info: (typeof notificationTypes)[NotificationType] | undefined = notificationTypes[type]
+  if (
+    !info ||
+    info.email === 'locked' ||
+    !provider(ctx, 'unsubscribe').verify({ userId: input.userId, type, signature: input.signature })
+  ) {
+    throw new NotFoundError('NOTIFICATION_NOT_FOUND')
+  }
+  await ctx.db
+    .insert(notificationPreferences)
+    .values({ userId: input.userId, type, channel: 'email', enabled: false })
+    .onConflictDoUpdate({
+      target: [
+        notificationPreferences.userId,
+        notificationPreferences.type,
+        notificationPreferences.channel,
+      ],
+      set: { enabled: false, updatedAt: ctx.now },
+    })
+  return { label: info.label }
 }
 
 /** Read rows older than 90 days go (the list is a feed, not an archive). */

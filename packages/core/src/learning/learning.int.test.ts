@@ -546,8 +546,8 @@ describe('drip schedule, learners and the continue card', () => {
           (r) => r.payload as { id: string; idempotencyKey: string; data: { lessons: string[] } },
         )
         .filter((p) => p.id === 'lesson-unlocked')
-      expect(unlocks).toHaveLength(2)
-      expect(new Set(unlocks.map((u) => u.idempotencyKey)).size).toBe(1)
+      // The re-run of the same window queues nothing new (the notification's dedupe key).
+      expect(unlocks).toHaveLength(1)
       expect(unlocks[0]?.data.lessons).toHaveLength(1)
     })
   })

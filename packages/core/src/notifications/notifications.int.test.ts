@@ -95,12 +95,11 @@ describe('preferences', () => {
             emailed: off !== 'email',
             shown: off !== 'in_app',
           })
-          // Back to the defaults for the next round.
-          await setPreference(me, {
-            type,
-            channel: off,
-            enabled: off === 'email' ? info.email !== 'off' : info.inApp,
-          })
+          // Back to the defaults (both channels) for the next round.
+          await setPreference(me, { type, channel: 'in_app', enabled: info.inApp })
+          if (info.email !== 'locked') {
+            await setPreference(me, { type, channel: 'email', enabled: info.email === 'on' })
+          }
         }
       }
       // Choices equal to the default aren't stored.

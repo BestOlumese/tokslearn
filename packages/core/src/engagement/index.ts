@@ -1,4 +1,4 @@
-export { type BadgeView, evaluateBadges, listBadges } from './badges'
+export { type BadgeView, evaluateBadges, listBadges, publicBadges } from './badges'
 export {
   createNote,
   deleteNote,

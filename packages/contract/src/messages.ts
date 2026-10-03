@@ -37,6 +37,14 @@ export const errorCatalog = {
   USER_NOT_FOUND: notFound('user'),
   CERTIFICATE_NOT_FOUND: notFound('certificate'),
   THREAD_NOT_FOUND: notFound('discussion'),
+  COUPON_ALREADY_ANNOUNCED: {
+    status: 'CONFLICT',
+    message: 'People who saved your course were already told about this coupon.',
+  },
+  COUPON_NOT_ANNOUNCEABLE: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Only a live coupon for one of your courses (or all of them) can be shared.',
+  },
   COUPON_NOT_FOUND: notFound('coupon'),
   COMMISSION_RULE_NOT_FOUND: notFound('commission rule'),
   NOTE_NOT_FOUND: notFound('note'),

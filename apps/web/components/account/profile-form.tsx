@@ -8,6 +8,7 @@ import { Button } from '@tokslearn/ui/button'
 import { Field } from '@tokslearn/ui/field'
 import { Input } from '@tokslearn/ui/input'
 import { Select } from '@tokslearn/ui/select'
+import { Switch } from '@tokslearn/ui/switch'
 import { Textarea } from '@tokslearn/ui/textarea'
 import { toast } from '@tokslearn/ui/toast'
 import { Plus, Trash2 } from 'lucide-react'
@@ -284,6 +285,46 @@ export function ProfileForm({ me: initial }: { me: MeDto }) {
           </div>
         </SettingsPanel>
       </form>
+
+      <SettingsPanel
+        id="badges"
+        title="Badges"
+        description="Show the badges you've earned on your public profile. Off until you choose."
+      >
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <Switch
+              id="badges-public"
+              checked={me.badgesPublic}
+              onChange={async (e) => {
+                const next = e.target.checked
+                setMe({ ...me, badgesPublic: next })
+                try {
+                  setMe(await api.me.update({ badgesPublic: next }))
+                } catch (err) {
+                  setMe({ ...me, badgesPublic: !next })
+                  setError(apiErrorMessage(err))
+                }
+              }}
+            />
+            <label htmlFor="badges-public" className="text-body-sm text-ink">
+              Show my badges on my public profile
+            </label>
+          </div>
+          {me.username ? (
+            <a
+              href={`/u/${me.username}`}
+              className="w-fit text-body-sm text-brand-ink hover:underline"
+            >
+              See your public profile
+            </a>
+          ) : (
+            <p className="text-body-sm text-ink-3">
+              Pick a username above to get a public profile.
+            </p>
+          )}
+        </div>
+      </SettingsPanel>
     </div>
   )
 }

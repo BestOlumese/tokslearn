@@ -173,6 +173,14 @@ async function applyRevision(
   await repo.recomputeTotals(tx.db, course.id)
   // Inline, not a job: the catalog shows the change as soon as the approval commits (ADR-032).
   await reindexCourse(tx, course.id)
+  // People who saved it can hear about a lower price (opt-in, ADR-042).
+  if (!firstPublish && revision.priceKobo < course.priceKobo) {
+    await tx.events.emit('course.price_dropped', {
+      courseId: course.id,
+      fromKobo: course.priceKobo.toString(),
+      toKobo: revision.priceKobo.toString(),
+    })
+  }
   await tx.events.emit(firstPublish ? 'course.published' : 'course.updated', {
     courseId: course.id,
     revisionId: revision.id,

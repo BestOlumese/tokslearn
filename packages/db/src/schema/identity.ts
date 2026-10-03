@@ -41,6 +41,8 @@ export const user = pgTable(
     headline: text(),
     bio: text(),
     avatarKey: text(),
+    /** Show earned badges on the public profile (`/u/{username}`). Off until the person opts in. */
+    badgesPublic: boolean().notNull().default(false),
     timezone: text().default('Africa/Lagos'),
     deletionRequestedAt: tstz(),
     deletedAt: tstz(),
