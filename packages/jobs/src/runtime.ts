@@ -1,4 +1,4 @@
-import type { Providers } from '@tokslearn/core/kernel'
+import type { CacheAdapter, Providers } from '@tokslearn/core/kernel'
 import type { Db } from '@tokslearn/db'
 import type { EmailSender } from '@tokslearn/integrations/resend'
 
@@ -10,6 +10,8 @@ export interface JobRuntime {
   db: () => Db
   emailSender: () => EmailSender
   providers: () => Partial<Providers>
+  /** Expires cached pages (Next tags in the web app). Optional: a no-op without it. */
+  cache?: () => CacheAdapter
 }
 
 let runtime: JobRuntime | undefined

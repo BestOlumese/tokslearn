@@ -58,6 +58,7 @@ export const errorCatalog = {
   BUNDLE_NOT_FOUND: notFound('bundle'),
   COHORT_NOT_FOUND: notFound('start date'),
   LIVE_SESSION_NOT_FOUND: notFound('live class'),
+  REVIEW_NOT_FOUND: notFound('review'),
   REVISION_NOT_FOUND: notFound('course version'),
   VIDEO_NOT_FOUND: notFound('video'),
 
@@ -300,7 +301,12 @@ export const errorCatalog = {
   THREAD_LOCKED: { status: 'UNPROCESSABLE_CONTENT', message: 'This discussion is closed.' },
   REVIEW_NOT_ELIGIBLE: {
     status: 'UNPROCESSABLE_CONTENT',
-    message: 'You can review this course after completing 20% of it.',
+    message:
+      'You can review this course after finishing {pct}% of it or {minutes} minutes of learning.',
+  },
+  REVIEW_OWN: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: "You can't mark your own review as helpful or report it.",
   },
   CONTENT_REJECTED: {
     status: 'UNPROCESSABLE_CONTENT',

@@ -52,6 +52,7 @@ import {
 import { liveRouter, studioLiveRouter } from './procedures/live'
 import { meRouter } from './procedures/me'
 import { mediaRouter } from './procedures/media'
+import { adminReviewsRouter, reviewsRouter, studioReviewsRouter } from './procedures/reviews'
 import { catalogCategoriesHandler, studioRouter } from './procedures/studio'
 import { usersRouter } from './procedures/users'
 
@@ -75,6 +76,7 @@ export const router = impl.router({
     certificates: studioCertificatesRouter,
     cohorts: studioCohortsRouter,
     live: studioLiveRouter,
+    reviews: studioReviewsRouter,
   },
   instructors: { ...instructorsRouter, ...instructorProfileHandlers },
   kyc: kycRouter,
@@ -87,6 +89,7 @@ export const router = impl.router({
     ledger: adminLedgerRouter,
     certificates: adminCertificatesRouter,
     moderation: adminModerationRouter,
+    reviews: adminReviewsRouter,
   },
   cart: cartRouter,
   wishlist: wishlistRouter,
@@ -108,6 +111,7 @@ export const router = impl.router({
   cohorts: cohortsRouter,
   community: communityRouter,
   live: liveRouter,
+  reviews: reviewsRouter,
 })
 
 export type Router = typeof router

@@ -140,8 +140,10 @@ Index: `threads(scope_type, scope_id, last_activity_at desc)`, `posts(thread_id,
 - `live_attendance`: pk(session_id, user_id), `joined_at` (first join), `left_at`, `total_sec` (from Daily's participant.left), `is_host`.
 
 ### reviews
-- `reviews`: `course_id`, `user_id`, `enrollment_id`, `rating smallint 1–5`, `body`, `status` enum(visible, hidden, flagged), `instructor_reply`, `replied_at`, `deleted_at`. unique(course_id, user_id). Eligible only after ≥ 20% progress or 30 minutes of learning (configurable).
-- `course_rating_stats`: `course_id` pk, counts per star, `avg`, `count` (updated by job).
+- `reviews`: `course_id`, `user_id`, `enrollment_id`, `rating smallint 1–5` (check), `body` (plain, nullable), `status` enum(visible, hidden), `helpful_count`, `instructor_reply`, `replied_at`, `replied_by`, `edited_at`, `hidden_at`, `hidden_by`, `deleted_at`. unique(course_id, user_id); partial index on visible reviews by course and date. Eligible only after ≥ 20% progress or 30 minutes of learning (settings `review_min_progress_pct`, `review_min_learning_min`).
+- `review_votes`: pk(review_id, user_id) ("helpful").
+- `review_reports`: `review_id`, `reporter_id`, `reason`, `status` enum(open, resolved, dismissed), `handled_by`, `handled_at`; unique(review_id, reporter_id).
+- `course_rating_stats`: `course_id` pk, `stars1`…`stars5`, `avg`, `count` (visible reviews; `rating-stats` job).
 
 ### engagement
 - `notes`: `user_id`, `lesson_id`, `course_id`, `position_sec` nullable, `body`.

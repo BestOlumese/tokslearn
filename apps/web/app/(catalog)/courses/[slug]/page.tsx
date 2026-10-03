@@ -10,10 +10,11 @@ import { CurriculumList } from '@/components/catalog/curriculum-list'
 import { Price } from '@/components/catalog/price'
 import { PurchasePanel, refundLine } from '@/components/catalog/purchase-panel'
 import { Track } from '@/components/catalog/track'
+import { ReviewItem, ReviewSummary } from '@/components/reviews/review-list'
 import { RichHtml } from '@/components/rich-html'
 import { JsonLd } from '@/components/seo/json-ld'
 import { env } from '@/env'
-import { getCourse, getCourseCohorts, topCourseSlugs } from '@/lib/catalog-data'
+import { getCourse, getCourseCohorts, getCourseReviews, topCourseSlugs } from '@/lib/catalog-data'
 import { certificateLabel, formatDate, languageLabel, levelLabel } from '@/lib/format'
 import { resized } from '@/lib/image'
 
@@ -46,7 +47,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 // docs/20 §1 `/courses/[slug]`. Static per course, tagged `course:{id}` and refreshed on publish.
-// Reviews (Phase 9), cohorts (Phase 8), coupon field and buying (Phase 4) join later.
+// Reviews are server-rendered (no client JS: this page is at its budget); voting and reporting
+// live on /courses/[slug]/reviews.
 export default function CoursePage({ params }: { params: Params }) {
   return (
     <Suspense fallback={<CourseSkeleton />}>
@@ -200,13 +202,13 @@ async function Course({ params }: { params: Params }) {
 
           <InstructorBlock course={c} />
 
-          <section aria-labelledby="reviews-title">
+          <section aria-labelledby="reviews-title" className="scroll-mt-20" id="reviews">
             <h2 id="reviews-title" className="text-h2 text-ink">
               Reviews
             </h2>
-            <p className="mt-2 text-body text-ink-2">
-              No reviews yet. Learners can review a course once they've done a fifth of it.
-            </p>
+            <Suspense fallback={<Skeleton className="mt-4 h-40 rounded-card" />}>
+              <CourseReviews course={c} />
+            </Suspense>
           </section>
 
           <Faq course={c} />
@@ -395,4 +397,34 @@ function courseJsonLd(c: PublicCourseDto, site: string) {
       },
     ],
   }
+}
+
+/** The six most helpful reviews and the summary; the rest on the reviews page. */
+async function CourseReviews({ course: c }: { course: PublicCourseDto }) {
+  const page = await getCourseReviews(c.id, 'helpful', 0, 6)
+  if (page.summary.count === 0) {
+    return (
+      <p className="mt-2 text-body text-ink-2">
+        No reviews yet. Learners can review a course once they've done a fifth of it.
+      </p>
+    )
+  }
+  return (
+    <div className="mt-4 flex flex-col gap-4">
+      <ReviewSummary summary={page.summary} />
+      <div>
+        {page.items.map((r) => (
+          <ReviewItem key={r.id} review={r} instructorName={c.instructor.name} />
+        ))}
+      </div>
+      {page.hasMore ? (
+        <Link
+          href={`/courses/${c.slug}/reviews` as Route}
+          className={`${buttonClasses({ variant: 'secondary' })} w-fit`}
+        >
+          See all {page.summary.count} reviews
+        </Link>
+      ) : null}
+    </div>
+  )
 }

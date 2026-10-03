@@ -1,3 +1,4 @@
+export { type ContentProblem, contentProblem } from './rules'
 export {
   acceptAnswer,
   createThread,

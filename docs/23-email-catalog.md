@@ -51,7 +51,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `kyc-result` | KYC complete | Identity verification {complete/needs attention} | What to do if manual review | transactional |
 | `course-review-decision` | review done | {course} is {live / needs changes} | Live: link + share referral link. Changes: reviewer notes, edit button | transactional |
 | `new-sale` | sale (digest daily by default, instant optional) | You made {n} sales today | Totals, pending release dates | activity |
-| `new-review` | review posted | New {rating}-star review on {course} | Excerpt, reply button | activity |
+| `new-review` | a learner's first review of a course (not edits) | New {rating}-star review on {course} | Stars, excerpt (280 characters) or "without writing a review", button to `/teach/reviews?course=` | activity |
 | `grading-backlog` | weekly if queue > 0 | {n} submissions waiting for grading | Oldest age, queue link | activity |
 | `payout-sent` | transfer success | Your payout of {amount} is on its way | Amount, bank (last 4), period, statement link | transactional |
 | `payout-failed` | transfer failed | We couldn't send your payout | Reason, fix bank details button, will retry next run | transactional |

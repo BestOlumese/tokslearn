@@ -1,5 +1,5 @@
 'use client'
-// Client component: hide the reported post (settles its reports) or dismiss the reports
+// Client component: hide the reported post or review (settles its reports) or dismiss the reports
 // (docs/20 `/admin/moderation`). Both are audit-logged.
 
 import { Button } from '@tokslearn/ui/button'
@@ -8,7 +8,8 @@ import { useState } from 'react'
 import { apiErrorMessage } from '@/lib/api-error'
 import { api } from '@/lib/orpc'
 
-export function ReportActions({ reportId }: { reportId: string }) {
+/** A reported discussion or reply (`reportId`) or a reported review (`reviewId`). */
+export function ReportActions(props: { reportId: string } | { reviewId: string }) {
   const router = useRouter()
   const [pending, setPending] = useState<'hide' | 'dismiss' | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -16,7 +17,8 @@ export function ReportActions({ reportId }: { reportId: string }) {
     setPending(action)
     setError(null)
     try {
-      await api.admin.moderation.handle({ reportId, action })
+      if ('reviewId' in props) await api.admin.reviews.handle({ reviewId: props.reviewId, action })
+      else await api.admin.moderation.handle({ reportId: props.reportId, action })
       router.refresh()
     } catch (e) {
       setError(apiErrorMessage(e))

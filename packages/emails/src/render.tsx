@@ -16,6 +16,7 @@ import * as kycResult from './templates/kyc-result'
 import * as lessonUnlocked from './templates/lesson-unlocked'
 import * as liveReminder from './templates/live-reminder'
 import * as mention from './templates/mention'
+import * as newReview from './templates/new-review'
 import * as newSignIn from './templates/new-sign-in'
 import * as orderReceipt from './templates/order-receipt'
 import * as passwordChanged from './templates/password-changed'
@@ -110,6 +111,10 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'attempt-voided': {
     subject: attemptVoided.subject,
     element: (d) => <attemptVoided.AttemptVoided {...d} />,
+  },
+  'new-review': {
+    subject: newReview.subject,
+    element: (d) => <newReview.NewReview {...d} />,
   },
   'live-reminder-24h': {
     subject: liveReminder.subject24h,

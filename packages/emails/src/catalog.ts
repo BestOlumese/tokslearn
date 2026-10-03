@@ -138,6 +138,16 @@ export interface EmailData {
     body: string
     url: string
   }
+  'new-review': {
+    /** The instructor's first name. */
+    name: string
+    courseTitle: string
+    rating: number
+    /** Up to 280 characters, or null for a rating without words. */
+    excerpt: string | null
+    /** The studio's Reviews page, where they reply. */
+    url: string
+  }
   'live-reminder-24h': {
     name: string
     courseTitle: string
@@ -189,6 +199,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'thread-reply': 'activity',
   mention: 'activity',
   announcement: 'activity',
+  'new-review': 'activity',
   'live-reminder-24h': 'activity',
   'live-reminder-15m': 'activity',
 }

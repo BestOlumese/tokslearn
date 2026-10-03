@@ -5,6 +5,7 @@ export { generateOpenApiSpec } from './openapi'
 export { toCardDto, toPublicCourseDto } from './procedures/catalog'
 // Core → DTO mappers, so Server Components hand client components the same shape the API returns.
 export { toApplicationDetailDto, toMyApplicationDto } from './procedures/instructors'
+export { toReviewPageDto } from './procedures/reviews'
 export { toReviewDto, toStudioCourseDto } from './procedures/studio'
 export { idempotentProcedures, policyFor, rateLimits } from './ratelimits'
 export { type Router, router } from './router'
