@@ -11,6 +11,7 @@ export {
   sendDigest,
   setPreference,
   unreadCount,
+  unsubscribeByLink,
 } from './notify'
 export { sendEmail } from './service'
 export {

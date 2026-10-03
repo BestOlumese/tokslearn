@@ -61,6 +61,11 @@ export function setup(db: Db) {
         certificatePdf: pdf,
         sessions: { revokeSession: vi.fn(), revokeAllSessions: vi.fn() },
         urls: { app: 'https://tokslearn.test', cdn: 'https://cdn.tokslearn.test' },
+        unsubscribe: {
+          url: ({ userId, type }) =>
+            `https://tokslearn.test/unsubscribe?u=${userId}&t=${type}&s=ok-${userId}`,
+          verify: ({ userId, signature }) => signature === `ok-${userId}`,
+        },
       },
     })
   return { ctx, storage, bunny, paystack, pdf, daily }

@@ -92,6 +92,13 @@
       "when": 1791010090888,
       "tag": "0012_phase9_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791012970224,
+      "tag": "0013_phase9_wishlist_badges",
+      "breakpoints": true
     }
   ]
 }

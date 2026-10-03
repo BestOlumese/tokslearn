@@ -42,6 +42,8 @@ export const MeDto = z.object({
   /** False for accounts created with Google or email codes only. */
   hasPassword: z.boolean(),
   links: z.array(ProfileLink),
+  /** Earned badges show on the public profile. */
+  badgesPublic: z.boolean(),
   deletionScheduledFor: IsoDateTime.nullable(),
   createdAt: IsoDateTime,
 })
@@ -55,6 +57,7 @@ export const UpdateMeInput = z.strictObject({
   /** File id from `media.completeFileUpload` with purpose `avatar`; null removes the photo. */
   avatarFileId: z.uuid().nullable().optional(),
   links: z.array(ProfileLink).max(5).optional(),
+  badgesPublic: z.boolean().optional(),
 })
 export type UpdateMeInput = z.infer<typeof UpdateMeInput>
 
@@ -78,6 +81,15 @@ export const PublicProfileDto = z.object({
   avatarUrl: z.string().nullable(),
   links: z.array(ProfileLink),
   memberSince: IsoDateTime,
+  /** Earned badges, only if the person chose to show them. */
+  badges: z.array(
+    z.object({
+      code: z.string(),
+      name: z.string(),
+      description: z.string(),
+      awardedAt: IsoDateTime,
+    }),
+  ),
 })
 export type PublicProfileDto = z.infer<typeof PublicProfileDto>
 
@@ -178,7 +190,8 @@ export const usersContract = {
       path: '/users/{username}',
       tags: ['Users'],
       summary: 'Public profile',
-      description: 'Name, headline, bio, photo and links. Never includes email.',
+      description:
+        'Name, headline, bio, photo, links and (if the person chose to show them) earned badges. Never includes email.',
     })
     .input(z.object({ username: Username }))
     .output(PublicProfileDto),

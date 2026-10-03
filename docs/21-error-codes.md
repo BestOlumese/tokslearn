@@ -63,6 +63,8 @@ Format: `CODE` — oRPC status — when — user message.
 - `OWN_COURSE` — UNPROCESSABLE_CONTENT — "You can't buy your own course."
 - `CART_EMPTY` — UNPROCESSABLE_CONTENT — "Your cart is empty."
 - `CART_CHANGED` — CONFLICT — prices/items changed since view — "Your cart changed. Review it before paying."
+- `COUPON_ALREADY_ANNOUNCED` — CONFLICT — sharing a coupon with wishlisters twice — "People who saved your course were already told about this coupon."
+- `COUPON_NOT_ANNOUNCEABLE` — UNPROCESSABLE_CONTENT — inactive, not started, ended, used up, or a bundle coupon — "Only a live coupon for one of your courses (or all of them) can be shared."
 - `COUPON_INVALID` — UNPROCESSABLE_CONTENT — "This coupon code isn't valid."
 - `COUPON_EXPIRED` — UNPROCESSABLE_CONTENT — "This coupon has expired."
 - `COUPON_LIMIT_REACHED` — UNPROCESSABLE_CONTENT — "This coupon has been fully used."

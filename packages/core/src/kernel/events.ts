@@ -77,6 +77,10 @@ export interface DomainEvents {
   'live.recording_ready': { sessionId: string; recordingId: string; durationSec: number }
   /** A review was written, edited, deleted, hidden, shown or replied to: the rating-stats job. */
   'review.changed': { reviewId: string; courseId: string }
+  /** A published course's price went down (approval applied a lower price). */
+  'course.price_dropped': { courseId: string; fromKobo: string; toKobo: string }
+  /** An instructor told people who saved the course(s) about a coupon. */
+  'coupon.announced': { couponId: string }
   /** Replies and mentions are waiting for one digest email (a busy hour). */
   'notification.digest_requested': { userId: string }
   'order.paid': { orderId: string; userId: string; totalKobo: string; itemsCount: number }

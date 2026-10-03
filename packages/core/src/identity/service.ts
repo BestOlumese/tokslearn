@@ -101,6 +101,8 @@ export interface Me {
   twoFactorEnabled: boolean
   hasPassword: boolean
   links: Array<{ kind: LinkKind; url: string }>
+  /** Earned badges show on the public profile. */
+  badgesPublic: boolean
   deletionScheduledFor: Date | null
   createdAt: Date
 }
@@ -132,6 +134,7 @@ async function buildMe(ctx: Ctx, db: DbOrTx, userId: string): Promise<Me> {
     twoFactorEnabled: user.twoFactorEnabled ?? false,
     hasPassword,
     links,
+    badgesPublic: user.badgesPublic,
     deletionScheduledFor: scheduledDeletion(user.deletionRequestedAt),
     createdAt: user.createdAt,
   }
@@ -149,6 +152,7 @@ export interface UpdateMe {
   bio?: string | null | undefined
   avatarFileId?: string | null | undefined
   links?: ReadonlyArray<{ kind: LinkKind; url: string }> | undefined
+  badgesPublic?: boolean | undefined
 }
 
 export async function updateMe(ctx: Ctx, input: UpdateMe): Promise<Me> {
@@ -178,6 +182,7 @@ export async function updateMe(ctx: Ctx, input: UpdateMe): Promise<Me> {
     if (input.headline !== undefined) values.headline = input.headline || null
     if (input.bio !== undefined) values.bio = input.bio || null
     if (avatarKey !== undefined) values.avatarKey = avatarKey
+    if (input.badgesPublic !== undefined) values.badgesPublic = input.badgesPublic
     if (Object.keys(values).length > 0) {
       try {
         await repo.updateUser(tx.db, actor.userId, values)

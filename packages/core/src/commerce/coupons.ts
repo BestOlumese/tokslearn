@@ -207,6 +207,8 @@ export interface CouponView {
   startsAt: Date | null
   endsAt: Date | null
   active: boolean
+  /** When people who saved the course(s) were told (instructor coupons, once). */
+  announcedAt: Date | null
   createdAt: Date
 }
 
@@ -249,6 +251,7 @@ async function listCoupons(ctx: Ctx, where: ReturnType<typeof eq> | undefined) {
       startsAt: r.coupon.startsAt,
       endsAt: r.coupon.endsAt,
       active: r.coupon.active,
+      announcedAt: r.coupon.announcedAt,
       createdAt: r.coupon.createdAt,
     }),
   )

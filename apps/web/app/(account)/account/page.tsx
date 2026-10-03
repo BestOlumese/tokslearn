@@ -3,12 +3,14 @@ import * as commerce from '@tokslearn/core/commerce'
 import * as engagement from '@tokslearn/core/engagement'
 import * as enrollments from '@tokslearn/core/enrollments'
 import * as learning from '@tokslearn/core/learning'
+import * as notifications from '@tokslearn/core/notifications'
 import { buttonClasses } from '@tokslearn/ui/button'
 import { Flame } from 'lucide-react'
 import type { Metadata, Route } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { CourseCover } from '@/components/catalog/course-cover'
+import { PriceDropOptIn } from '@/components/notifications/price-drop-opt-in'
 import { PageHeader } from '@/components/site/page-header'
 import { formatNaira } from '@/lib/format'
 import { clock } from '@/lib/learn-api'
@@ -174,28 +176,33 @@ async function Courses({ searchParams }: { searchParams: Promise<{ tab?: string 
         />
       )
     }
+    const prefs = await notifications.getPreferences(ctx)
+    const priceEmails = prefs.find((p) => p.type === 'wishlist.price_drop')?.email ?? false
     return (
-      <ul className="grid gap-x-6 gap-y-9 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {saved.map((c) => (
-          <li key={c.itemId} className="flex flex-col gap-2.5">
-            <CourseCover
-              src={c.coverUrl}
-              alt={c.title}
-              sizes="(min-width: 1280px) 290px, (min-width: 640px) 45vw, 92vw"
-            />
-            <Link
-              href={`/courses/${c.slug}` as Route}
-              className="line-clamp-2 text-body font-semibold text-ink hover:text-brand-ink hover:underline"
-            >
-              {c.title}
-            </Link>
-            <p className="text-body-sm text-ink-2">{c.instructorName}</p>
-            <p className="text-body font-semibold text-ink">
-              {c.priceKobo === 0n ? 'Free' : formatNaira(c.priceKobo)}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <div className="flex flex-col gap-6">
+        <PriceDropOptIn initial={priceEmails} />
+        <ul className="grid gap-x-6 gap-y-9 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {saved.map((c) => (
+            <li key={c.itemId} className="flex flex-col gap-2.5">
+              <CourseCover
+                src={c.coverUrl}
+                alt={c.title}
+                sizes="(min-width: 1280px) 290px, (min-width: 640px) 45vw, 92vw"
+              />
+              <Link
+                href={`/courses/${c.slug}` as Route}
+                className="line-clamp-2 text-body font-semibold text-ink hover:text-brand-ink hover:underline"
+              >
+                {c.title}
+              </Link>
+              <p className="text-body-sm text-ink-2">{c.instructorName}</p>
+              <p className="text-body font-semibold text-ink">
+                {c.priceKobo === 0n ? 'Free' : formatNaira(c.priceKobo)}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
     )
   }
 

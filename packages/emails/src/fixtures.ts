@@ -153,6 +153,18 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     reason: 'The exam was left for over 20 minutes, twice, in the middle of the attempt.',
     url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000003',
   },
+  'wishlist-price-drop': {
+    name: 'Amaka',
+    courseTitle: 'Bookkeeping for Small Businesses',
+    instructorName: 'Tobi Adeleke',
+    oldKobo: '1500000',
+    newKobo: '1050000',
+    couponCode: 'MARCH30',
+    endsAt: '2026-10-31T22:59:00.000Z',
+    url: 'https://tokslearn.com/courses/bookkeeping-for-small-businesses',
+    unsubscribeUrl:
+      'https://tokslearn.com/unsubscribe?u=01920000-0000-7000-8000-000000000100&t=wishlist.price_drop&s=abc',
+  },
   'activity-digest': {
     name: 'Amaka',
     count: 7,

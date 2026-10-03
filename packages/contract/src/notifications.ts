@@ -26,6 +26,7 @@ export const NotificationType = z.enum([
   'review.received',
   'course.review_decision',
   'application.decision',
+  'wishlist.price_drop',
   'order.receipt',
   'enrollment.welcome',
 ])
@@ -84,6 +85,19 @@ export const notificationsContract = {
       }),
     )
     .output(z.object({ updated: z.number().int() })),
+  unsubscribe: post(
+    '/notifications/unsubscribe',
+    'Stop an opt-in email',
+    "From the signed link in the email; no sign-in needed. Always-on emails can't be stopped this way.",
+  )
+    .input(
+      z.strictObject({
+        userId: z.uuid(),
+        type: z.string().min(1).max(60),
+        signature: z.string().min(10).max(200),
+      }),
+    )
+    .output(z.object({ label: z.string() })),
   preferences: {
     get: get(
       '/notifications/preferences',

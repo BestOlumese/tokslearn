@@ -381,6 +381,7 @@ const CouponShape = z.object({
   startsAt: IsoDateTime.nullable(),
   endsAt: IsoDateTime.nullable(),
   active: z.boolean(),
+  announcedAt: IsoDateTime.nullable(),
   createdAt: IsoDateTime,
 })
 export type CouponDto = z.infer<typeof CouponShape>
@@ -427,6 +428,14 @@ export const studioCouponsContract = {
   )
     .input(z.strictObject({ couponId: z.uuid(), active: z.boolean() }))
     .output(z.object({ ok: z.literal(true) })),
+  announce: post(
+    '/studio/coupons/{couponId}/announce',
+    'Studio',
+    'Tell people who saved the course',
+    'Once per live coupon for one course or all your courses: people with it on their wishlist get a notice (and an email if they opted in). COUPON_NOT_ANNOUNCEABLE, COUPON_ALREADY_ANNOUNCED.',
+  )
+    .input(z.strictObject({ couponId: z.uuid() }))
+    .output(z.object({ announcedAt: IsoDateTime })),
 }
 
 const CommissionRuleShape = z.object({

@@ -40,7 +40,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `announcement` | instructor announcement (course or cohort) | {course}: {announcement title} | Body (plain, up to 2,000 characters), instructor's name, link to the discussion. Sent by the `announcement-send` job, once per learner. | activity |
 | `refund-update` | refund status change | Your refund request for {course}: {approved/denied/processed} | Decision, reason in plain words, amount and timing ("banks usually take 5–10 working days"), appeal link if denied | transactional |
 | `streak-at-risk` | optional, 20:00 if no activity and streak ≥ 3 | Keep your {n}-day streak | One lesson suggestion | activity (off by default) |
-| `wishlist-price-drop` | price drop/coupon on wishlisted | {course} is now {price} | Old vs new price, end date if coupon | marketing (opt-in) |
+| `wishlist-price-drop` | a saved course gets a lower approved price, or its instructor shares a coupon (ADR-042); only if the person opted in | {course} is now {price} | Old (struck) and new price, the code and its end date for a coupon, button to the course, one-click unsubscribe link | marketing (opt-in) |
 
 ## Instructors
 

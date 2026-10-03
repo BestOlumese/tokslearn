@@ -11,6 +11,7 @@ import {
 } from '@tokslearn/ui/table'
 import { formatDate, formatNaira } from '@/lib/format'
 import { CouponActiveToggle } from './coupon-active-toggle'
+import { CouponAnnounce } from './coupon-announce'
 
 const scope = (c: commerce.CouponView, mode: 'studio' | 'admin') =>
   c.appliesTo === 'all'
@@ -79,7 +80,23 @@ export function CouponTable({
                 )}
               </TableCell>
               <TableCell className="text-right">
-                <CouponActiveToggle couponId={c.id} code={c.code} active={c.active} mode={mode} />
+                <span className="inline-flex flex-wrap items-start justify-end gap-1">
+                  {mode === 'studio' &&
+                  c.active &&
+                  !expired &&
+                  !full &&
+                  (c.startsAt === null || c.startsAt <= now) &&
+                  (c.appliesTo === 'course' || c.appliesTo === 'instructor_all') ? (
+                    c.announcedAt ? (
+                      <span className="px-2 py-2 text-body-sm text-ink-3">
+                        Shared {formatDate(c.announcedAt)}
+                      </span>
+                    ) : (
+                      <CouponAnnounce couponId={c.id} code={c.code} />
+                    )
+                  ) : null}
+                  <CouponActiveToggle couponId={c.id} code={c.code} active={c.active} mode={mode} />
+                </span>
               </TableCell>
             </TableRow>
           )

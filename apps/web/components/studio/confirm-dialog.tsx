@@ -1,5 +1,6 @@
 'use client'
-// Client component: asks before a destructive studio action (remove a section, lesson or file).
+// Client component: asks before a studio action that can't be undone (remove a section, lesson
+// or file; share a coupon).
 
 import { Button } from '@tokslearn/ui/button'
 import { Dialog, DialogContent, DialogFooter } from '@tokslearn/ui/dialog'
@@ -12,6 +13,7 @@ export function ConfirmDialog({
   description,
   confirmLabel,
   onConfirm,
+  tone = 'danger',
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -19,6 +21,8 @@ export function ConfirmDialog({
   description: string
   confirmLabel: string
   onConfirm: () => Promise<void>
+  /** `primary` for confirmations that aren't destructive. */
+  tone?: 'danger' | 'primary'
 }) {
   const [pending, setPending] = useState(false)
   return (
@@ -29,7 +33,7 @@ export function ConfirmDialog({
             Cancel
           </Button>
           <Button
-            variant="danger"
+            variant={tone}
             loading={pending}
             onClick={async () => {
               setPending(true)

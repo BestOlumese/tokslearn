@@ -7,8 +7,8 @@
 ## Tasks
 - [x] Reviews: eligibility, create/edit, instructor reply, reporting, stats job, display rules (≥ 3 reviews to show rating), course page + instructor page integration, JSON-LD aggregateRating. PR 1 of 3 (ADR-040).
 - [x] Notifications centre: bell, list, mark read/all read, preferences page (per type × channel), digest batching. PR 2 of 3 (ADR-041).
-- [ ] Wishlist polish: price-drop notification (when an instructor lowers price or runs a coupon on a wishlisted course; opt-in).
-- [ ] Badge showcase on learner profile (opt-in public).
+- [x] Wishlist polish: price-drop notification (when an instructor lowers price or runs a coupon on a wishlisted course; opt-in). PR 3 of 3 (ADR-042).
+- [x] Badge showcase on learner profile (opt-in public). `/u/[username]`, switch in Settings → Profile (ADR-042).
 - [x] Procedures: `reviews.*` ✓, `studio.reviews.reply` ✓ (PR 1), `notifications.list`, `notifications.unreadCount`, `notifications.markRead`, `notifications.preferences.*` ✓ (PR 2).
 
 ## Acceptance

@@ -1,4 +1,5 @@
 import 'server-only'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import type { Providers } from '@tokslearn/core/kernel'
 import {
   createBunnyStream,
@@ -101,6 +102,25 @@ function getLive(): LiveProvider {
   return live
 }
 
+/**
+ * One-click unsubscribe links for opt-in emails (ADR-042): HMAC of user and type with the server
+ * secret. Local development without a secret uses a fixed one; production always has it.
+ */
+function unsubscribeLinks(): Providers['unsubscribe'] {
+  const secret = env.BETTER_AUTH_SECRET ?? 'local-unsubscribe-secret-not-for-production'
+  const sign = (userId: string, type: string) =>
+    createHmac('sha256', secret).update(`unsubscribe:${userId}:${type}`).digest('base64url')
+  return {
+    url: ({ userId, type }) =>
+      `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')}/unsubscribe?${new URLSearchParams({ u: userId, t: type, s: sign(userId, type) })}`,
+    verify: ({ userId, type, signature }) => {
+      const a = Buffer.from(sign(userId, type))
+      const b = Buffer.from(signature)
+      return a.length === b.length && timingSafeEqual(a, b)
+    },
+  }
+}
+
 let storage: FileStorage | undefined
 
 /** R2 when configured; an in-memory stand-in for local development without R2 keys. */
@@ -163,6 +183,7 @@ export function baseProviders(): Omit<Providers, 'sessions'> {
       return redis ? createClickCounter(redis) : undefined
     },
     certificatePdf,
+    unsubscribe: unsubscribeLinks(),
     urls: { app: env.NEXT_PUBLIC_APP_URL, cdn: env.NEXT_PUBLIC_CDN_URL ?? null },
   }
 }

@@ -27,6 +27,7 @@ import * as signInCode from './templates/sign-in-code'
 import * as threadReply from './templates/thread-reply'
 import * as twoFactorChanged from './templates/two-factor-changed'
 import * as verifyEmail from './templates/verify-email'
+import * as wishlistPriceDrop from './templates/wishlist-price-drop'
 
 type Template<Id extends EmailId> = {
   subject: (data: EmailData[Id]) => string
@@ -112,6 +113,10 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'attempt-voided': {
     subject: attemptVoided.subject,
     element: (d) => <attemptVoided.AttemptVoided {...d} />,
+  },
+  'wishlist-price-drop': {
+    subject: wishlistPriceDrop.subject,
+    element: (d) => <wishlistPriceDrop.WishlistPriceDrop {...d} />,
   },
   'activity-digest': {
     subject: activityDigest.subject,

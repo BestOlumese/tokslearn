@@ -31,6 +31,12 @@ export interface Urls {
   cdn: string | null
 }
 
+/** Signed one-click unsubscribe links for opt-in emails (NDPA): no sign-in needed to stop them. */
+export interface UnsubscribeLinks {
+  url(input: { userId: string; type: string }): string
+  verify(input: { userId: string; type: string; signature: string }): boolean
+}
+
 /** Providers the app injects into `Ctx`. Core never imports SDKs or Better Auth directly. */
 export interface Providers {
   storage: FileStorage
@@ -51,6 +57,7 @@ export interface Providers {
   video: VideoProvider
   /** Daily rooms, meeting tokens and recordings (live classes, docs/10 §11). */
   live: LiveProvider
+  unsubscribe: UnsubscribeLinks
   /** Certificate PDFs (@react-pdf in the app, a fake in tests). */
   certificatePdf: CertificateRenderer
 }
