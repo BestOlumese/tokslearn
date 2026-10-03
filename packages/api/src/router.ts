@@ -52,6 +52,7 @@ import {
 import { liveRouter, studioLiveRouter } from './procedures/live'
 import { meRouter } from './procedures/me'
 import { mediaRouter } from './procedures/media'
+import { notificationsRouter } from './procedures/notifications'
 import { adminReviewsRouter, reviewsRouter, studioReviewsRouter } from './procedures/reviews'
 import { catalogCategoriesHandler, studioRouter } from './procedures/studio'
 import { usersRouter } from './procedures/users'
@@ -112,6 +113,7 @@ export const router = impl.router({
   community: communityRouter,
   live: liveRouter,
   reviews: reviewsRouter,
+  notifications: notificationsRouter,
 })
 
 export type Router = typeof router

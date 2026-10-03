@@ -114,8 +114,8 @@ async function Course({ params }: { params: Params }) {
             <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-body-sm text-ink-2">
               {c.ratingAvg !== null && c.ratingCount >= 3 ? (
                 <span>
-                  <span className="font-semibold text-ink">{c.ratingAvg.toFixed(1)}</span> ★ (
-                  {c.ratingCount} ratings)
+                  <span className="font-semibold text-ink">{c.ratingAvg.toFixed(1)}</span>{' '}
+                  <span className="text-star">★</span> ({c.ratingCount} ratings)
                 </span>
               ) : null}
               {c.enrollmentCount > 0 ? (

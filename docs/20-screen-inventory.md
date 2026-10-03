@@ -19,7 +19,7 @@ Legend — **R** (rendering): `S` static shell + cached data, `S+` static shell 
 | Offline / slow | Mutations show pending state; failed mutations show inline error with retry, never silent. |
 | Mobile (360px) | Every screen works at 360px wide; tables become stacked rows or horizontal scroll inside a container. |
 
-Global chrome: header (logo, search, Categories, "Teach on Tokslearn", cart, notifications bell,
+Global chrome: header (logo, search, Categories, "Teach on Tokslearn", cart, notifications bell (signed in: unread count, every 60 s while visible and on focus, links to `/account/notifications`),
 avatar menu or Sign in/Sign up), footer (About, Teach, Verify a certificate, Help, Terms, Privacy,
 Refund policy, contact), cookie/analytics consent banner (first visit), toast region, skip link.
 
@@ -67,10 +67,10 @@ Refund policy, contact), cookie/analytics consent banner (first visit), toast re
 | `/account/refunds` | D | Refund requests and statuses, appeal button (once). | | `refunds.listMine` | 10 |
 | `/account/notes` | D | All notes grouped by course, search, export Markdown. | No notes; no search matches | `notes.list`, `notes.export` | 5 |
 | `/account/badges` | D | Earned and locked badges with criteria. | | `engagement.listBadges` | 5 |
-| `/account/notifications` | D | Full notification list, mark all read. | | `notifications.list` | 9 |
+| `/account/notifications` | D | Every in-app notification, newest first, 20 at a time ("Show older"): unread dot, title, excerpt, time; opening one marks it read and goes to its link; "Mark all read"; link to settings. Reached from the header bell. | Nothing yet → empty state | `notifications.list`, `notifications.markRead` | 9 |
 | `/account/settings/profile` | D | Name, username, headline, bio, avatar, links, public badges toggle. | Username taken | `me.update` | 1 |
 | `/account/settings/security` | D | Password change, 2FA setup (QR + backup codes), active sessions (device, location approx., last active, revoke). | | `me.sessions.*` | 1 |
-| `/account/settings/notifications` | D | Matrix type × channel (email/in-app), marketing opt-in. | Security types locked on | `notifications.preferences.*` | 9 |
+| `/account/settings/notifications` | D | Per group (Learning, Discussions, Teaching, Purchases), each kind with an Email and an In app switch; always-on emails show "Always". Account security emails listed as always on. Marketing opt-in arrives with the first marketing email. | Locked email → NOTIFICATION_LOCKED | `notifications.preferences.*` | 9 |
 | `/account/settings/privacy` | D | Export my data, delete account (explains 14-day grace, what's kept). | Pending deletion banner + cancel | `me.exportData`, `me.requestDeletion` | 1 |
 | `/cart` | D | Items (course/bundle), price, remove, move to wishlist, start date for cohort courses (switchable to another open run), coupon field, totals, refund summary, "Checkout" button. Mobile: summary sticky bottom. | Empty cart; cohort course without a date → "pick a start date" (checkout refuses with COHORT_REQUIRED); item became unavailable; already enrolled item auto-removed with notice | `cart.*` | 4 |
 | `/checkout` | D | Order summary, email confirmation, pay button → Paystack popup. After success → `/checkout/success?ref=`. | Paystack closed → "Payment not completed", retry. Provider down → error with retry. | `checkout.start/confirm` | 4 |

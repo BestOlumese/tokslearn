@@ -1,20 +1,42 @@
 'use client'
 // Client component: public pages are static, so the signed-in state comes from a non-secret hint
 // cookie set at sign-in (never used for authorization, ADR-029). Menus are native <details>; this
-// file only reads the cookie and closes an open menu on outside click or Escape.
+// file reads the cookie, keeps the bell's unread count fresh (every 60 s while the tab is visible
+// and on window focus; the notifications page fires a focus event after marking things read), and
+// closes an open menu on outside click or Escape.
 
 import { buttonClasses } from '@tokslearn/ui/button'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { BellIcon } from '@/components/icons/bell-icon'
 import { UserIcon } from '@/components/icons/user-icon'
 
 const menuItem =
   'flex min-h-11 items-center rounded-control px-3 text-body-sm text-ink hover:bg-surface-sunken'
 
 export function HeaderAccount() {
+  'use no memo' // Ships on every public page, at the JS budget: the memo cache would cost bytes.
   const [signedIn, setSignedIn] = useState(false)
+  const [unread, setUnread] = useState(0)
   const menu = useRef<HTMLDetailsElement>(null)
+
+  useEffect(() => {
+    if (!signedIn) return
+    const load = () =>
+      !document.hidden &&
+      fetch('/api/v1/notifications/unread-count')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((r: { count: number } | null) => r && setUnread(r.count))
+        .catch(() => undefined)
+    load()
+    const timer = setInterval(load, 60_000)
+    addEventListener('focus', load)
+    return () => {
+      clearInterval(timer)
+      removeEventListener('focus', load)
+    }
+  }, [signedIn])
 
   useEffect(() => {
     setSignedIn(document.cookie.split('; ').some((c) => c === 'tl_signed_in=1'))
@@ -55,6 +77,7 @@ export function HeaderAccount() {
     ['/account/settings/profile', 'Profile'],
     ['/account/settings/security', 'Sign-in and security'],
   ]
+  const shown = unread > 99 ? '99+' : unread
   return (
     <div className="flex items-center gap-1">
       <span className="hidden sm:contents">
@@ -62,6 +85,18 @@ export function HeaderAccount() {
           My learning
         </Link>
       </span>
+      <Link
+        href="/account/notifications"
+        aria-label={`Notifications${unread ? `, ${shown} unread` : ''}`}
+        className="relative flex size-10 items-center justify-center rounded-control text-ink-2 hover:bg-surface-sunken hover:text-ink"
+      >
+        <BellIcon />
+        {unread ? (
+          <span className="absolute top-0.5 right-0.5 grid min-w-4.5 place-items-center rounded-full bg-brand px-1 text-caption leading-4.5 font-semibold text-ink-inverse">
+            {shown}
+          </span>
+        ) : null}
+      </Link>
       <details ref={menu} className="relative">
         <summary
           aria-label="Your account"

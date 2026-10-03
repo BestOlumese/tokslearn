@@ -25,6 +25,8 @@
 | `recording-import` | `live.recording_ready` (from the Daily webhook) | Bunny fetches Daily's recording; attach the video to the session (found by title when Bunny gives no id); check every 10 min for 2 h; delete Daily's copy when ready (ADR-039) |
 | `image-variants` | `file.uploaded` (image purposes) | Resize to WebP/AVIF |
 | `search-reindex` | `course.published`, `course.updated` | Update `course_search` (inline, ADR-032) |
+| `notification-digest` | `notification.digest_requested` (debounced 30 min per person, at most 60) | One email with the replies, answers and mentions that waited (ADR-041) |
+| `notifications-prune` | cron daily 03:30 WAT | Delete read notifications older than 90 days |
 | `rating-stats` | `review.changed` (debounced 10 s per course) | Recompute `course_rating_stats`, copy the rating into `course_search`, expire course/instructor/listing caches (ADR-040) |
 | `certificate-issue` | `course.completed`, `exam.passed`, `external_result.recorded` (pass) | Check the live criteria, issue once per learner and course (a passing grade or quiz completes its lesson, so it arrives as `course.completed`) |
 | `certificate-render` | `certificate.issued`, `certificate.name_corrected` | Make the PDF, store it in R2; email `certificate-issued` on first issue only |
@@ -43,7 +45,7 @@
 
 ## 3. Notifications
 
-Single entry point: `notifications.notify(ctx, { userId, type, data, channels? })`.
+Single entry point: `notifications.notify(ctx, { userId, type, title, body?, link?, dedupeKey?, email? })` (and `notifyMany` for batches). Implemented in Phase 9 (ADR-041).
 It writes the in-app row, checks preferences, and emits `notification.email_requested` /
 `notification.push_requested` (Phase 14).
 

@@ -4,7 +4,7 @@ import { getUserContact, grantInstructorRole } from '../identity'
 import { type Ctx, inTransaction, provider } from '../kernel/ctx'
 import { ConflictError, ForbiddenError, NotFoundError } from '../kernel/errors'
 import { requireStaff } from '../kernel/guards'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 import * as repo from './repo'
 import { canReviewApplications, namesMatch, reapplyDate, slugify } from './rules'
 
@@ -185,17 +185,22 @@ export async function decideApplication(
       userId: app.userId,
       approved,
     })
-    await sendEmail(tx, {
-      id: 'application-decision',
-      to: contact.email,
-      data: {
-        name: contact.name,
-        approved,
-        reason: approved ? null : input.reason,
-        reapplyOn: approved ? null : reapplyDate(tx.now).toISOString(),
-        url: approved ? `${urls.app}/teach/courses` : `${urls.app}/teach`,
+    await notify(tx, {
+      userId: app.userId,
+      type: 'application.decision',
+      title: approved ? 'You can teach on Tokslearn' : 'Your application to teach needs more',
+      link: approved ? '/teach/courses' : '/teach',
+      email: {
+        id: 'application-decision',
+        data: {
+          name: contact.name,
+          approved,
+          reason: approved ? null : input.reason,
+          reapplyOn: approved ? null : reapplyDate(tx.now).toISOString(),
+          url: approved ? `${urls.app}/teach/courses` : `${urls.app}/teach`,
+        },
+        businessKey: app.id,
       },
-      businessKey: app.id,
     })
     return app
   })

@@ -6,6 +6,7 @@ const groups: ReadonlyArray<{ title: string; keys: ReadonlyArray<keyof typeof co
   { title: 'Text', keys: ['ink', 'ink2', 'ink3', 'inkInverse'] },
   { title: 'Brand', keys: ['brand', 'brandHover', 'brandPress', 'brandSoft', 'brandInk'] },
   { title: 'Accent (max one per screen)', keys: ['accent', 'accentSoft', 'accentInk'] },
+  { title: 'Rating stars only', keys: ['star'] },
   {
     title: 'Status',
     keys: [

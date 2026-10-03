@@ -52,6 +52,14 @@ import {
 import { liveContract, studioLiveContract } from './live'
 
 export {
+  NotificationDto,
+  NotificationPreferenceDto,
+  NotificationType,
+} from './notifications'
+
+import { notificationsContract } from './notifications'
+
+export {
   MyReviewDto,
   MyReviewPageDto,
   ReviewPageDto,
@@ -121,6 +129,7 @@ export const contract = {
   community: communityContract,
   live: liveContract,
   reviews: reviewsContract,
+  notifications: notificationsContract,
 }
 export type Contract = typeof contract
 

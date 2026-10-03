@@ -8,7 +8,7 @@ import { inTransaction, provider } from '../kernel/ctx'
 import { NotFoundError, RuleViolationError } from '../kernel/errors'
 import { requireUser } from '../kernel/guards'
 import { publicFileUrl } from '../media'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 
 // Enrollments (docs/05 enrollments, docs/08 §6). The only answer to "may this person open this
 // paid lesson?" is `canAccessCourse` / `canAccessLesson`; every learning surface calls them.
@@ -352,17 +352,22 @@ export async function enrollFree(ctx: Ctx, courseId: string, cohortId: string | 
         .from(user)
         .where(eq(user.id, actor.userId))
       if (me) {
-        await sendEmail(tx, {
-          id: 'enrollment-free',
-          to: me.email,
-          businessKey: granted.enrollmentId,
-          data: {
-            name: me.name.split(/\s+/)[0] ?? me.name,
-            courseTitle: course.title,
-            lessonCount: course.lessonCount,
-            duration: course.totalDurationSec > 0 ? durationText(course.totalDurationSec) : null,
-            certificate: certificateWords[course.certificateMode] ?? null,
-            url: `${provider(tx, 'urls').app}/learn/${course.slug}`,
+        await notify(tx, {
+          userId: actor.userId,
+          type: 'enrollment.welcome',
+          title: `You joined ${course.title}`,
+          link: `/learn/${course.slug}`,
+          email: {
+            id: 'enrollment-free',
+            businessKey: granted.enrollmentId,
+            data: {
+              name: me.name.split(/\s+/)[0] ?? me.name,
+              courseTitle: course.title,
+              lessonCount: course.lessonCount,
+              duration: course.totalDurationSec > 0 ? durationText(course.totalDurationSec) : null,
+              certificate: certificateWords[course.certificateMode] ?? null,
+              url: `${provider(tx, 'urls').app}/learn/${course.slug}`,
+            },
           },
         })
       }

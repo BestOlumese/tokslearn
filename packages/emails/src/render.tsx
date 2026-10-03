@@ -1,6 +1,7 @@
 import { render, toPlainText } from '@react-email/components'
 import type { ReactElement } from 'react'
 import type { EmailData, EmailId } from './catalog'
+import * as activityDigest from './templates/activity-digest'
 import * as announcement from './templates/announcement'
 import * as applicationDecision from './templates/application-decision'
 import * as applicationReceived from './templates/application-received'
@@ -111,6 +112,10 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'attempt-voided': {
     subject: attemptVoided.subject,
     element: (d) => <attemptVoided.AttemptVoided {...d} />,
+  },
+  'activity-digest': {
+    subject: activityDigest.subject,
+    element: (d) => <activityDigest.ActivityDigest {...d} />,
   },
   'new-review': {
     subject: newReview.subject,

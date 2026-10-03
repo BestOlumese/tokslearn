@@ -18,7 +18,7 @@ import { requireUser } from '../kernel/guards'
 import { log } from '../kernel/logger'
 import { ngn, percentOf, splitBps } from '../kernel/money'
 import { instructorAccount, type LedgerLine, platformAccounts as P, post } from '../ledger'
-import { sendEmail } from '../notifications'
+import { notify } from '../notifications'
 import { attributionFacts } from './attribution'
 import { clearPurchased, getCart } from './cart'
 import { loadActiveRules } from './commission'
@@ -469,28 +469,33 @@ async function finalizePaid(
       .where(eq(user.id, order.userId))
     if (buyer) {
       const app = provider(tx, 'urls').app
-      await sendEmail(tx, {
-        id: 'order-receipt',
-        to: buyer.email,
-        businessKey: order.id,
-        data: {
-          name: buyer.name.split(/\s+/)[0] ?? buyer.name,
-          publicId: order.publicId,
-          paidAt: payment.paidAt.toISOString(),
-          items: items.map((item) => ({
-            title: item.courseTitleSnapshot,
-            netKobo: item.netPriceKobo.toString(),
-            refundLine: refundLine(
-              item.refundPolicyDaysSnapshot,
-              new Date(payment.paidAt.getTime() + item.refundPolicyDaysSnapshot * 86_400_000),
-            ),
-          })),
-          subtotalKobo: order.subtotalKobo.toString(),
-          discountKobo: order.discountKobo.toString(),
-          totalKobo: order.totalKobo.toString(),
-          paymentMethod: channelLabel(payment.channel),
-          learnUrl: `${app}/account`,
-          receiptUrl: `${app}/account/orders/${order.publicId}`,
+      await notify(tx, {
+        userId: order.userId,
+        type: 'order.receipt',
+        title: `Receipt for order ${order.publicId}`,
+        link: `/account/orders/${order.publicId}`,
+        email: {
+          id: 'order-receipt',
+          businessKey: order.id,
+          data: {
+            name: buyer.name.split(/\s+/)[0] ?? buyer.name,
+            publicId: order.publicId,
+            paidAt: payment.paidAt.toISOString(),
+            items: items.map((item) => ({
+              title: item.courseTitleSnapshot,
+              netKobo: item.netPriceKobo.toString(),
+              refundLine: refundLine(
+                item.refundPolicyDaysSnapshot,
+                new Date(payment.paidAt.getTime() + item.refundPolicyDaysSnapshot * 86_400_000),
+              ),
+            })),
+            subtotalKobo: order.subtotalKobo.toString(),
+            discountKobo: order.discountKobo.toString(),
+            totalKobo: order.totalKobo.toString(),
+            paymentMethod: channelLabel(payment.channel),
+            learnUrl: `${app}/account`,
+            receiptUrl: `${app}/account/orders/${order.publicId}`,
+          },
         },
       })
     }

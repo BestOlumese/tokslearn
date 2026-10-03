@@ -38,6 +38,10 @@ Light theme only. No `dark:` variants anywhere. Do not add a theme toggle.
   --color-accent-soft:   #FCF1DF;
   --color-accent-ink:    #7A4905;  /* text on accent-soft (accent itself is 3.6:1 there, fails AA) */
 
+  /* Rating stars only — golden yellow, the colour people expect for ratings (owner's decision,
+     Phase 9). Never used for anything else; the rating is always also given as a number. */
+  --color-star:          #F2A900;
+
   /* Status */
   --color-info:          #1D5DA8;  --color-info-soft:    #E7F0FA;
   --color-success:       #0E6B4E;  --color-success-soft: #E6F2EC;
@@ -51,7 +55,7 @@ Light theme only. No `dark:` variants anywhere. Do not add a theme toggle.
 Usage rules:
 - Brand green appears on: primary buttons, links, progress bars, selected nav item, checkmarks. That's it. Most of the screen is neutral.
 - **One primary button per view.** Other actions are secondary (outlined) or tertiary (text).
-- Amber is an accent, never a second primary. Max one amber element per screen.
+- Amber is an accent, never a second primary. Max one amber element per screen. Rating stars use their own `star` token and don't count towards this.
 - No gradients on UI surfaces. The only allowed gradient is a subtle scrim on top of course cover images for text legibility.
 - Text on color must pass WCAG AA (4.5:1 body, 3:1 large). Verify with the audit script.
 

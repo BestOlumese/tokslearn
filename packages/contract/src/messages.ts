@@ -59,6 +59,7 @@ export const errorCatalog = {
   COHORT_NOT_FOUND: notFound('start date'),
   LIVE_SESSION_NOT_FOUND: notFound('live class'),
   REVIEW_NOT_FOUND: notFound('review'),
+  NOTIFICATION_NOT_FOUND: notFound('notification'),
   REVISION_NOT_FOUND: notFound('course version'),
   VIDEO_NOT_FOUND: notFound('video'),
 
@@ -303,6 +304,10 @@ export const errorCatalog = {
     status: 'UNPROCESSABLE_CONTENT',
     message:
       'You can review this course after finishing {pct}% of it or {minutes} minutes of learning.',
+  },
+  NOTIFICATION_LOCKED: {
+    status: 'FORBIDDEN',
+    message: 'This email keeps your account and purchases on record, so it can’t be turned off.',
   },
   REVIEW_OWN: {
     status: 'UNPROCESSABLE_CONTENT',

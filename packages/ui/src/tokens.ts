@@ -20,6 +20,8 @@ export const colors = {
   accent: '#B86E0A',
   accentSoft: '#FCF1DF',
   accentInk: '#7A4905',
+  /** Rating stars only. */
+  star: '#F2A900',
   info: '#1D5DA8',
   infoSoft: '#E7F0FA',
   success: '#0E6B4E',

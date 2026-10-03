@@ -153,6 +153,21 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     reason: 'The exam was left for over 20 minutes, twice, in the middle of the attempt.',
     url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/01920000-0000-7000-8000-000000000003',
   },
+  'activity-digest': {
+    name: 'Amaka',
+    count: 7,
+    items: [
+      {
+        title: 'Bola A. replied to “Month-end checklist”',
+        url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/community/01920000-0000-7000-8000-000000000009',
+      },
+      {
+        title: 'Tobi Adeleke answered “Does this work in Excel 2016?”',
+        url: 'https://tokslearn.com/learn/bookkeeping-for-small-businesses/community/01920000-0000-7000-8000-000000000010',
+      },
+    ],
+    url: 'https://tokslearn.com/account/notifications',
+  },
   'new-review': {
     name: 'Tobi',
     courseTitle: 'Bookkeeping for Small Businesses',

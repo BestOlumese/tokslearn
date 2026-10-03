@@ -50,8 +50,8 @@ export function CourseCard({
         <p className="truncate text-body-sm text-ink-2">{course.instructorName}</p>
         {course.ratingAvg !== null && course.ratingCount >= 3 ? (
           <p className="text-body-sm text-ink-2">
-            <span className="font-semibold text-ink">{course.ratingAvg.toFixed(1)}</span> ★ (
-            {course.ratingCount})
+            <span className="font-semibold text-ink">{course.ratingAvg.toFixed(1)}</span>{' '}
+            <span className="text-star">★</span> ({course.ratingCount})
           </p>
         ) : null}
         <p className="text-body-sm text-ink-3">{meta.join(' · ')}</p>
