@@ -78,8 +78,9 @@ Index: `order_items(instructor_id, earning_status)`, `order_items(refundable_unt
 - `commission_rules`: `scope` enum(default, instructor, promo), `instructor_id` nullable, `source` (attribution source), `platform_rate_bps`, `starts_at`, `ends_at`, `created_by`.
 
 ### payouts
-- `payout_runs`: `period_start`, `period_end`, `status` enum(draft, approved, processing, completed, partially_failed), `approved_by`, `provider_batch_ref`, `total_kobo`.
-- `payout_items`: `run_id`, `instructor_id`, `amount_kobo`, `payout_account_id`, `status` enum(queued, sent, success, failed, reversed), `provider_transfer_code` unique, `failure_reason`, `journal_entry_id`.
+- `payout_runs`: `public_id` (PR-YYYY-MM), `month` char(7) unique (Lagos), `pay_on`, `status` enum(draft, approved, processing, completed, partially_failed), `total_kobo`, `cosign_required`, `approved_by/at`, `cosigned_by/at`, `started_at`, `finished_at`, `last_error` (ADR-046).
+- `payout_items`: `run_id`, `instructor_id` (unique per run), `payout_account_id`, `amount_kobo`, `netted_kobo`, `status` enum(queued, held, sending, sent, success, failed, reversed), `hold_reason` enum, `anomalies text[]`, `attempt`, `reference` unique (ours, per attempt), `transfer_code`, `fee_kobo`, `failure_reason`, `sent_at`, `settled_at`. Ledger entries reference them as `payout_item`.
+- `order_items.payout_item_id`: the payout that paid that share out (ADR-046).
 - `earning_statements`: `instructor_id`, `month` char(7) `YYYY-MM` (Lagos), `file_id` (PDF), `totals jsonb`, `emailed_at`. unique(instructor_id, month) (ADR-044).
 
 ### refunds

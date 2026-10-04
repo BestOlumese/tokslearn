@@ -110,6 +110,20 @@ export const notificationTypes = {
     email: 'locked',
     inApp: true,
   },
+  'payout.sent': {
+    group: 'teaching',
+    label: 'Payouts sent',
+    description: 'When we send money to your bank account.',
+    email: 'locked',
+    inApp: true,
+  },
+  'payout.failed': {
+    group: 'teaching',
+    label: 'Payouts that failed',
+    description: 'If a payout to your bank doesn’t go through, with what to fix.',
+    email: 'locked',
+    inApp: true,
+  },
   'course.review_decision': {
     group: 'teaching',
     label: 'Course review results',

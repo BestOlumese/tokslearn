@@ -319,6 +319,18 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Why not real throttling for everything:** it slows the CPU for real, and blocking time pushed performance to 0.92–0.96, so the score check would flake. The simulated score already weighs LCP, so a page that really got slower still loses points in pass 1.
 - **Cost:** about 5 more minutes per preview run (the job timeout is now 30 minutes).
 
+### ADR-046 Payout runs (Phase 10)
+- **Draft (1st, 06:00 Lagos, `payout-run-draft`; finance can also build it early or rebuild an unapproved draft):** one item per instructor whose `available` balance is at least `min_payout_kobo`. The amount is available minus anything owed back (`receivable`). People who can't be paid stay in the run as `held` with the reason, so finance sees who is waiting and why: no bank account, account waiting for review, the 72-hour hold after a change still running on the pay day, identity not verified, 2FA off, suspended, or under the minimum after what's owed. Flags for finance: first payout, a new bank account since the last payout, more than 3× the last payout. Finance gets `staff-payout-run-ready`. One run per Lagos month (`PR-YYYY-MM`). The job never rebuilds a draft; a finance rebuild keeps finance holds.
+- **Approval:** finance, admin or super admin, with a 2FA code from the last 12 hours (`STEP_UP_REQUIRED`). A total over `payout_cosign_threshold_kobo` (₦5,000,000) also needs a super admin who didn't approve it (`PAYOUT_COSIGN_SELF`). After the first approval a run can't change (`PAYOUT_RUN_LOCKED`). Holds, approvals, co-signs, rebuilds and retries are audit-logged.
+- **Sending (`payout-run-process`, daily 09:05 Lagos and on approval):** once the pay day has come, each item is checked again (bank, hold, KYC, 2FA, balance after any refunds). Anything owed back comes off first (Dr available / Cr receivable). The rest moves Dr available / Cr in_transit, never more than was approved. Transfers go to Paystack in bulk batches of 100, 5 s apart. Each attempt has its own reference (`tlpo{item}{attempt}`), and every ledger key carries the item and attempt, so a retried job can't pay or post twice.
+- **When Paystack refuses a batch** (e.g. our balance is too low), nothing was sent: the money goes back to available and the item is marked failed with the reason. The instructor isn't emailed (their bank did nothing wrong); the run shows the error and finance retries after topping up. **On a timeout** nothing is assumed: the retry first asks Paystack about each reference.
+- **Settling:** `transfer.*` webhooks hand our reference to `payout-settle`, which asks Paystack (`/transfer/verify`) and never trusts the body. The hourly money job checks transfers sent over an hour ago.
+  - **Success:** Dr in_transit / Cr Paystack cash, plus the transfer fee (Paystack's figure, or its NGN tiers ₦10/₦25/₦50) Dr gateway_fees / Cr cash, a platform cost. The instructor's oldest available sales become `paid`, up to what the payout covered; each records the payout item (`order_items.payout_item_id`). Then `payout-sent`.
+  - **Failed, or reversed before success:** Dr in_transit / Cr available, then `payout-failed`. The money rolls into next month's draft, or finance retries sooner.
+  - **Reversed after success:** Dr Paystack cash / Cr available, and those sales go back to available.
+- **Instructors** see their payouts on `/teach/earnings` (`earnings.payouts`) once a run is approved; drafts stay internal.
+- **Deferred:** checking the Paystack balance before a run (a refused batch already surfaces it), and an alert to finance when a run partially fails (the run page shows it; the dashboard comes with PR 4).
+
 ---
 
 ## Open questions (resolve before the phase that needs them)

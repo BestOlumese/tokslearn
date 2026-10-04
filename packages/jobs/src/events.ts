@@ -121,6 +121,16 @@ export const refundApproved = eventType('refund.approved', {
   schema: z.object({ refundId: z.string() }),
 })
 
+/** A payout run was approved or a failed transfer retried: send what's due. */
+export const payoutRunApproved = eventType('payout_run.approved', {
+  schema: z.object({ runId: z.string() }),
+})
+
+/** Paystack sent a transfer.* webhook (verified; the job asks Paystack about the reference). */
+export const payoutProviderUpdated = eventType('payout/provider.updated', {
+  schema: z.object({ reference: z.string(), eventId: z.string() }),
+})
+
 /** Paystack sent a refund.* webhook for this transaction (verified; body not trusted). */
 export const refundProviderUpdated = eventType('refund/provider.updated', {
   schema: z.object({ reference: z.string(), eventId: z.string() }),

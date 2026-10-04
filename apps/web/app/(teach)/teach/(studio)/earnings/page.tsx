@@ -67,9 +67,10 @@ const fixes: Record<
 async function Earnings() {
   const { ctx, isInstructor } = await studioCtx('/teach/earnings')
   if (!isInstructor) return <NotInstructor />
-  const [s, statements] = await Promise.all([
+  const [s, statements, payouts] = await Promise.all([
     commerce.earningsSummary(ctx),
     commerce.listStatements(ctx),
+    commerce.listMyPayouts(ctx),
   ])
   const holding = s.problems.filter((p) => p !== 'payout_account_on_hold').length > 0
 
@@ -158,6 +159,30 @@ async function Earnings() {
         ) : null}
       </section>
 
+      {payouts.length > 0 ? (
+        <section aria-labelledby="payouts-title">
+          <h2 id="payouts-title" className="text-h2 text-ink">
+            Payouts
+          </h2>
+          <ul className="mt-4 flex flex-col divide-y divide-border rounded-card border border-border bg-surface">
+            {payouts.map((p) => (
+              <li
+                key={p.month}
+                className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-body font-medium text-ink">{p.label}</p>
+                  <p className="text-body-sm text-ink-2">{payoutNote(p)}</p>
+                </div>
+                <span className="text-body font-semibold text-ink tabular-nums">
+                  {formatNaira(p.amountKobo)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <section aria-labelledby="sales-title">
         <h2 id="sales-title" className="text-h2 text-ink">
           Sales
@@ -206,6 +231,24 @@ async function Earnings() {
       </section>
     </div>
   )
+}
+
+function payoutNote(p: commerce.MyPayout): string {
+  const bank = p.bankName ? `${p.bankName} •••• ${p.last4}` : 'your bank'
+  const netted =
+    p.nettedKobo > 0n ? ` ${formatNaira(p.nettedKobo)} owed back from refunds was taken off.` : ''
+  switch (p.status) {
+    case 'paid':
+      return `Paid to ${bank} on ${formatDate(p.settledAt ?? p.payOn)}.${netted}`
+    case 'failed':
+      return `Didn’t go through to ${bank}. The money is back in your available balance.`
+    case 'held':
+      return 'Not paid this month. Check the box at the top of this page for what to fix.'
+    case 'sending':
+      return `On its way to ${bank}.${netted}`
+    default:
+      return `Goes to ${bank} on ${formatDate(p.payOn)}.`
+  }
 }
 
 function Balance({

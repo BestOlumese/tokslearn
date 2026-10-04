@@ -30,6 +30,10 @@ export const commerceHourly = inngest.createFunction(
     const refunds = await step.run('settle-refunds', () =>
       commerce.settleRefunds(ctx(), { olderThanMs: 60 * 60 * 1000 }),
     )
-    return { reconciled, abandoned, clickLinks: clicks, refunds }
+    // Transfers whose webhook never came, the same way.
+    const payouts = await step.run('settle-payouts', () =>
+      commerce.settleSentPayouts(ctx(), { olderThanMs: 60 * 60 * 1000 }),
+    )
+    return { reconciled, abandoned, clickLinks: clicks, refunds, payouts }
   },
 )

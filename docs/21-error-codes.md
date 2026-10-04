@@ -142,6 +142,11 @@ Format: `CODE` — oRPC status — when — user message.
 - `APPEAL_USED` — UNPROCESSABLE_CONTENT — "You've already appealed this decision."
 - `PAYOUT_ACCOUNT_REQUIRED` — UNPROCESSABLE_CONTENT — "Add a bank account to receive payouts."
 - `PAYOUT_HOLD_ACTIVE` — UNPROCESSABLE_CONTENT — "Payouts to a new bank account start 72 hours after the change."
+- `PAYOUT_RUN_NOT_FOUND` — NOT_FOUND — "We couldn't find that payout run."
+- `PAYOUT_RUN_LOCKED` — CONFLICT — changing or re-drafting a run that's no longer a draft — "This payout run is already approved, so it can't be changed."
+- `PAYOUT_RUN_EMPTY` — UNPROCESSABLE_CONTENT — approving a run with nobody to pay — "Nobody in this run can be paid yet, so there's nothing to approve."
+- `PAYOUT_COSIGN_SELF` — UNPROCESSABLE_CONTENT — the approver co-signing their own run — "You approved this run, so another super admin has to co-sign it."
+- `PAYOUT_NOT_RETRYABLE` — CONFLICT — retrying a transfer that didn't fail — "Only a failed transfer can be sent again."
 - `COMMISSION_DEFAULT_REQUIRED` — UNPROCESSABLE_CONTENT — ending a default rule — "Every source needs a default rate. Set a new one instead of ending it."
 - `LEDGER_UNBALANCED` — INTERNAL (never user-facing) — Sentry alert.
 

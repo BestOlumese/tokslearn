@@ -1,6 +1,7 @@
 import 'server-only'
 import { ProviderError, providerJson } from '../shared/http'
-import type { Bank, PayoutProvider } from './types'
+import { mapTransferStatus } from './transfer'
+import type { Bank, PayoutProvider, TransferInfo } from './types'
 
 const API = 'https://api.paystack.co'
 
@@ -75,6 +76,67 @@ export function createPaystackPayouts(config: { secretKey: string }): PayoutProv
         throw new ProviderError('paystack', status, 'transfer recipient not created')
       }
       return { recipientCode: body.data.recipient_code }
+    },
+
+    async bulkTransfer(transfers) {
+      if (transfers.length === 0) return []
+      if (transfers.length > 100) throw new Error('Paystack takes at most 100 transfers per batch')
+      const { status, body } = await providerJson<
+        Envelope<ReadonlyArray<{ reference: string; transfer_code: string; status?: string }>>
+      >('paystack', `${API}/transfer/bulk`, {
+        method: 'POST',
+        headers,
+        timeoutMs: 30_000,
+        body: JSON.stringify({
+          currency: 'NGN',
+          source: 'balance',
+          transfers: transfers.map((t) => ({
+            amount: Number(t.amountKobo),
+            recipient: t.recipientCode,
+            reference: t.reference,
+            reason: t.reason.slice(0, 100),
+          })),
+        }),
+      })
+      if (status !== 200 || !body?.data) {
+        // e.g. "Your balance is not enough to fulfil this request"
+        throw new ProviderError('paystack', status, `bulk transfer refused: ${body?.message ?? ''}`)
+      }
+      return body.data.map((t) => ({
+        reference: t.reference,
+        transferCode: t.transfer_code,
+        status: mapTransferStatus(t.status),
+      }))
+    },
+
+    async fetchTransfer(reference): Promise<TransferInfo | null> {
+      const { status, body } = await providerJson<
+        Envelope<{
+          status?: string
+          transfer_code?: string
+          amount?: number
+          fee_charged?: number
+          reason?: string
+          failures?: unknown
+          gateway_response?: string
+        }>
+      >('paystack', `${API}/transfer/verify/${encodeURIComponent(reference)}`, { headers })
+      if (status === 404 || status === 400) return null
+      if (status !== 200 || !body?.data) {
+        throw new ProviderError('paystack', status, 'transfer lookup failed')
+      }
+      const d = body.data
+      const mapped = mapTransferStatus(d.status)
+      return {
+        status: mapped,
+        transferCode: d.transfer_code ?? null,
+        amountKobo: BigInt(Math.round(d.amount ?? 0)),
+        feeKobo: typeof d.fee_charged === 'number' ? BigInt(Math.round(d.fee_charged)) : null,
+        failureReason:
+          mapped === 'failed' || mapped === 'reversed'
+            ? (d.gateway_response ?? (typeof d.failures === 'string' ? d.failures : null))
+            : null,
+      }
     },
   }
 }

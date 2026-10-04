@@ -30,6 +30,8 @@ export const NotificationType = z.enum([
   'refund.updated',
   'sale.refunded',
   'earnings.statement',
+  'payout.sent',
+  'payout.failed',
   'order.receipt',
   'enrollment.welcome',
 ])

@@ -410,6 +410,26 @@ export const errorCatalog = {
     status: 'UNPROCESSABLE_CONTENT',
     message: 'Payouts to a new bank account start 72 hours after the change.',
   },
+  PAYOUT_RUN_NOT_FOUND: {
+    status: 'NOT_FOUND',
+    message: "We couldn't find that payout run.",
+  },
+  PAYOUT_RUN_LOCKED: {
+    status: 'CONFLICT',
+    message: 'This payout run is already approved, so it can’t be changed.',
+  },
+  PAYOUT_RUN_EMPTY: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'Nobody in this run can be paid yet, so there’s nothing to approve.',
+  },
+  PAYOUT_COSIGN_SELF: {
+    status: 'UNPROCESSABLE_CONTENT',
+    message: 'You approved this run, so another super admin has to co-sign it.',
+  },
+  PAYOUT_NOT_RETRYABLE: {
+    status: 'CONFLICT',
+    message: 'Only a failed transfer can be sent again.',
+  },
   COMMISSION_DEFAULT_REQUIRED: {
     status: 'UNPROCESSABLE_CONTENT',
     message: 'Every source needs a default rate. Set a new one instead of ending it.',

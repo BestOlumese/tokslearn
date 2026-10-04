@@ -4,6 +4,7 @@ import {
   authEmailRequested,
   bunnyVideoChanged,
   outboxDispatchRequested,
+  payoutProviderUpdated,
   paystackChargeSucceeded,
   refundProviderUpdated,
 } from './events'
@@ -20,6 +21,7 @@ import { ledgerIntegrity } from './functions/ledger-integrity'
 import { liveReminders, recordingImport } from './functions/live'
 import { notificationDigest, notificationsPrune } from './functions/notifications'
 import { outboxDispatch } from './functions/outbox-dispatch'
+import { payoutRunDraft, payoutRunProcess, payoutSettle } from './functions/payouts'
 import { paystackCharge } from './functions/paystack-charge'
 import { refundSend, refundSettle } from './functions/refunds'
 import { ratingStats } from './functions/reviews'
@@ -58,6 +60,9 @@ export const functions = [
   refundSettle,
   earningsRelease,
   monthlyStatements,
+  payoutRunDraft,
+  payoutRunProcess,
+  payoutSettle,
 ]
 
 /** After-commit hook for request contexts: deliver outbox rows now instead of waiting for cron. */
@@ -78,6 +83,11 @@ export async function requestVideoRefresh(input: { videoGuid: string; eventId: s
 /** Hands a verified Paystack charge.success webhook to the paystack-charge job. */
 export async function requestPaystackCharge(input: { reference: string; eventId: string }) {
   await inngest.send({ name: paystackChargeSucceeded.name, data: input })
+}
+
+/** Hands a verified Paystack transfer.* webhook to the payout-settle job. */
+export async function requestPayoutSettle(input: { reference: string; eventId: string }) {
+  await inngest.send({ name: payoutProviderUpdated.name, data: input })
 }
 
 /** Hands a verified Paystack refund.* webhook to the refund-settle job. */

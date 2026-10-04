@@ -54,6 +54,31 @@ export async function movements(
   return rows.map((r) => ({ ...r, debit: BigInt(r.debit), credit: BigInt(r.credit) }))
 }
 
+/**
+ * Instructors whose `bucket` account holds at least `minKobo` (the payout draft). Reads the
+ * balance table, so it's one indexed scan over instructor accounts.
+ */
+export async function instructorBalancesAtLeast(
+  ctx: Ctx,
+  bucket: 'available',
+  minKobo: bigint,
+): Promise<Array<{ instructorId: string; balanceKobo: bigint }>> {
+  const rows = await ctx.db
+    .select({ code: ledgerAccounts.code, balance: accountBalances.balanceKobo })
+    .from(ledgerAccounts)
+    .innerJoin(accountBalances, eq(accountBalances.accountId, ledgerAccounts.id))
+    .where(
+      and(
+        sql`${ledgerAccounts.code} like ${`instructor:%:${bucket}`}`,
+        sql`${accountBalances.balanceKobo} >= ${minKobo}`,
+      ),
+    )
+  return rows.map((r) => ({
+    instructorId: r.code.slice('instructor:'.length, -`:${bucket}`.length),
+    balanceKobo: r.balance,
+  }))
+}
+
 export async function balanceOf(ctx: Ctx, code: string): Promise<bigint> {
   return (await balances(ctx, [code])).get(code) ?? 0n
 }

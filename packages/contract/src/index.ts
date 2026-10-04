@@ -55,6 +55,7 @@ export {
   EarningLineDto,
   EarningLineStatus,
   EarningsSummaryDto,
+  MyPayoutDto,
   StatementDto,
 } from './earnings'
 export {
@@ -62,6 +63,14 @@ export {
   NotificationPreferenceDto,
   NotificationType,
 } from './notifications'
+export {
+  PayoutHoldReason,
+  type PayoutItemDto,
+  PayoutItemStatus,
+  PayoutRunDetailDto,
+  PayoutRunDto,
+  PayoutRunStatus,
+} from './payouts'
 export {
   RefundCheckDto,
   RefundDto,
@@ -72,6 +81,7 @@ export {
 
 import { earningsContract } from './earnings'
 import { notificationsContract } from './notifications'
+import { adminPayoutsContract } from './payouts'
 import { adminRefundsContract, refundsContract } from './refunds'
 
 export {
@@ -125,6 +135,7 @@ export type Contract = {
     moderation: typeof adminModerationContract
     reviews: typeof adminReviewsContract
     refunds: typeof adminRefundsContract
+    payouts: typeof adminPayoutsContract
   }
   cart: typeof cartContract
   wishlist: typeof wishlistContract
@@ -187,6 +198,7 @@ export const contract: Contract = {
     moderation: adminModerationContract,
     reviews: adminReviewsContract,
     refunds: adminRefundsContract,
+    payouts: adminPayoutsContract,
   },
   cart: cartContract,
   wishlist: wishlistContract,

@@ -4,7 +4,7 @@ import type { RichTextDoc } from '@tokslearn/contract'
 import { type Db, schema, seedCategories } from '@tokslearn/db'
 import { createFakeBunny } from '@tokslearn/integrations/bunny'
 import { createFakeDaily } from '@tokslearn/integrations/daily'
-import { createFakePaystack } from '@tokslearn/integrations/paystack'
+import { createFakePayouts, createFakePaystack } from '@tokslearn/integrations/paystack'
 import {
   createFakeCertificateRenderer,
   createFakeStatementRenderer,
@@ -51,6 +51,7 @@ export function setup(db: Db) {
   const pdf = createFakeCertificateRenderer()
   const daily = createFakeDaily()
   const statements = createFakeStatementRenderer()
+  const payouts = createFakePayouts()
   const ctx = (actor: Actor, at = new Date('2026-09-26T10:00:00Z')) =>
     createCtx({
       db,
@@ -62,6 +63,7 @@ export function setup(db: Db) {
         video: bunny.provider,
         live: daily.provider,
         payments: paystack.provider,
+        payouts: payouts.provider,
         certificatePdf: pdf,
         statementPdf: statements,
         sessions: { revokeSession: vi.fn(), revokeAllSessions: vi.fn() },
@@ -73,7 +75,7 @@ export function setup(db: Db) {
         },
       },
     })
-  return { ctx, storage, bunny, paystack, pdf, daily, statements }
+  return { ctx, storage, bunny, paystack, pdf, daily, statements, payouts }
 }
 
 export async function codeOf(p: Promise<unknown>): Promise<string> {

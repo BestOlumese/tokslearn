@@ -151,6 +151,42 @@ export interface EmailData {
     /** /teach/earnings, where the PDF is. */
     url: string
   }
+  'payout-sent': {
+    name: string
+    /** Kobo as a string. */
+    amountKobo: string
+    bankName: string
+    last4: string
+    /** e.g. "October 2026". */
+    monthLabel: string
+    /** /teach/earnings */
+    url: string
+  }
+  'payout-failed': {
+    name: string
+    amountKobo: string
+    bankName: string
+    last4: string
+    monthLabel: string
+    /** Paystack's reason in plain words, when it gave one. */
+    reason: string | null
+    /** /teach/settings, to fix the bank account. */
+    url: string
+  }
+  'staff-payout-run-ready': {
+    name: string
+    monthLabel: string
+    /** Kobo as a string. */
+    totalKobo: string
+    instructors: number
+    held: number
+    flagged: number
+    /** e.g. "Monday 5 October". */
+    payOnLabel: string
+    cosignRequired: boolean
+    /** /admin/payouts/{publicId} */
+    url: string
+  }
   'refund-update': {
     name: string
     courseTitle: string
@@ -252,6 +288,9 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'wishlist-price-drop': 'marketing',
   'refund-update': 'transactional',
   'monthly-statement': 'transactional',
+  'payout-sent': 'transactional',
+  'payout-failed': 'transactional',
+  'staff-payout-run-ready': 'transactional',
   'live-reminder-24h': 'activity',
   'live-reminder-15m': 'activity',
 }

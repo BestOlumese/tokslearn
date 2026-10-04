@@ -16,9 +16,9 @@ Execute Phase 10.
 ### Earnings and payouts
 - [x] `earnings-release` job.
 - [x] Instructor earnings page: pending (with release dates), available, in transit, paid; line items; export CSV. Plus `/teach/settings` for identity and bank (ADR-044).
-- [ ] Payout runs: draft job, finance review UI with anomalies, approval with 2FA (+ super-admin co-sign above threshold), processing with bulk transfers, webhooks, failure rollover, notifications.
+- [x] Payout runs: draft job, finance review UI with anomalies, approval with 2FA (+ super-admin co-sign above threshold), processing with bulk transfers, webhooks, failure rollover, notifications. PR 3 of 4 (ADR-046).
 - [x] Monthly statement PDFs. PR 2 of 4 (ADR-044).
-- [ ] First-payout hold after bank change (72 h) + alert emails.
+- [x] First-payout hold after bank change (72 h) + alert emails. (Hold and `payout-account-changed` from Phase 2; payout runs enforce it, ADR-046.)
 
 ### Admin back office
 - [ ] Dashboard (orders, revenue, refunds rate, failed payments, payout status, active learners).

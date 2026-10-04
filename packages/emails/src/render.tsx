@@ -23,9 +23,12 @@ import * as newSignIn from './templates/new-sign-in'
 import * as orderReceipt from './templates/order-receipt'
 import * as passwordChanged from './templates/password-changed'
 import * as payoutAccountChanged from './templates/payout-account-changed'
+import * as payoutFailed from './templates/payout-failed'
+import * as payoutSent from './templates/payout-sent'
 import * as refundUpdate from './templates/refund-update'
 import * as resetPassword from './templates/reset-password'
 import * as signInCode from './templates/sign-in-code'
+import * as staffPayoutRunReady from './templates/staff-payout-run-ready'
 import * as threadReply from './templates/thread-reply'
 import * as twoFactorChanged from './templates/two-factor-changed'
 import * as verifyEmail from './templates/verify-email'
@@ -119,6 +122,18 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'monthly-statement': {
     subject: monthlyStatement.subject,
     element: (d) => <monthlyStatement.MonthlyStatement {...d} />,
+  },
+  'payout-sent': {
+    subject: payoutSent.subject,
+    element: (d) => <payoutSent.PayoutSent {...d} />,
+  },
+  'payout-failed': {
+    subject: payoutFailed.subject,
+    element: (d) => <payoutFailed.PayoutFailed {...d} />,
+  },
+  'staff-payout-run-ready': {
+    subject: staffPayoutRunReady.subject,
+    element: (d) => <staffPayoutRunReady.StaffPayoutRunReady {...d} />,
   },
   'refund-update': {
     subject: refundUpdate.subject,

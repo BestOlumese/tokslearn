@@ -113,6 +113,13 @@
       "when": 1791068063623,
       "tag": "0015_phase10_earnings",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1791106724608,
+      "tag": "0016_phase10_payouts",
+      "breakpoints": true
     }
   ]
 }
