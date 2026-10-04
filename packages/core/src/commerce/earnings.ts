@@ -173,7 +173,8 @@ export async function earningsSummary(ctx: Ctx): Promise<EarningsSummary> {
     movements(ctx, {
       codes: [instructorAccount(me.userId, 'in_transit')],
       from: yearStart,
-      to: ctx.now,
+      // Inclusive of this moment: a payout settled just now counts.
+      to: new Date(ctx.now.getTime() + 1),
     }),
     ctx.db
       .select({
@@ -454,7 +455,7 @@ export function previousMonth(now: Date): string {
   return d.toISOString().slice(0, 7)
 }
 
-const monthLabel = (month: string) =>
+export const monthLabel = (month: string) =>
   new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     new Date(`${month}-01T00:00:00Z`),
   )

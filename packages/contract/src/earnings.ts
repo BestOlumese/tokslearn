@@ -81,6 +81,21 @@ const StatementShape = z.object({
 export type StatementDto = z.infer<typeof StatementShape>
 export const StatementDto = named(StatementShape)
 
+const PayoutShape = z.object({
+  month: z.string(),
+  label: z.string(),
+  amountKobo: Kobo,
+  nettedKobo: Kobo,
+  status: z.enum(['queued', 'held', 'sending', 'paid', 'failed']),
+  holdReason: z.string().nullable(),
+  bankName: z.string().nullable(),
+  last4: z.string().nullable(),
+  payOn: IsoDateTime,
+  settledAt: IsoDateTime.nullable(),
+})
+export type MyPayoutDto = z.infer<typeof PayoutShape>
+export const MyPayoutDto = named(PayoutShape)
+
 const Month = z.string().regex(/^\d{4}-\d{2}$/)
 
 export const earningsContract = {
@@ -110,6 +125,11 @@ export const earningsContract = {
   )
     .input(z.object({ from: IsoDateTime.optional(), to: IsoDateTime.optional() }))
     .output(z.object({ filename: z.string(), csv: z.string() })),
+  payouts: get(
+    '/earnings/payouts',
+    'My payouts',
+    'Newest first, once a run is approved: amount, bank, and whether it was paid, held or failed.',
+  ).output(z.object({ items: z.array(MyPayoutDto) })),
   statements: get(
     '/earnings/statements',
     'My monthly statements',

@@ -64,4 +64,36 @@ export interface PayoutProvider {
     accountNumber: string
     bankCode: string
   }): Promise<{ recipientCode: string }>
+  /**
+   * Queues up to 100 transfers from the Paystack balance (OTP for transfers must be off). Each
+   * reference is ours: at least 16 characters, unique per transfer, so a retry can't pay twice.
+   */
+  bulkTransfer(transfers: ReadonlyArray<TransferRequest>): Promise<ReadonlyArray<QueuedTransfer>>
+  /** A transfer by our reference, or null when Paystack has none. */
+  fetchTransfer(reference: string): Promise<TransferInfo | null>
+}
+
+export interface TransferRequest {
+  amountKobo: bigint
+  recipientCode: string
+  reference: string
+  reason: string
+}
+
+export interface QueuedTransfer {
+  reference: string
+  transferCode: string
+  status: TransferStatus
+}
+
+/** Paystack's many in-flight states fold into `pending`; refusals into `failed`. */
+export type TransferStatus = 'pending' | 'success' | 'failed' | 'reversed'
+
+export interface TransferInfo {
+  status: TransferStatus
+  transferCode: string | null
+  amountKobo: bigint
+  /** What Paystack charged for the transfer, when it says; else see `transferFeeKobo`. */
+  feeKobo: bigint | null
+  failureReason: string | null
 }

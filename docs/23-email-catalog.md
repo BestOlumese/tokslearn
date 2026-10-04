@@ -54,8 +54,8 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `activity-digest` | more than 5 replies, answers or mentions in an hour (`notification-digest`) | {n} new replies and mentions on Tokslearn | Up to 20 lines, each linked; "and {n} more"; button to `/account/notifications` (ADR-041) | activity |
 | `new-review` | a learner's first review of a course (not edits) | New {rating}-star review on {course} | Stars, excerpt (280 characters) or "without writing a review", button to `/teach/reviews?course=` | activity |
 | `grading-backlog` | weekly if queue > 0 | {n} submissions waiting for grading | Oldest age, queue link | activity |
-| `payout-sent` | transfer success | Your payout of {amount} is on its way | Amount, bank (last 4), period, statement link | transactional |
-| `payout-failed` | transfer failed | We couldn't send your payout | Reason, fix bank details button, will retry next run | transactional |
+| `payout-sent` | transfer success | Your payout of {amount} is on its way | Amount, bank (last 4), month, link to `/teach/earnings` (ADR-046) | transactional |
+| `payout-failed` | transfer failed | We couldn't send your payout | Reason, money back in available, fix bank details button (`/teach/settings`), will retry next run. Not sent when Paystack refused the batch on our side (ADR-046) | transactional |
 | `payout-account-changed` | bank change | Your payout bank account was changed | New bank last 4, 72-hour hold, "not you?" | security |
 | `monthly-statement` | statement generated (1st of the month, ADR-044) | Your {month} statement | Sales, your share, refunded, paid out, available now; link to `/teach/earnings` for the PDF | transactional |
 

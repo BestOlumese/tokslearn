@@ -1,5 +1,6 @@
 import {
   Award,
+  Banknote,
   Bell,
   BookOpen,
   BookText,
@@ -78,6 +79,7 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [
       { href: '/admin/orders', label: 'Orders', icon: icon(Receipt) },
       { href: '/admin/refunds', label: 'Refunds', icon: icon(Undo2) },
+      { href: '/admin/payouts', label: 'Payouts', icon: icon(Banknote) },
       { href: '/admin/ledger', label: 'Ledger', icon: icon(BookText) },
       { href: '/admin/coupons', label: 'Coupons', icon: icon(TicketPercent) },
       { href: '/admin/settings/commission', label: 'Commission', icon: icon(Percent) },

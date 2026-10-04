@@ -49,6 +49,15 @@ export const earningsRouter = {
   exportCsv: authed.earnings.exportCsv.handler(({ context, input }) =>
     commerce.earningsCsv(context.ctx, { from: dateN(input.from), to: dateN(input.to) }),
   ),
+  payouts: authed.earnings.payouts.handler(async ({ context }) => ({
+    items: (await commerce.listMyPayouts(context.ctx)).map((p) => ({
+      ...p,
+      amountKobo: k(p.amountKobo),
+      nettedKobo: k(p.nettedKobo),
+      payOn: iso(p.payOn),
+      settledAt: p.settledAt ? iso(p.settledAt) : null,
+    })),
+  })),
   statements: authed.earnings.statements.handler(async ({ context }) => ({
     items: (await commerce.listStatements(context.ctx)).map((s) => ({
       ...s,

@@ -83,6 +83,8 @@ export interface DomainEvents {
   'coupon.announced': { couponId: string }
   /** A refund was approved (by the rules or finance): the refund-send job asks Paystack. */
   'refund.approved': { refundId: string }
+  /** A payout run is approved (or a failed transfer is retried): send it once its pay day comes. */
+  'payout_run.approved': { runId: string }
   /** Paystack sent a refund.* webhook for this transaction: the refund-settle job checks. */
   'refund.provider_updated': { reference: string }
   /** Replies and mentions are waiting for one digest email (a busy hour). */

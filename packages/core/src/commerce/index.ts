@@ -71,6 +71,7 @@ export {
   generateStatement,
   instructorsWithActivity,
   listStatements,
+  monthLabel,
   monthRange,
   nextPayoutDate,
   type PayoutProblem,
@@ -94,6 +95,30 @@ export {
   searchOrders,
 } from './orders'
 export { markPaymentEventProcessed, paystackEventId, recordPaymentEvent } from './payment-events'
+export {
+  approvePayoutRun,
+  cosignPayoutRun,
+  type DraftResult,
+  draftPayoutRun,
+  duePayoutRuns,
+  getPayoutRun,
+  listMyPayouts,
+  listPayoutRuns,
+  type MyPayout,
+  type PayoutHoldReason,
+  type PayoutItemStatus,
+  type PayoutItemView,
+  type PayoutRunDetail,
+  type PayoutRunStatus,
+  type PayoutRunSummary,
+  payoutRunCsv,
+  preparePayoutRun,
+  retryPayoutItem,
+  sendPayoutBatch,
+  setPayoutItemHold,
+  settlePayoutTransfer,
+  settleSentPayouts,
+} from './payouts'
 export {
   announceCoupon,
   type PriceDropInput,

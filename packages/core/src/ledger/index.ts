@@ -20,6 +20,7 @@ export {
   balances,
   checkLedgerIntegrity,
   entriesFor,
+  instructorBalancesAtLeast,
   type JournalEntryView,
   type LedgerIntegrityReport,
   listEntries,

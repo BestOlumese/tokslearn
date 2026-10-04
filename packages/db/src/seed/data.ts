@@ -5,6 +5,8 @@ export const seedSettings: ReadonlyArray<{ key: string; value: unknown }> = [
   { key: 'refund_consumption_threshold_pct', value: 30 },
   { key: 'min_payout_kobo', value: '500000' },
   { key: 'payout_day', value: 5 },
+  // ADR-046: a payout run above this total needs a super admin's co-signature too (₦5,000,000).
+  { key: 'payout_cosign_threshold_kobo', value: '500000000' },
   // docs/08 §4: Paystack's fee is shared by line and commission rate unless set to 'platform'.
   { key: 'gateway_fee_bearer', value: 'proportional' },
   // docs/08 §10, ADR Q6: off until the accountant confirms VAT on commission.

@@ -1,7 +1,7 @@
 import * as commerce from '@tokslearn/core/commerce'
 import { createCtx, systemActor } from '@tokslearn/core/kernel'
 import { getDb } from '@tokslearn/db'
-import { requestPaystackCharge, requestRefundSettle } from '@tokslearn/jobs'
+import { requestPayoutSettle, requestPaystackCharge, requestRefundSettle } from '@tokslearn/jobs'
 import { getProviders } from '@/lib/auth'
 import { requestIdFrom } from '@/lib/request'
 
@@ -9,7 +9,8 @@ import { requestIdFrom } from '@/lib/request'
 // record the event once, hand charge.success to the paystack-charge job and answer 200 fast.
 // The job asks Paystack for the transaction itself, so the body is never trusted for amounts.
 // refund.* events hand the transaction to the refund-settle job, which fetches each refund from
-// Paystack (ADR-043). Transfer events arrive with payouts; until then they are recorded and ignored.
+// Paystack (ADR-043). transfer.* events name our payout reference: the payout-settle job asks
+// Paystack about it (ADR-046).
 
 export async function POST(request: Request) {
   const raw = await request.text()
@@ -43,6 +44,24 @@ export async function POST(request: Request) {
       payload: { event, reference: ref },
     })
     if (seen === 'new') await requestRefundSettle({ reference: ref, eventId })
+    return new Response('ok', { status: 200 })
+  }
+  // Transfer events carry our payout reference; the job checks the transfer with Paystack.
+  if (event?.startsWith('transfer.')) {
+    const ref = body.data?.reference
+    if (typeof ref !== 'string') return new Response('ignored', { status: 200 })
+    const ctx = createCtx({
+      actor: systemActor('paystack-webhook'),
+      db: getDb(),
+      requestId: requestIdFrom(request.headers),
+    })
+    const eventId = `${event}:${ref}`
+    const seen = await commerce.recordPaymentEvent(ctx, {
+      eventId,
+      type: event,
+      payload: { event, reference: ref },
+    })
+    if (seen === 'new') await requestPayoutSettle({ reference: ref, eventId })
     return new Response('ok', { status: 200 })
   }
   const reference = typeof body.data?.reference === 'string' ? body.data.reference : null

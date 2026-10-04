@@ -54,6 +54,7 @@ import { liveRouter, studioLiveRouter } from './procedures/live'
 import { meRouter } from './procedures/me'
 import { mediaRouter } from './procedures/media'
 import { notificationsRouter } from './procedures/notifications'
+import { adminPayoutsRouter } from './procedures/payouts'
 import { adminRefundsRouter, refundsRouter } from './procedures/refunds'
 import { adminReviewsRouter, reviewsRouter, studioReviewsRouter } from './procedures/reviews'
 import { catalogCategoriesHandler, studioRouter } from './procedures/studio'
@@ -94,6 +95,7 @@ export const router = impl.router({
     moderation: adminModerationRouter,
     reviews: adminReviewsRouter,
     refunds: adminRefundsRouter,
+    payouts: adminPayoutsRouter,
   },
   cart: cartRouter,
   wishlist: wishlistRouter,

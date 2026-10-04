@@ -18,8 +18,9 @@
 | `order-abandon` | cron daily | Mark stale pending orders abandoned (now in `commerce-hourly`, which also re-checks refunds sent over an hour ago) |
 | `earnings-release` | cron daily 02:00 WAT | Pending → available once each sale's refund window has closed, 500 per step (ADR-044) |
 | `monthly-statements` | cron 1st of month 06:00 WAT | One PDF statement per instructor with activity last month, stored in R2, notice + `monthly-statement` email; once per instructor and month (ADR-044) |
-| `payout-run-draft` | cron 1st of month 06:00 WAT | Create draft payout run |
-| `payout-run-process` | cron 5th of month 09:00 WAT (next business day if needed), only runs approved runs | Bulk transfers in chunks |
+| `payout-run-draft` | cron 1st of month 06:00 WAT | Create the month's draft run; email finance (ADR-046) |
+| `payout-run-process` | cron daily 09:05 WAT + `payout_run.approved` | For approved runs whose pay day has come: re-check, move to in_transit, Paystack bulk transfers of 100, 5 s apart |
+| `payout-settle` | Paystack `transfer.*` webhook | Verify the transfer with Paystack; settle the ledger, mark sales paid, email `payout-sent`/`payout-failed` (the hourly money job checks transfers sent over an hour ago) |
 | `refund-process` | `refund.approved` | Call Paystack refund |
 | `ledger-integrity` | cron daily 03:00 WAT | Balance checks, alert |
 | `video-status` | `webhook/bunny.received` | Update asset, durations |

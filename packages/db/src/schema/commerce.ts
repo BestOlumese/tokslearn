@@ -297,6 +297,8 @@ export const orderItems = pgTable(
     status: orderItemStatusEnum().notNull().default('active'),
     earningStatus: earningStatusEnum().notNull().default('pending'),
     nonRefundableReason: nonRefundableReasonEnum(),
+    /** The payout item that paid this share out (ADR-046), so a reversed transfer can undo it. */
+    payoutItemId: uuid(),
   },
   (t) => [
     index().on(t.orderId),
@@ -305,6 +307,7 @@ export const orderItems = pgTable(
     index().on(t.cohortId),
     index().on(t.referralLinkId),
     index().on(t.instructorId, t.earningStatus),
+    index().on(t.payoutItemId),
     index('order_items_release_due')
       .on(t.refundableUntil)
       .where(sql`${t.earningStatus} = 'pending'`),

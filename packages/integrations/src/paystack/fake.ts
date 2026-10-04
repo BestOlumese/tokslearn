@@ -1,6 +1,7 @@
 import { ProviderError } from '../shared/http'
 import { isValidPaystackSignature } from './signature'
-import type { PaymentProvider, PayoutProvider, RefundStatus } from './types'
+import { transferFeeKobo } from './transfer'
+import type { PaymentProvider, PayoutProvider, RefundStatus, TransferStatus } from './types'
 
 type Outcome = 'success' | 'failed' | 'abandoned' | 'pending' | 'amount_mismatch' | 'unreachable'
 
@@ -98,6 +99,18 @@ export function createFakePaystack(secretKey = 'sk_test_fake') {
 export function createFakePayouts() {
   const names = new Map<string, string>()
   const recipients: Array<{ name: string; bankCode: string; last4: string }> = []
+  const transfers = new Map<
+    string,
+    {
+      amountKobo: bigint
+      recipientCode: string
+      transferCode: string
+      status: TransferStatus
+      reason: string | null
+    }
+  >()
+  let transfersDown: string | null = null
+  let timeoutAfterAccept = false
   const provider: PayoutProvider = {
     async listBanks() {
       return [
@@ -117,10 +130,61 @@ export function createFakePayouts() {
       recipients.push({ name, bankCode, last4: accountNumber.slice(-4) })
       return { recipientCode: `RCP_fake${recipients.length}` }
     },
+    async bulkTransfer(batch) {
+      if (transfersDown)
+        throw new ProviderError('paystack', 400, `bulk transfer refused: ${transfersDown}`)
+      // Like Paystack, a reference already used is refused (the whole batch).
+      if (batch.some((t) => transfers.has(t.reference))) {
+        throw new ProviderError('paystack', 400, 'bulk transfer refused: duplicate reference')
+      }
+      const queued = batch.map((t) => {
+        const transferCode = `TRF_fake${transfers.size + 1}`
+        transfers.set(t.reference, {
+          amountKobo: t.amountKobo,
+          recipientCode: t.recipientCode,
+          transferCode,
+          status: 'pending',
+          reason: null,
+        })
+        return { reference: t.reference, transferCode, status: 'pending' as const }
+      })
+      if (timeoutAfterAccept) {
+        timeoutAfterAccept = false
+        throw new ProviderError('paystack', null, 'timed out')
+      }
+      return queued
+    },
+    async fetchTransfer(reference) {
+      const t = transfers.get(reference)
+      if (!t) return null
+      return {
+        status: t.status,
+        transferCode: t.transferCode,
+        amountKobo: t.amountKobo,
+        feeKobo: t.status === 'success' ? transferFeeKobo(t.amountKobo) : null,
+        failureReason: t.reason,
+      }
+    },
   }
   return {
     provider,
     recipients,
+    transfers,
+    /** What Paystack would report later (the webhook's job). */
+    settleTransfer: (reference: string, status: TransferStatus, reason: string | null = null) => {
+      const t = transfers.get(reference)
+      if (!t) throw new Error(`no fake transfer ${reference}`)
+      t.status = status
+      t.reason = reason
+    },
+    /** The next bulk call reaches Paystack (transfers queued) but the answer never comes back. */
+    timeOutAfterAccepting: () => {
+      timeoutAfterAccept = true
+    },
+    /** Every bulk call fails with this message until cleared (e.g. a low balance). */
+    setTransfersDown: (message: string | null) => {
+      transfersDown = message
+    },
     setAccountName: (accountNumber: string, name: string) => names.set(accountNumber, name),
   }
 }

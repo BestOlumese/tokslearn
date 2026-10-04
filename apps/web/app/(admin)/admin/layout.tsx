@@ -13,8 +13,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <SiteChrome>
       <QueryProvider>
-        <div className="mx-auto grid max-w-catalog gap-6 px-4 pt-6 sm:px-6 md:grid-cols-[210px_minmax(0,1fr)] md:gap-10 md:pt-10 lg:px-8">
-          <div>
+        <div className="mx-auto grid max-w-catalog grid-cols-[minmax(0,1fr)] gap-6 px-4 pt-6 sm:px-6 md:grid-cols-[210px_minmax(0,1fr)] md:gap-10 md:pt-10 lg:px-8">
+          {/* min-w-0: on phones the nav scrolls sideways inside the page instead of widening it. */}
+          <div className="min-w-0">
             <p className="mb-4 hidden px-3 text-body-sm font-semibold text-ink md:block">
               Back office
             </p>
