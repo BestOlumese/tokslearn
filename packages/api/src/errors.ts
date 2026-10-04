@@ -6,7 +6,7 @@ import {
   errorMessage,
   errorStatusOf,
 } from '@tokslearn/contract'
-import { isDomainError, log } from '@tokslearn/core/kernel'
+import { ExternalServiceError, isDomainError, log } from '@tokslearn/core/kernel'
 
 const fallbackCode: Partial<Record<string, ErrorCode>> = {
   UNAUTHORIZED: 'SESSION_EXPIRED',
@@ -34,6 +34,16 @@ const build = (
  * error stays in `cause` for Sentry and is never sent to the client.
  */
 export function toApiError(error: unknown, requestId: string): ORPCError<string, unknown> {
+  if (error instanceof ExternalServiceError) {
+    // The learner sees "try again shortly"; the logs say what the provider answered (status and
+    // message, never keys), so a rejected key or a suspended account is visible in Vercel.
+    log('warn', 'provider call failed', {
+      requestId,
+      code: error.code,
+      cause: error.cause instanceof Error ? error.cause.message : String(error.cause ?? ''),
+      status: (error.cause as { status?: unknown } | undefined)?.status ?? null,
+    })
+  }
   if (isDomainError(error)) return build(error.code, requestId, error.details, error)
 
   if (error instanceof ORPCError) {

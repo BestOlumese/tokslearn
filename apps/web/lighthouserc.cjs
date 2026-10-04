@@ -30,13 +30,12 @@ module.exports = {
         // extra connection against LCP (+~1.4 s on /categories, 2026-09-30). Measure what
         // visitors get: production has no toolbar.
         blockedUrlPatterns: ['*vercel.live*'],
+        // Lighthouse sends extra headers on every request, so no bypass cookie is needed. Asking
+        // for one (`x-vercel-set-bypass-cookie`) makes Vercel answer the first request with a
+        // redirect, a round trip visitors never pay that the slow-4G simulation adds to LCP
+        // (/courses, 2026-10-04: 1.7–1.9 s with it, 1.26–1.34 s without, same preview).
         ...(bypass
-          ? {
-              extraHeaders: JSON.stringify({
-                'x-vercel-protection-bypass': bypass,
-                'x-vercel-set-bypass-cookie': 'true',
-              }),
-            }
+          ? { extraHeaders: JSON.stringify({ 'x-vercel-protection-bypass': bypass }) }
           : {}),
       },
     },
