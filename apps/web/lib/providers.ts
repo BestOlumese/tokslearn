@@ -16,7 +16,7 @@ import {
   type PaymentProvider,
   type PayoutProvider,
 } from '@tokslearn/integrations/paystack'
-import type { CertificateRenderer } from '@tokslearn/integrations/pdf'
+import type { CertificateRenderer, StatementRenderer } from '@tokslearn/integrations/pdf'
 import { createFakeStorage, createR2Storage, type FileStorage } from '@tokslearn/integrations/r2'
 import { createClickCounter } from '@tokslearn/integrations/upstash'
 import { env } from '@/env'
@@ -156,6 +156,14 @@ const certificatePdf: CertificateRenderer = {
   },
 }
 
+/** Monthly statement PDFs, loaded on first use like certificates. */
+const statementPdf: StatementRenderer = {
+  async render(data) {
+    const { createStatementRenderer } = await import('@tokslearn/integrations/pdf-render')
+    return createStatementRenderer().render(data)
+  },
+}
+
 /**
  * Providers injected into every core Ctx. `sessions` is added by lib/auth.ts to avoid an import
  * cycle (the auth instance itself needs a Ctx for its hooks).
@@ -183,6 +191,7 @@ export function baseProviders(): Omit<Providers, 'sessions'> {
       return redis ? createClickCounter(redis) : undefined
     },
     certificatePdf,
+    statementPdf,
     unsubscribe: unsubscribeLinks(),
     urls: { app: env.NEXT_PUBLIC_APP_URL, cdn: env.NEXT_PUBLIC_CDN_URL ?? null },
   }

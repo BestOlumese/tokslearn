@@ -14,6 +14,7 @@ import {
   Percent,
   Receipt,
   ScrollText,
+  Settings,
   ShieldAlert,
   ShieldCheck,
   Star,
@@ -22,6 +23,7 @@ import {
   UserRound,
   Users,
   Video,
+  Wallet,
 } from 'lucide-react'
 import type { SideNavGroup } from '@/components/side-nav-links'
 
@@ -109,6 +111,13 @@ export const studioNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [
       { href: '/teach/coupons', label: 'Coupons', icon: icon(TicketPercent) },
       { href: '/teach/referrals', label: 'Referral links', icon: icon(Link2) },
+    ],
+  },
+  {
+    label: 'Money',
+    items: [
+      { href: '/teach/earnings', label: 'Earnings', icon: icon(Wallet) },
+      { href: '/teach/settings', label: 'Settings', icon: icon(Settings) },
     ],
   },
 ]

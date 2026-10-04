@@ -138,6 +138,19 @@ export interface EmailData {
     body: string
     url: string
   }
+  'monthly-statement': {
+    name: string
+    /** e.g. "September 2026". */
+    monthLabel: string
+    sales: number
+    /** Kobo as strings. */
+    shareKobo: string
+    refundedKobo: string
+    paidOutKobo: string
+    availableKobo: string
+    /** /teach/earnings, where the PDF is. */
+    url: string
+  }
   'refund-update': {
     name: string
     courseTitle: string
@@ -238,6 +251,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'activity-digest': 'activity',
   'wishlist-price-drop': 'marketing',
   'refund-update': 'transactional',
+  'monthly-statement': 'transactional',
   'live-reminder-24h': 'activity',
   'live-reminder-15m': 'activity',
 }

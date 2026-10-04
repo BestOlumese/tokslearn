@@ -23,7 +23,8 @@ export function IdentityStep({
 }: {
   state: MyApplicationDto
   onSaved: (next: MyApplicationDto) => void
-  onContinue: () => void
+  /** The wizard's next step; absent on `/teach/settings`. */
+  onContinue?: () => void
 }) {
   const kyc = state.kyc
   const [method, setMethod] = useState<'bvn' | 'nin'>(kyc?.method ?? 'bvn')
@@ -51,7 +52,7 @@ export function IdentityStep({
             ? 'Your identity is verified.'
             : 'We found your record. A reviewer will compare your selfie and name by hand when they look at your application; you can carry on.'
         }
-        footer={<Button onClick={onContinue}>Continue</Button>}
+        footer={onContinue ? <Button onClick={onContinue}>Continue</Button> : undefined}
       >
         <dl className="grid gap-4 sm:grid-cols-3">
           <div>

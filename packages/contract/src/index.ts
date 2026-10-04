@@ -52,6 +52,12 @@ import {
 import { liveContract, studioLiveContract } from './live'
 
 export {
+  EarningLineDto,
+  EarningLineStatus,
+  EarningsSummaryDto,
+  StatementDto,
+} from './earnings'
+export {
   NotificationDto,
   NotificationPreferenceDto,
   NotificationType,
@@ -64,6 +70,7 @@ export {
   RefundStatus,
 } from './refunds'
 
+import { earningsContract } from './earnings'
 import { notificationsContract } from './notifications'
 import { adminRefundsContract, refundsContract } from './refunds'
 
@@ -142,6 +149,7 @@ export type Contract = {
   reviews: typeof reviewsContract
   notifications: typeof notificationsContract
   refunds: typeof refundsContract
+  earnings: typeof earningsContract
 }
 
 export const contract: Contract = {
@@ -203,6 +211,7 @@ export const contract: Contract = {
   reviews: reviewsContract,
   notifications: notificationsContract,
   refunds: refundsContract,
+  earnings: earningsContract,
 }
 
 export {

@@ -1,17 +1,20 @@
 'use client'
-// Client component: application step 4, the payout bank account (docs/07 §5 step 4).
+// Client component: application step 4, the payout bank account (docs/07 §5 step 4). Also the
+// payout account section of `/teach/settings`, where an instructor can replace it (2FA, 72 h hold).
 
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { errorMessage, type MyApplicationDto } from '@tokslearn/contract'
 import { Badge } from '@tokslearn/ui/badge'
-import { Button } from '@tokslearn/ui/button'
+import { Button, buttonClasses } from '@tokslearn/ui/button'
 import { Field } from '@tokslearn/ui/field'
 import { Input } from '@tokslearn/ui/input'
 import { Select } from '@tokslearn/ui/select'
+import Link from 'next/link'
 import { useState } from 'react'
 import { SettingsPanel } from '@/components/account/settings-panel'
 import { FormAlert } from '@/components/auth/form-alert'
-import { apiErrorMessage } from '@/lib/api-error'
+import { apiErrorCode, apiErrorMessage } from '@/lib/api-error'
+import { formatDateTime } from '@/lib/format'
 import { api, orpc } from '@/lib/orpc'
 
 export function BankStep({
@@ -19,13 +22,19 @@ export function BankStep({
   onSaved,
   onContinue,
   onVerifyIdentity,
+  stepUpPath,
 }: {
   state: MyApplicationDto
   onSaved: (next: MyApplicationDto) => void
-  onContinue: () => void
+  /** The wizard's next step; absent on `/teach/settings`. */
+  onContinue?: () => void
   onVerifyIdentity: () => void
+  /** Where the 2FA step-up returns to; set where the account can be replaced. */
+  stepUpPath?: string
 }) {
-  const account = state.payoutAccount
+  const [changing, setChanging] = useState(false)
+  const account = changing ? null : state.payoutAccount
+  const current = state.payoutAccount
   const identityDone = state.kyc?.status === 'verified' || state.kyc?.status === 'manual_review'
   const [bankCode, setBankCode] = useState('')
   const [accountNumber, setAccountNumber] = useState('')
@@ -45,9 +54,15 @@ export function BankStep({
   )
   const add = useMutation(
     orpc.payoutAccounts.add.mutationOptions({
-      onSuccess: async () => onSaved(await api.instructors.getMyApplication()),
+      onSuccess: async () => {
+        setChanging(false)
+        onSaved(await api.instructors.getMyApplication())
+      },
       onError: (e) => setError(apiErrorMessage(e)),
     }),
+  )
+  const needs2fa = ['STEP_UP_REQUIRED', 'TWO_FACTOR_REQUIRED'].includes(
+    apiErrorCode(add.error) ?? '',
   )
 
   if (!identityDone) {
@@ -71,11 +86,21 @@ export function BankStep({
         id="step-bank"
         title="Bank account"
         description={
-          account.status === 'active'
-            ? 'Payouts go to this account on the 5th of each month.'
-            : errorMessage('BANK_NAME_MISMATCH')
+          account.status !== 'active'
+            ? errorMessage('BANK_NAME_MISMATCH')
+            : new Date(account.payoutsAllowedFrom) > new Date()
+              ? `This account is new, so payouts to it start after ${formatDateTime(account.payoutsAllowedFrom)}. That gives you time to stop a change you didn’t make.`
+              : 'Payouts go to this account on the 5th of each month.'
         }
-        footer={<Button onClick={onContinue}>Continue</Button>}
+        footer={
+          onContinue ? (
+            <Button onClick={onContinue}>Continue</Button>
+          ) : stepUpPath ? (
+            <Button variant="secondary" onClick={() => setChanging(true)}>
+              Change account
+            </Button>
+          ) : undefined
+        }
       >
         <dl className="grid gap-4 sm:grid-cols-3">
           <div>
@@ -124,13 +149,40 @@ export function BankStep({
         title="Bank account"
         description="Where we send your earnings. The account must be in your name; we compare it with your verified identity."
         footer={
-          <Button type="submit" loading={add.isPending} disabled={!resolvedName}>
-            Save this account
-          </Button>
+          <>
+            {current ? (
+              <Button type="button" variant="tertiary" onClick={() => setChanging(false)}>
+                Keep {current.bankName} •••• {current.accountNumberLast4}
+              </Button>
+            ) : null}
+            <Button type="submit" loading={add.isPending} disabled={!resolvedName}>
+              Save this account
+            </Button>
+          </>
         }
       >
         <div className="flex flex-col gap-5">
+          {current ? (
+            <FormAlert tone="info">
+              Changing your account needs your authenticator code. Payouts pause for 72 hours after
+              a change, and we email you about it.
+            </FormAlert>
+          ) : null}
           {error ? <FormAlert tone="error">{error}</FormAlert> : null}
+          {needs2fa && stepUpPath ? (
+            <Link
+              href={
+                apiErrorCode(add.error) === 'TWO_FACTOR_REQUIRED'
+                  ? '/account/settings/security'
+                  : `/two-factor?next=${encodeURIComponent(stepUpPath)}`
+              }
+              className={buttonClasses({ variant: 'secondary', className: 'self-start' })}
+            >
+              {apiErrorCode(add.error) === 'TWO_FACTOR_REQUIRED'
+                ? 'Set up two-factor'
+                : 'Enter my code'}
+            </Link>
+          ) : null}
           <div className="grid gap-5 sm:grid-cols-2">
             <Field id="bank" label="Bank">
               {(p) => (

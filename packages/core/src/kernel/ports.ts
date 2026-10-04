@@ -2,7 +2,7 @@ import type { VideoProvider } from '@tokslearn/integrations/bunny'
 import type { LiveProvider } from '@tokslearn/integrations/daily'
 import type { KycProvider } from '@tokslearn/integrations/dojah'
 import type { PaymentProvider, PayoutProvider } from '@tokslearn/integrations/paystack'
-import type { CertificateRenderer } from '@tokslearn/integrations/pdf'
+import type { CertificateRenderer, StatementRenderer } from '@tokslearn/integrations/pdf'
 import type { FileStorage } from '@tokslearn/integrations/r2'
 
 /**
@@ -60,4 +60,6 @@ export interface Providers {
   unsubscribe: UnsubscribeLinks
   /** Certificate PDFs (@react-pdf in the app, a fake in tests). */
   certificatePdf: CertificateRenderer
+  /** Monthly earnings statement PDFs. */
+  statementPdf: StatementRenderer
 }

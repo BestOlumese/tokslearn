@@ -32,13 +32,18 @@ export function createBunnyStream(config: BunnyConfig): VideoProvider {
     libraryId: config.libraryId,
 
     async createVideo({ title }) {
-      const { status, body } = await providerJson<{ guid?: string }>(
+      const { status, body } = await providerJson<{ guid?: string; Message?: string }>(
         'bunny',
         `${API}/library/${lib}/videos`,
         { method: 'POST', headers, body: JSON.stringify({ title: title.slice(0, 200) }) },
       )
       if (status !== 200 || !body?.guid) {
-        throw new ProviderError('bunny', status, 'video not created')
+        // Bunny explains refusals (bad key, wrong library, suspended account) in `Message`.
+        throw new ProviderError(
+          'bunny',
+          status,
+          `video not created (${status}${body?.Message ? `: ${body.Message.slice(0, 200)}` : ''})`,
+        )
       }
       return { videoId: body.guid }
     },

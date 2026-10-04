@@ -21,6 +21,7 @@ export const filePurposeEnum = pgEnum('file_purpose', [
   'avatar',
   'certificate',
   'exam_evidence',
+  'statement',
   'other',
 ])
 

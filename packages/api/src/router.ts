@@ -38,6 +38,7 @@ import {
   wishlistRouter,
 } from './procedures/commerce'
 import { adminModerationRouter, communityRouter } from './procedures/community'
+import { earningsRouter } from './procedures/earnings'
 import { healthRouter } from './procedures/health'
 import { instructorsRouter, kycRouter, payoutAccountsRouter } from './procedures/instructors'
 import {
@@ -117,6 +118,7 @@ export const router = impl.router({
   reviews: reviewsRouter,
   notifications: notificationsRouter,
   refunds: refundsRouter,
+  earnings: earningsRouter,
 })
 
 export type Router = typeof router

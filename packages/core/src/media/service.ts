@@ -149,14 +149,14 @@ export async function getFiles(ctx: Ctx, ids: ReadonlyArray<string>) {
 }
 
 /**
- * Stores a file the platform made itself (certificate PDFs) in the private bucket. The upload
+ * Stores a file the platform made itself (certificate and statement PDFs) in the private bucket. The upload
  * happens before the row is written, so a row always points at a real object.
  */
 export async function storeGeneratedFile(
   ctx: Ctx,
   input: {
     ownerId: string
-    purpose: 'certificate'
+    purpose: 'certificate' | 'statement'
     bytes: Uint8Array
     mime: 'application/pdf'
     originalName: string

@@ -14,6 +14,8 @@
 
 First-load JS is measured by `scripts/check-bundle-size.mjs` on the production build (gzip, `noModule` polyfills excluded). The Next.js 16 + React 19 runtime alone is ~130 KB of it, so app code on public pages gets ~15 KB (ADR-026).
 
+How CI measures (ADR-045): category scores and CLS with Lighthouse's simulated slow 4G; LCP in a second pass under real slow-4G throttling (`LHCI_PASS=lcp`), median of 3 runs.
+
 Checked routes: `/`, `/courses`, `/courses/[slug]` (a seeded course), `/instructors/[slug]`, `/verify/[code]`, `/sign-in`.
 
 ## 2. Rendering rules
