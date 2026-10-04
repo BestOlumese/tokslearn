@@ -1,4 +1,5 @@
 import {
+  Activity,
   Award,
   Banknote,
   Bell,
@@ -8,8 +9,10 @@ import {
   FileCheck2,
   Flag,
   FolderTree,
+  GraduationCap,
   KeyRound,
   Layers,
+  LayoutDashboard,
   Link2,
   MessageCircleQuestion,
   Percent,
@@ -18,6 +21,7 @@ import {
   Settings,
   ShieldAlert,
   ShieldCheck,
+  SlidersHorizontal,
   Star,
   TicketPercent,
   Undo2,
@@ -53,11 +57,15 @@ export const settingsNavGroups: ReadonlyArray<SideNavGroup> = [
 export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
   {
     label: 'People',
-    items: [{ href: '/admin/users', label: 'Users', icon: icon(Users) }],
+    items: [
+      { href: '/admin', label: 'Dashboard', icon: icon(LayoutDashboard) },
+      { href: '/admin/users', label: 'Users', icon: icon(Users) },
+    ],
   },
   {
     label: 'Instructors',
     items: [
+      { href: '/admin/instructors', label: 'Instructors', icon: icon(GraduationCap) },
       {
         href: '/admin/instructors/applications',
         label: 'Applications',
@@ -90,6 +98,12 @@ export const adminNavGroups: ReadonlyArray<SideNavGroup> = [
     items: [
       { href: '/admin/moderation', label: 'Moderation', icon: icon(ShieldAlert) },
       { href: '/admin/audit', label: 'Audit log', icon: icon(ScrollText) },
+      { href: '/admin/jobs', label: 'Background jobs', icon: icon(Activity) },
+      {
+        href: '/admin/settings/platform',
+        label: 'Platform settings',
+        icon: icon(SlidersHorizontal),
+      },
       { href: '/admin/settings/flags', label: 'Feature flags', icon: icon(Flag) },
     ],
   },

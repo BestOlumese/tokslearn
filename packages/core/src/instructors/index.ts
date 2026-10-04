@@ -23,3 +23,13 @@ export {
   startKyc,
   submitApplication,
 } from './service'
+export {
+  getInstructorDetail,
+  type InstructorDetail,
+  type InstructorRow,
+  issueStrike,
+  listInstructors,
+  revokeStrike,
+  STRIKE_LIMIT,
+  type StrikeView,
+} from './staff'

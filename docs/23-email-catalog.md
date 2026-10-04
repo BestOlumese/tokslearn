@@ -54,6 +54,7 @@ Every email has: `id`, trigger, recipient, subject, content outline, category
 | `activity-digest` | more than 5 replies, answers or mentions in an hour (`notification-digest`) | {n} new replies and mentions on Tokslearn | Up to 20 lines, each linked; "and {n} more"; button to `/account/notifications` (ADR-041) | activity |
 | `new-review` | a learner's first review of a course (not edits) | New {rating}-star review on {course} | Stars, excerpt (280 characters) or "without writing a review", button to `/teach/reviews?course=` | activity |
 | `grading-backlog` | weekly if queue > 0 | {n} submissions waiting for grading | Oldest age, queue link | activity |
+| `instructor-strike` | staff record a content-policy strike (ADR-047) | A content-policy strike was added to your account ({n} of 3) | Rule, reason, how many in 12 months, what happens at 3, policy link, reply to dispute | transactional |
 | `payout-sent` | transfer success | Your payout of {amount} is on its way | Amount, bank (last 4), month, link to `/teach/earnings` (ADR-046) | transactional |
 | `payout-failed` | transfer failed | We couldn't send your payout | Reason, money back in available, fix bank details button (`/teach/settings`), will retry next run. Not sent when Paystack refused the batch on our side (ADR-046) | transactional |
 | `payout-account-changed` | bank change | Your payout bank account was changed | New bank last 4, 72-hour hold, "not you?" | security |

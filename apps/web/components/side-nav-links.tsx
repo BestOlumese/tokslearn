@@ -25,8 +25,19 @@ export function SideNavLinks({
   activeHref: string | null
   match?: 'exact' | 'prefix'
 }) {
+  // Prefix mode: the longest link that contains the page wins, so `/admin` (the dashboard) and
+  // `/admin/instructors` don't light up on `/admin/instructors/applications`.
+  const contains = (href: string) =>
+    activeHref !== null && (activeHref === href || activeHref.startsWith(`${href}/`))
+  const best =
+    match === 'prefix'
+      ? groups
+          .flatMap((g) => g.items.map((i) => i.href))
+          .filter(contains)
+          .sort((a, b) => b.length - a.length)[0]
+      : undefined
   const isActive = (href: string) =>
-    activeHref !== null && (match === 'exact' ? activeHref === href : activeHref.startsWith(href))
+    activeHref !== null && (match === 'exact' ? activeHref === href : href === best)
   return (
     // min-w-0: as a grid item on phones the nav would otherwise widen the page to fit its row
     // instead of scrolling it.

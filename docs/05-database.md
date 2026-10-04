@@ -33,6 +33,7 @@ Column lists show the important fields; add `id`, `created_at`, `updated_at` to 
 - `kyc_checks`: `user_id`, `provider` ('dojah'), `method` enum(bvn, nin), `status` enum(pending, verified, failed, manual_review), `provider_reference`, `matched_name`, `face_match_score numeric(5,2)`, `raw_result_redacted jsonb`, `verified_at`. **Never store the BVN/NIN itself.**
 - `payout_accounts`: `user_id`, `bank_code`, `bank_name`, `account_number_last4`, `account_name`, `paystack_recipient_code`, `status` enum(active, pending_review, disabled), `name_match_score`. Full account number goes to Paystack when creating the recipient; store last 4 only.
 - `instructor_profiles`: `user_id` pk, `slug` unique, `display_name`, `approved_at`, `commission_override_id` nullable, `stats jsonb` (denormalized counters, refreshed by job).
+- `instructor_strikes`: `instructor_id`, `rule`, `reason`, `course_id` nullable, `issued_by`, `revoked_at`, `revoked_by`, `revoke_reason`. Count = not revoked, last 12 months (ADR-047).
 
 ### catalog
 - `categories`: `slug` unique, `name`, `parent_id`, `position`.

@@ -60,6 +60,8 @@ export const errorCatalog = {
   FILE_NOT_FOUND: notFound('file'),
   SESSION_NOT_FOUND: notFound('session'),
   FEATURE_FLAG_NOT_FOUND: notFound('feature flag'),
+  SETTING_NOT_FOUND: notFound('setting'),
+  STRIKE_NOT_FOUND: notFound('strike'),
   APPLICATION_NOT_FOUND: notFound('application'),
   CATEGORY_NOT_FOUND: notFound('category'),
   SECTION_NOT_FOUND: notFound('section'),

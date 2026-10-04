@@ -151,6 +151,17 @@ export interface EmailData {
     /** /teach/earnings, where the PDF is. */
     url: string
   }
+  'instructor-strike': {
+    name: string
+    /** The content-policy rule, e.g. "A3 Rights". */
+    rule: string
+    reason: string
+    /** Strikes counting now (last 12 months, not revoked). */
+    active: number
+    limit: number
+    /** /content-policy */
+    url: string
+  }
   'payout-sent': {
     name: string
     /** Kobo as a string. */
@@ -288,6 +299,7 @@ export const emailCategory: Readonly<Record<EmailId, EmailCategory>> = {
   'wishlist-price-drop': 'marketing',
   'refund-update': 'transactional',
   'monthly-statement': 'transactional',
+  'instructor-strike': 'transactional',
   'payout-sent': 'transactional',
   'payout-failed': 'transactional',
   'staff-payout-run-ready': 'transactional',

@@ -21,8 +21,8 @@ Execute Phase 10.
 - [x] First-payout hold after bank change (72 h) + alert emails. (Hold and `payout-account-changed` from Phase 2; payout runs enforce it, ADR-046.)
 
 ### Admin back office
-- [ ] Dashboard (orders, revenue, refunds rate, failed payments, payout status, active learners).
-- [ ] Users, instructors, courses, orders, refunds, payouts, ledger explorer (read-only with filters), coupons, commission, settings, feature flags, reports/moderation queue, audit log viewer.
+- [x] Dashboard (orders, revenue, refunds rate, failed payments, payout status, active learners). PR 4a (ADR-047).
+- [x] Users, instructors, courses, orders, refunds, payouts, ledger explorer (read-only with filters), coupons, commission, settings, feature flags, reports/moderation queue, audit log viewer. (Instructors, platform settings and jobs in PR 4a; the user page's orders/enrolments/refunds come with the support tools.)
 - [ ] Support tools: impersonation (read-only, bannered, audited), resend receipt, grant enrollment (audited, `admin_grant`).
 
 ### Procedures

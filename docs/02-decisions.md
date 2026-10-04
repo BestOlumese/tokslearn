@@ -331,6 +331,23 @@ Add new ADRs at the bottom with the next number. Never delete an ADR; supersede 
 - **Instructors** see their payouts on `/teach/earnings` (`earnings.payouts`) once a run is approved; drafts stay internal.
 - **Deferred:** checking the Paystack balance before a run (a refused batch already surfaces it), and an alert to finance when a run partially fails (the run page shows it; the dashboard comes with PR 4).
 
+### ADR-047 Back office: dashboard, jobs, platform settings, instructors and strikes (Phase 10)
+- **Where the code lives (docs/03 §3):** dashboard numbers in `analytics` ("platform reports"), with foreign reads of orders, refunds, profiles, progress, videos and payout runs, and revenue from ledger movements. Settings and background-job status in `admin`, which owns settings, the outbox and webhook events. The instructor list, detail and strikes in `instructors`. Each foreign read is named in a comment in the reading file.
+- **Dashboard (`/admin`, any staff):** for today (from Lagos midnight), 7 or 30 days:
+  - **Orders and GMV:** orders paid in the period and what learners paid.
+  - **Revenue:** `platform:revenue` credits less debits, so refunds net out.
+  - **Refunds:** count, amount, and the rate (refunded items per item sold in the period).
+  - **Failed payments:** orders marked failed.
+  - **New instructors:** profiles approved in the period.
+  - **Active learners:** distinct learners with lesson progress in the period.
+  - **Alerts:** last ledger check failed (or never ran), outbox rows stuck over 15 minutes or failed, webhooks failed or unhandled over 15 minutes, videos failed this week, refunds waiting for finance, a payout run waiting for approval or partly failed. The nightly ledger check now records its result (`check:ledger_integrity` in settings), so the dashboard never re-runs the expensive check.
+- **`/admin/jobs` (admins):** outbox backlog and failures, and Paystack/Bunny/Daily notifications that failed or waited. Inngest's own run history stays in its dashboard; we don't call its API.
+- **Platform settings (`/admin/settings/platform`):** only keys the code reads: refund watched share and abuse limit, minimum payout, payout day, co-sign threshold, public holidays, Paystack fee bearer, and review eligibility (progress and minutes). Each has limits. Finance and admins can read; a super admin with a 2FA code from the last 12 hours can change them. Every change is audit-logged with before/after. Amounts are entered in naira and stored as kobo strings. `tax_rules` stays out until the accountant confirms (Q6). Upload size and live-class length are shown as fixed in code.
+- **Instructors (`/admin/instructors`, reviewer, finance, support, admin):** search, live courses, learners, available balance, active strikes. The detail page shows courses, ledger balances and all-time paid, bank and identity status, recent payouts, strikes, and links to suspension (user page) and commission overrides (super admin).
+- **Strikes (docs/25 §A):** `instructor_strikes` records rule, reason, optional course and who issued it. Reviewers and admins issue strikes; the instructor gets `instructor-strike` (in-app and email, always sent). Admins revoke with a reason, and the strike stays on record. Strikes count for 12 months; at 3 the page tells staff the policy removes instructor privileges. Removing the role or suspending stays a deliberate admin action on the user page, not automatic.
+- **Side nav:** in prefix mode the longest matching link is the active one, so the new Dashboard (`/admin`) and Instructors links don't light up on deeper pages.
+- **Acceptance check added:** finance can't change commission (`STAFF_ONLY`); a super admin without 2FA verified this session gets `STEP_UP_REQUIRED`, or `TWO_FACTOR_REQUIRED` with 2FA off.
+
 ---
 
 ## Open questions (resolve before the phase that needs them)

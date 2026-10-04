@@ -22,7 +22,7 @@
 | `payout-run-process` | cron daily 09:05 WAT + `payout_run.approved` | For approved runs whose pay day has come: re-check, move to in_transit, Paystack bulk transfers of 100, 5 s apart |
 | `payout-settle` | Paystack `transfer.*` webhook | Verify the transfer with Paystack; settle the ledger, mark sales paid, email `payout-sent`/`payout-failed` (the hourly money job checks transfers sent over an hour ago) |
 | `refund-process` | `refund.approved` | Call Paystack refund |
-| `ledger-integrity` | cron daily 03:00 WAT | Balance checks, alert |
+| `ledger-integrity` | cron daily 02:30 WAT | Balance checks, alert; records the result for the `/admin` dashboard (ADR-047) |
 | `video-status` | `webhook/bunny.received` | Update asset, durations |
 | `recording-import` | `live.recording_ready` (from the Daily webhook) | Bunny fetches Daily's recording; attach the video to the session (found by title when Bunny gives no id); check every 10 min for 2 h; delete Daily's copy when ready (ADR-039) |
 | `image-variants` | `file.uploaded` (image purposes) | Resize to WebP/AVIF |

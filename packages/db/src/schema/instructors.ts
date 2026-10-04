@@ -129,3 +129,29 @@ export const instructorProfiles = pgTable('instructor_profiles', {
   stats: jsonb().$type<Record<string, number>>().notNull().default({}),
   ...timestamps(),
 })
+
+/**
+ * Content-policy strikes (docs/25 §A Consequences, ADR-047). Three within 12 months means
+ * instructor privileges are removed; staff see the count on `/admin/instructors/[id]`. A revoked
+ * strike stays on record with who revoked it and why.
+ */
+export const instructorStrikes = pgTable(
+  'instructor_strikes',
+  {
+    ...baseColumns(),
+    instructorId: uuid()
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    /** The content-policy rule broken, e.g. "A3 Rights". */
+    rule: text().notNull(),
+    reason: text().notNull(),
+    courseId: uuid(),
+    issuedBy: uuid()
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    revokedAt: tstz(),
+    revokedBy: uuid().references(() => user.id, { onDelete: 'restrict' }),
+    revokeReason: text(),
+  },
+  (t) => [index().on(t.instructorId, t.createdAt)],
+)
