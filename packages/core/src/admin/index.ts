@@ -25,4 +25,24 @@ export {
   setFeatureFlag,
   writeAudit,
 } from './service'
+export {
+  listPlatformSettings,
+  type PlatformSetting,
+  parseSettingValue,
+  platformSettings,
+  type SettingDef,
+  type SettingGroup,
+  type SettingKind,
+  updatePlatformSetting,
+} from './settings'
+export {
+  type CheckResult,
+  lastCheckResult,
+  type OutboxProblem,
+  readStatus,
+  recordCheckResult,
+  type SystemStatus,
+  systemStatus,
+  type WebhookProblem,
+} from './status'
 export { markWebhookProcessed, recordWebhookEvent } from './webhooks'

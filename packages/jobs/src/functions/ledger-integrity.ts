@@ -1,3 +1,4 @@
+import * as admin from '@tokslearn/core/admin'
 import * as commerce from '@tokslearn/core/commerce'
 import { createCtx, log, systemActor } from '@tokslearn/core/kernel'
 import * as ledger from '@tokslearn/core/ledger'
@@ -7,7 +8,7 @@ import { jobRuntime } from '../runtime'
 /**
  * Nightly checks (docs/05 §5): every entry balanced, cached balances equal their lines, every
  * paid order has a sale entry and enrollments. A failure is logged as an error, which reaches
- * Sentry; finance also sees it on /admin/ledger.
+ * Sentry; finance also sees it on /admin/ledger, and staff on the /admin dashboard.
  */
 export const ledgerIntegrity = inngest.createFunction(
   {
@@ -27,7 +28,18 @@ export const ledgerIntegrity = inngest.createFunction(
         ledger.checkLedgerIntegrity(ctx),
         commerce.checkOrderIntegrity(ctx),
       ])
-      return { books, orders, ok: books.ok && orders.ok }
+      const ok = books.ok && orders.ok
+      // The dashboard shows the last result (ADR-047).
+      await admin.recordCheckResult(ctx, 'ledger_integrity', {
+        ok,
+        problems: {
+          unbalancedEntries: books.unbalancedEntries.length,
+          balanceMismatches: books.balanceMismatches.length,
+          ordersWithoutSaleEntry: orders.ordersWithoutSaleEntry.length,
+          ordersWithoutEnrollment: orders.ordersWithoutEnrollment.length,
+        },
+      })
+      return { books, orders, ok }
     })
     if (!report.ok) {
       log('error', 'ledger integrity check failed', {

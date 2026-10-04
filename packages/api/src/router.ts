@@ -11,6 +11,12 @@ import {
   studioQuizzesRouter,
 } from './procedures/assessments'
 import {
+  adminDashboardRouter,
+  adminInstructorStaffRouter,
+  adminJobsRouter,
+  adminSettingsRouter,
+} from './procedures/backoffice'
+import {
   catalogPublicRouter,
   coursesRouter,
   instructorProfileHandlers,
@@ -96,6 +102,10 @@ export const router = impl.router({
     reviews: adminReviewsRouter,
     refunds: adminRefundsRouter,
     payouts: adminPayoutsRouter,
+    dashboard: adminDashboardRouter,
+    jobs: adminJobsRouter,
+    settings: adminSettingsRouter,
+    instructors: { ...adminRouter.instructors, ...adminInstructorStaffRouter },
   },
   cart: cartRouter,
   wishlist: wishlistRouter,

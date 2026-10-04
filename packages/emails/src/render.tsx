@@ -13,6 +13,7 @@ import * as dataExportReady from './templates/data-export-ready'
 import * as deletionRequested from './templates/deletion-requested'
 import * as emailChangedOld from './templates/email-changed-old'
 import * as enrollmentFree from './templates/enrollment-free'
+import * as instructorStrike from './templates/instructor-strike'
 import * as kycResult from './templates/kyc-result'
 import * as lessonUnlocked from './templates/lesson-unlocked'
 import * as liveReminder from './templates/live-reminder'
@@ -122,6 +123,10 @@ const templates: { [Id in EmailId]: Template<Id> } = {
   'monthly-statement': {
     subject: monthlyStatement.subject,
     element: (d) => <monthlyStatement.MonthlyStatement {...d} />,
+  },
+  'instructor-strike': {
+    subject: instructorStrike.subject,
+    element: (d) => <instructorStrike.InstructorStrike {...d} />,
   },
   'payout-sent': {
     subject: payoutSent.subject,

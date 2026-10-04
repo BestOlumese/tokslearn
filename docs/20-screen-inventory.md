@@ -135,10 +135,10 @@ Left nav by role. Every destructive or money action: confirm dialog with reason 
 
 | Route | Roles | Content | Ph |
 |-------|-------|---------|----|
-| `/admin` | staff | KPIs (today/7d/30d): orders, GMV, platform revenue, refunds rate, failed payments, new instructors, active learners; alerts (ledger integrity, stuck jobs, video failures). | 10 |
+| `/admin` | staff | KPIs (today/7d/30d): orders, GMV, platform revenue, refunds rate, failed payments, new instructors, active learners; alerts (ledger integrity, stuck jobs, failed webhooks, video failures, refunds waiting, payout run waiting or partly failed) (ADR-047). | 10 |
 | `/admin/users`, `/admin/users/[id]` | support+ | Search; detail: profile, roles (admin edits), sessions, orders, enrollments, refunds, certificates, audit trail; actions: ban/unban, revoke sessions, impersonate (read-only), grant enrollment, resend receipt. | 1/10 |
 | `/admin/instructors/applications`, `/[id]` | reviewer+ | Queue with filters; detail: answers, sample, KYC result (status, score, matched name — no ID numbers), bank name match; approve/reject/request info. | 2 |
-| `/admin/instructors`, `/[id]` | reviewer+ | Instructor list; detail: courses, earnings summary, strikes, commission override (super admin), suspend. | 10 (Phase 2 ships the applications queue; the instructor list needs earnings and strikes, ADR-031) |
+| `/admin/instructors`, `/[id]` | reviewer+ | Instructor list (search; live courses, learners, available, strikes); detail: courses, money (balances, paid, recent payouts), bank and identity status, strikes (record: reviewer+, revoke: admin), links to commission override (super admin) and suspend (user page) (ADR-047). | 10 (Phase 2 ships the applications queue; the instructor list needs earnings and strikes, ADR-031) |
 | `/admin/reviews/courses`, `/[revisionId]` | reviewer+ | Course review queue; detail: revision diff, content preview (all lessons watchable), checklist, approve/request changes with notes. | 2 |
 | `/admin/courses` | reviewer+ | All courses, status filters, feature on home, unpublish with reason. | 3 |
 | `/admin/orders`, `/[id]` | finance, support | Orders search (public id, email, Paystack ref); detail with items, ledger entries, Paystack verify button (re-check). | 4 |
@@ -149,11 +149,11 @@ Left nav by role. Every destructive or money action: confirm dialog with reason 
 | `/admin/moderation` | support+ | Reports queue, one row per reported discussion or reply (report count, author, course, reason, excerpt, link); hide (resolves its reports) or dismiss. Reviews section (Phase 9): rating, learner, course, text, report count and reason; Hide, Dismiss. Courses join later; warn and suspend use `/admin/users`. | 8/9 |
 | `/admin/certificates` | support+ (revoke/restore: admin) | Search by code, email or name; revoke/restore with reason (audit-logged). | 7 |
 | `/admin/settings/commission` | super admin | Default rules per source, instructor overrides, promo rules with dates; change preview ("applies to orders from now on"). | 4 |
-| `/admin/settings/platform` | super admin | Refund threshold, payout min/day, co-sign threshold, fee bearer, review eligibility, limits (upload size, live max duration). | 4/10 |
+| `/admin/settings/platform` | super admin (finance, admin read) | Refund threshold and abuse limit, payout min/day, co-sign threshold, public holidays, fee bearer, review eligibility; each change needs 2FA and is audited; upload size and live max duration shown as fixed in code (ADR-047). | 4/10 |
 | `/admin/settings/flags` | admin | Feature flags. | 0 |
 | `/admin/categories` | admin | Category tree CRUD, ordering. | 3 |
 | `/admin/audit` | admin | Audit log search. | 1 |
-| `/admin/jobs` | admin | Links/status summary for Inngest failures, outbox backlog. | 10 |
+| `/admin/jobs` | admin | Outbox backlog (waiting, stuck over 15 min, failed with errors), provider notifications failed or unhandled, link to the Inngest dashboard (ADR-047). | 10 |
 | `/styleguide` | staff (and dev) | Tokens and components. | 0 |
 
 ## 7. System pages

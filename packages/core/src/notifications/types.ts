@@ -110,6 +110,13 @@ export const notificationTypes = {
     email: 'locked',
     inApp: true,
   },
+  'instructor.strike': {
+    group: 'teaching',
+    label: 'Content-policy strikes',
+    description: 'If Tokslearn records a strike against your account, with the rule and reason.',
+    email: 'locked',
+    inApp: true,
+  },
   'payout.sent': {
     group: 'teaching',
     label: 'Payouts sent',

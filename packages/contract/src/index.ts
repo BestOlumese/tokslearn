@@ -52,6 +52,14 @@ import {
 import { liveContract, studioLiveContract } from './live'
 
 export {
+  DashboardDto,
+  DashboardPeriod,
+  InstructorDetailDto,
+  type InstructorRowDto,
+  PlatformSettingDto,
+  SystemStatusDto,
+} from './backoffice'
+export {
   EarningLineDto,
   EarningLineStatus,
   EarningsSummaryDto,
@@ -79,6 +87,12 @@ export {
   RefundStatus,
 } from './refunds'
 
+import {
+  adminDashboardContract,
+  adminInstructorStaffContract,
+  adminJobsContract,
+  adminSettingsContract,
+} from './backoffice'
 import { earningsContract } from './earnings'
 import { notificationsContract } from './notifications'
 import { adminPayoutsContract } from './payouts'
@@ -136,6 +150,10 @@ export type Contract = {
     reviews: typeof adminReviewsContract
     refunds: typeof adminRefundsContract
     payouts: typeof adminPayoutsContract
+    dashboard: typeof adminDashboardContract
+    jobs: typeof adminJobsContract
+    settings: typeof adminSettingsContract
+    instructors: typeof adminContract.instructors & typeof adminInstructorStaffContract
   }
   cart: typeof cartContract
   wishlist: typeof wishlistContract
@@ -199,6 +217,10 @@ export const contract: Contract = {
     reviews: adminReviewsContract,
     refunds: adminRefundsContract,
     payouts: adminPayoutsContract,
+    dashboard: adminDashboardContract,
+    jobs: adminJobsContract,
+    settings: adminSettingsContract,
+    instructors: { ...adminContract.instructors, ...adminInstructorStaffContract },
   },
   cart: cartContract,
   wishlist: wishlistContract,

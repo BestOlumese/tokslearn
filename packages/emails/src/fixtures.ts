@@ -163,6 +163,14 @@ export const emailFixtures: { [Id in EmailId]: EmailData[Id] } = {
     availableKobo: '9104000',
     url: 'https://tokslearn.com/teach/earnings',
   },
+  'instructor-strike': {
+    name: 'Tobi',
+    rule: 'A3 Rights',
+    reason: 'Lesson 4 uses a paid template pack without a licence.',
+    active: 1,
+    limit: 3,
+    url: 'https://tokslearn.com/content-policy',
+  },
   'payout-sent': {
     name: 'Tobi',
     amountKobo: '9104000',

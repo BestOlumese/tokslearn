@@ -99,9 +99,18 @@ async function buy(
 describe('commission rules', () => {
   it('lets a super admin change defaults, add overrides and promos, and end them', async () => {
     await withRollback(async (db) => {
-      const { env, owner, superAdmin, admin } = await world(db)
+      const { env, owner, superAdmin, admin, finance } = await world(db)
       const sa = env.ctx(superAdmin)
       expect(await codeOf(listCommissionRules(env.ctx(admin)))).toBe('STAFF_ONLY')
+      // Phase 10 acceptance: finance can't change commission; a super admin needs 2FA this session.
+      const change = { source: 'platform_organic' as const, platformRateBps: 3500, note: 'Try.' }
+      expect(await codeOf(setDefaultRate(env.ctx(finance), change))).toBe('STAFF_ONLY')
+      expect(
+        await codeOf(setDefaultRate(env.ctx({ ...superAdmin, twoFactorVerifiedAt: null }), change)),
+      ).toBe('STEP_UP_REQUIRED')
+      expect(
+        await codeOf(setDefaultRate(env.ctx({ ...superAdmin, twoFactorEnabled: false }), change)),
+      ).toBe('TWO_FACTOR_REQUIRED')
       expect(
         await codeOf(
           setDefaultRate(sa, { source: 'platform_organic', platformRateBps: 10_001, note: 'x' }),
